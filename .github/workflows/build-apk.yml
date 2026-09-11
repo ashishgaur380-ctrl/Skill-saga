@@ -52,12 +52,24 @@ jobs:
           echo "Project directory: $PROJECT_DIR"
           echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
 
+            - name: Configure AndroidX
+        shell: bash
+        run: |
+          set -e
+          cd "$PROJECT_DIR"
+          printf "android.useAndroidX=true\nandroid.enableJetifier=true\n" > gradle.properties
+
       - name: Build debug APK
         shell: bash
         run: |
           set -e
           cd "$PROJECT_DIR"
           gradle assembleDebug --stacktrace
+        
+      
+  
+          
+    
 
       - name: Find APK
         shell: bash
