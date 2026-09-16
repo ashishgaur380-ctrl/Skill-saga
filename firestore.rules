@@ -16,8 +16,16 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
     }
 
+    // The production admin UID is fixed and is also checked by the Admin UI.
+    // Keep the role check for normal admin accounts, while allowing the
+    // designated bootstrap admin to work even if its user document predates
+    // the role field.
     function isAdmin() {
-      return currentUser() && currentRole() == 'admin';
+      return signedIn()
+        && (
+          request.auth.uid == '4Jme1MoSmHbjzwVjkvxeNSwPp0U2'
+          || (currentUser() && currentRole() == 'admin')
+        );
     }
 
     function validSignupRole() {
@@ -25,20 +33,13 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-
-      // Users can read their own profile.
-      // Admins can read user profiles.
       allow read: if signedIn()
         && (request.auth.uid == uid || isAdmin());
 
-      // New accounts may be Learner, Parent, or Teacher.
-      // Admin accounts cannot be created from the client.
       allow create: if signedIn()
         && request.auth.uid == uid
         && validSignupRole();
 
-      // Users may update their own profile, but cannot change their role.
-      // Admins may manage users.
       allow update: if signedIn()
         && (
           (
@@ -106,10 +107,6 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Only the linked learner can update progress-summary fields.
-      // Parent/Teacher can update relationship metadata, but cannot
-      // modify the learner's XP, level, accuracy, quizzes, streak,
-      // coins, skills, or mastery.
       allow update: if signedIn()
         && (
           isAdmin()
@@ -132,17 +129,12 @@ service cloud.firestore {
     }
 
     match /quizzes/{quizId} {
-
-      // Published quizzes are available to signed-in users.
       allow read: if signedIn()
         && (resource.data.published == true || isAdmin());
-
-      // Only admins can publish/edit/delete quizzes.
       allow create, update, delete: if isAdmin();
     }
 
     match /quizAttempts/{attemptId} {
-      // A learner can record only their own completed quiz attempt.
       allow create: if signedIn()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.quizId is string
@@ -150,7 +142,6 @@ service cloud.firestore {
         && request.resource.data.total is number
         && request.resource.data.percentage is number;
 
-      // Only admins can view or manage cross-learner analytics.
       allow read, update, delete: if isAdmin();
     }
 
@@ -195,7 +186,5 @@ service cloud.firestore {
           || isAdmin()
         );
     }
-
   }
 }
-
