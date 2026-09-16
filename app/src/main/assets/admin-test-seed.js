@@ -1,6 +1,4 @@
-/* Skill Saga — Admin test-content seeder
- * Admin-only. Creates disposable test quizzes/competitions for integration testing.
- */
+/* Skill Saga — Admin test-content seeder */
 (function(){
 'use strict';
 var ADMIN_UID='4Jme1MoSmHbjzwVjkvxeNSwPp0U2';
@@ -16,14 +14,15 @@ var COMPETITIONS=[
  {id:'ss-test-comp-subject',title:'TEST — Science Challenge',type:'SUBJECT_CHALLENGE',category:'Academic',classLevel:'6-8',subject:'Science',status:'upcoming',startAt:'2026-09-20T10:00:00',endAt:'2026-09-20T10:30:00',questions:25,durationMinutes:30,entryCoins:0}
 ];
 function toast(m){if(typeof window.toast==='function')window.toast(m);}
-function isAdmin(){try{return window.cloudUser&&window.cloudUser.uid===ADMIN_UID&&window.cloudDb;}catch(e){return false;}}
+function db(){return window.firebase&&firebase.firestore?firebase.firestore():null;}
+function isAdmin(){try{var u=window.firebase&&firebase.auth?firebase.auth().currentUser:null;return !!(u&&u.uid===ADMIN_UID&&db());}catch(e){return false;}}
 async function seed(){
  if(!isAdmin())return toast('Admin account required.');
- var writes=0;
+ var database=db(),writes=0;
  try{
-   var batch=window.cloudDb.batch();
-   QUIZZES.forEach(function(q){var ref=window.cloudDb.collection('quizzes').doc(q.id);batch.set(ref,Object.assign({},q,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});writes++;});
-   COMPETITIONS.forEach(function(c){var ref=window.cloudDb.collection('competitions').doc(c.id);batch.set(ref,Object.assign({},c,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});});
+   var batch=database.batch();
+   QUIZZES.forEach(function(q){var ref=database.collection('quizzes').doc(q.id);batch.set(ref,Object.assign({},q,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});writes++;});
+   COMPETITIONS.forEach(function(c){var ref=database.collection('competitions').doc(c.id);batch.set(ref,Object.assign({},c,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true});});
    await batch.commit();
    if(typeof window.loadCloudContent==='function')await window.loadCloudContent();
    toast('Test content loaded: '+writes+' quizzes + '+COMPETITIONS.length+' competitions.');
@@ -37,7 +36,7 @@ function addButton(){
  if(!headings.length)return;
  var box=document.createElement('div');box.id='ss-seed-test-content';box.className='card admin';box.style.marginTop='12px';
  box.innerHTML='<b>🧪 Integration Test Data</b><p class="muted" style="margin:6px 0 10px">Creates disposable Draft + Published quizzes and competition records so Play/Compete workflows can be tested end-to-end.</p><button class="btn" type="button">Load Test Content</button>';
- box.querySelector('button').onclick=seed;root.querySelector('main').insertBefore(box,root.querySelector('main').firstChild||null);
+ box.querySelector('button').onclick=seed;var main=root.querySelector('main');if(main)main.insertBefore(box,main.firstChild||null);
 }
 var obs=new MutationObserver(function(){setTimeout(addButton,0);});
 if(document.body){obs.observe(document.body,{childList:true,subtree:true});setTimeout(addButton,300);}else document.addEventListener('DOMContentLoaded',addButton);
