@@ -45,9 +45,17 @@ function playMode(raw){
 }
 function normalizeNav(){
   var navEl=document.querySelector('.nav');
-  if(!navEl)return;
+  if(!navEl)return false;
   var wanted=[['home','⌂','Home'],['learn','▣','Learn'],['play','▶','Play'],['compete','🏆','Compete'],['profile','●','Profile']];
-  var current=Array.prototype.slice.call(navEl.querySelectorAll('button'));
+  var current=Array.prototype.slice.call(navEl.querySelectorAll(':scope > button'));
+  var same=current.length===wanted.length;
+  if(same){
+    wanted.forEach(function(item,i){
+      var b=current[i];
+      if(!b||b.getAttribute('data-s')!==item[0]||text(b.querySelector('span'))!==item[2])same=false;
+    });
+  }
+  if(same)return false;
   var map={};
   current.forEach(function(b){var key=b.getAttribute('data-s');if(key)map[key]=b;});
   var frag=document.createDocumentFragment();
@@ -59,24 +67,19 @@ function normalizeNav(){
     frag.appendChild(b);
   });
   navEl.innerHTML='';navEl.appendChild(frag);
+  return true;
 }
 function install(){
   if(window.__SS_FINAL_INTERACTIONS_V2)return;
   window.__SS_FINAL_INTERACTIONS_V2=true;
   try{window.SKILL_SAGA_SELECTED_CLASS=Number(localStorage.getItem(KEY)||0)||0;}catch(e){}
   normalizeNav();
-  var navObserver=new MutationObserver(function(){
-    if(window.__SS_NAV_NORMALIZING)return;
-    window.__SS_NAV_NORMALIZING=true;
-    normalizeNav();
-    window.__SS_NAV_NORMALIZING=false;
-  });
+  var navObserver=new MutationObserver(function(){normalizeNav();});
   var app=document.querySelector('.app')||document.body;
   navObserver.observe(app,{childList:true,subtree:true});
   document.addEventListener('click',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
-
     /* Bottom navigation is always the finalized order, including quiz/result screens. */
     if(t.closest('.nav button'))return;
 
@@ -114,8 +117,8 @@ function install(){
       var cardText=text(lock.closest('.ss-class')||lock);
       var cm=cardText.match(/\b(\d{1,2})\b/);
       var targetClass=cm?Number(cm[1]):0;
-      var current=selectedClass();
-      var diff=(targetClass&&current)?Math.abs(targetClass-current):0;
+      var currentClass=selectedClass();
+      var diff=(targetClass&&currentClass)?Math.abs(targetClass-currentClass):0;
       var req=diff===1?[500,50]:diff===2?[1000,100]:diff===3?[2000,200]:null;
       if(req){toast('Unlock requires '+req[0]+' XP and '+req[1]+' Coins. XP is a threshold; Coins are spent on unlock.');return;}
       var m=lt.match(/(\d[\d,]*)\s*XP\s*\+\s*(\d[\d,]*)\s*Coins/i);
