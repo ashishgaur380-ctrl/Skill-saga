@@ -1,0 +1,28 @@
+name: Inject Skill Saga teacher sync repair
+on:
+  push:
+    branches: [final-integration]
+permissions:
+  contents: write
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject teacher sync
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html'); s=p.read_text(); tag='<script src="final-teacher-sync-v1.js"></script>'
+          if tag not in s:
+              i=s.rfind('</body>')
+              if i<0: raise SystemExit('No </body> found')
+              s=s[:i]+tag+'\n'+s[i:]; p.write_text(s)
+          PY
+      - name: Commit
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/src/main/assets/index.html
+          git diff --cached --quiet || git commit -m 'Inject teacher sync repair [skip teacher sync]'
+          git push
