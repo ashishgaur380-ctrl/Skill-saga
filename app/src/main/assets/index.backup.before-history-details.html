@@ -3850,25 +3850,20 @@ async function claimReward(name,cost){
 
 function history(){
   var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
+  var h=u.history||[];
 
   var rows='';
   if(!h.length){
     rows='<div class="card center" style="margin-top:15px"><div style="font-size:50px">📚</div><h3>No quiz history yet</h3><p class="muted">Complete your first challenge and your results will appear here.</p><button class="btn" onclick="go(\'play\')">Start Learning</button></div>';
   }else{
-    rows=h.map(function(x,i){
+    rows=h.map(function(x){
       var d=new Date(x.date);
       var date=isNaN(d.getTime())?'':d.toLocaleDateString();
-      var pct=Number(x.percentage);
-      if(!Number.isFinite(pct)){
-        pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-      }
-
-      return '<button class="card" style="width:100%;text-align:left;border:0;margin:10px 0;cursor:pointer" onclick="showQuizAttemptDetail('+i+')">'+
+      return '<div class="card" style="margin:10px 0">'+
         '<div class="row"><b>'+esc(x.title||'Quiz')+'</b><span class="badge">'+date+'</span></div>'+
-        '<p class="muted">'+Number(x.score||0)+'/'+Number(x.total||0)+' correct • '+pct+'% accuracy</p>'+
-        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b><span style="margin-left:auto">View Details →</span></div>'+
-      '</button>';
+        '<p class="muted">'+x.score+'/'+x.total+' correct • '+(x.percentage||0)+'% accuracy</p>'+
+        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b></div>'+
+      '</div>';
     }).join('');
   }
 
@@ -3878,68 +3873,6 @@ function history(){
     '<div class="section"><b>Recent Attempts</b></div>'+
     rows
   );
-}
-
-function showQuizAttemptDetail(index){
-  var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
-  var x=h[Number(index)];
-
-  if(!x)return toast('Attempt not found');
-
-  var pct=Number(x.percentage);
-  if(!Number.isFinite(pct)){
-    pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-  }
-
-  var html=
-    '<div class="row">'+
-      '<button class="back" onclick="history()">‹</button>'+
-      '<div><h1 style="margin:0">Attempt Details</h1><div class="muted">'+esc(x.title||'Quiz')+'</div></div>'+
-      '<span>📊</span>'+
-    '</div>'+
-    '<div class="hero" style="margin-top:15px">'+
-      '<small>QUIZ RESULT</small>'+
-      '<h2>'+Number(x.score||0)+' / '+Number(x.total||0)+'</h2>'+
-      '<p>'+pct+'% accuracy • +'+Number(x.studentXp||x.xp||0)+' XP • +'+Number(x.coins||0)+' 🪙</p>'+
-    '</div>';
-
-  if(Array.isArray(x.questions)&&x.questions.length){
-    html+='<div class="section"><b>Question Review</b></div>';
-
-    x.questions.forEach(function(q,i){
-      var r=Array.isArray(x.responses)?x.responses.find(function(z){
-        return Number(z.questionIndex)===i;
-      }):null;
-
-      var selected=r?Number(r.selected):null;
-      var correctIndex=Number(q.correctIndex||0);
-      var options=Array.isArray(q.options)?q.options:[];
-
-      html+=
-        '<div class="card" style="margin-bottom:10px">'+
-          '<b>Q'+(i+1)+'. '+esc(q.question||'Question')+'</b>'+
-          '<div class="muted" style="margin-top:8px">Your answer: '+
-            (selected!==null&&options[selected]!=null?esc(options[selected]):'Not answered')+
-          '</div>'+
-          '<div style="margin-top:5px"><b>Correct answer: '+
-            (options[correctIndex]!=null?esc(options[correctIndex]):'—')+
-          '</b></div>'+
-          (q.explanation?'<div class="muted" style="margin-top:7px">'+esc(q.explanation)+'</div>':'')+
-          '<div style="margin-top:8px;font-weight:800">'+
-            (r&&r.correct?'✓ Correct':'✗ Incorrect')+
-          '</div>'+
-        '</div>';
-    });
-  }else{
-    html+=
-      '<div class="card" style="margin-top:15px">'+
-        '<b>Attempt summary</b>'+
-        '<p class="muted">Detailed question-by-question answers are not available for this older attempt.</p>'+
-      '</div>';
-  }
-
-  shell(html);
 }
 
 function editStudentProfile(){
@@ -5244,24 +5177,7 @@ async function finishQuiz(){
     percentage:pct,
     xp:xpEarned,
     coins:coinsEarned,
-    skill:skillName,
-    topic:s.c.topic||'General',
-    responses:Array.isArray(s.responses)?s.responses.map(function(r){
-      return {
-        questionIndex:Number(r.questionIndex||0),
-        selected:Number(r.selected),
-        correct:!!r.correct,
-        timedOut:!!r.timedOut
-      };
-    }):[],
-    questions:Array.isArray(s.c.questions)?s.c.questions.map(function(q){
-      return {
-        question:String(q.question||q[0]||''),
-        options:Array.isArray(q.options)?q.options.map(String):(Array.isArray(q[1])?q[1].map(String):[]),
-        correctIndex:Number(q.correctIndex!=null?q.correctIndex:(q[2]||0)),
-        explanation:String(q.explanation||q[3]||q.feedback||'')
-      };
-    }):[]
+    skill:skillName
   });
 
   if(u.history.length>50)u.history=u.history.slice(0,50);

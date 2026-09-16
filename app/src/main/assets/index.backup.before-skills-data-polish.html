@@ -1916,6 +1916,343 @@ body:has(.ss-compete) .ss-compete{
 
 </style>
 
+
+<style id="skill-saga-skills-final-css">
+
+.ss-skills-final{
+  padding:6px 0 22px;
+}
+
+.ss-dna-hero{
+  position:relative;
+  overflow:hidden;
+  min-height:190px;
+  padding:20px 17px;
+  border-radius:25px;
+  background:linear-gradient(135deg,#f8fbff 0%,#edf3ff 58%,#f5efff 100%);
+  border:1px solid #e2e8f3;
+  box-shadow:0 7px 22px rgba(27,54,100,.06);
+}
+
+.ss-dna-copy{
+  position:relative;
+  z-index:3;
+  width:68%;
+}
+
+.ss-dna-eyebrow{
+  color:#6d7d98;
+  font-size:10px;
+  font-weight:900;
+  letter-spacing:.4px;
+}
+
+.ss-dna-title{
+  margin:4px 0 0;
+  color:#071b43;
+  font-size:30px;
+  line-height:1;
+  letter-spacing:-.7px;
+}
+
+.ss-dna-sub{
+  margin-top:9px;
+  color:#65748e;
+  font-size:11px;
+  line-height:1.45;
+}
+
+.ss-dna-art{
+  position:absolute;
+  right:4px;
+  bottom:3px;
+  width:35%;
+  height:170px;
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+}
+
+.ss-dna-circle{
+  position:absolute;
+  width:122px;
+  height:122px;
+  right:0;
+  bottom:5px;
+  border-radius:50%;
+  background:linear-gradient(145deg,#1769ff,#7546df);
+  opacity:.12;
+}
+
+.ss-dna-mascot{
+  position:relative;
+  z-index:2;
+  font-size:70px;
+  filter:drop-shadow(0 7px 8px rgba(20,50,110,.15));
+}
+
+.ss-dna-words{
+  position:absolute;
+  right:0;
+  top:7px;
+  z-index:4;
+  color:#12275a;
+  font-size:10px;
+  line-height:1.03;
+  font-weight:1000;
+  transform:rotate(-5deg);
+}
+
+.ss-dna-words b{
+  color:#1769ff;
+}
+
+.ss-dna-words i{
+  display:block;
+  width:35px;
+  height:3px;
+  margin:4px 0 0 5px;
+  background:#ffd32f;
+  border-radius:5px;
+}
+
+.ss-dna-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:10px;
+}
+
+.ss-dna-stat{
+  padding:12px 9px;
+  min-height:67px;
+  border-radius:17px;
+  background:#fff;
+  border:1px solid #e5eaf2;
+  box-shadow:0 6px 17px rgba(28,53,98,.05);
+}
+
+.ss-dna-stat-icon{
+  font-size:17px;
+}
+
+.ss-dna-stat-value{
+  margin-top:3px;
+  color:#172441;
+  font-size:19px;
+  line-height:1;
+  font-weight:1000;
+}
+
+.ss-dna-stat-label{
+  margin-top:4px;
+  color:#7a879b;
+  font-size:8px;
+}
+
+.ss-dna-section{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin:17px 2px 8px;
+}
+
+.ss-dna-section b{
+  color:#101e3d;
+  font-size:16px;
+}
+
+.ss-dna-section span{
+  color:#1769ff;
+  font-size:10px;
+  font-weight:900;
+}
+
+.ss-dna-skills{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+}
+
+.ss-dna-skill{
+  position:relative;
+  padding:12px;
+  min-height:91px;
+  border-radius:18px;
+  border:1px solid rgba(0,0,0,.035);
+  overflow:hidden;
+}
+
+.ss-dna-skill:nth-child(1){background:#eaf3ff}
+.ss-dna-skill:nth-child(2){background:#f0eaff}
+.ss-dna-skill:nth-child(3){background:#e9f8ef}
+.ss-dna-skill:nth-child(4){background:#fff2e3}
+.ss-dna-skill:nth-child(5){background:#ffecec}
+.ss-dna-skill:nth-child(6){background:#e9f7f7}
+.ss-dna-skill:nth-child(7){background:#fff6dc}
+.ss-dna-skill:nth-child(8){background:#f2eaff}
+
+.ss-dna-skill-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.ss-dna-skill-icon{
+  font-size:22px;
+}
+
+.ss-dna-score{
+  color:#152542;
+  font-size:16px;
+  font-weight:1000;
+}
+
+.ss-dna-skill-name{
+  margin-top:4px;
+  color:#1d2b47;
+  font-size:10px;
+  font-weight:900;
+}
+
+.ss-dna-skill-bar{
+  height:6px;
+  margin-top:8px;
+  border-radius:7px;
+  overflow:hidden;
+  background:rgba(100,120,155,.16);
+}
+
+.ss-dna-skill-bar i{
+  display:block;
+  height:100%;
+  border-radius:7px;
+  background:#1769ff;
+}
+
+.ss-dna-skill:nth-child(2) .ss-dna-skill-bar i{background:#7546df}
+.ss-dna-skill:nth-child(3) .ss-dna-skill-bar i{background:#24a967}
+.ss-dna-skill:nth-child(4) .ss-dna-skill-bar i{background:#e5a329}
+.ss-dna-skill:nth-child(5) .ss-dna-skill-bar i{background:#e05d65}
+.ss-dna-skill:nth-child(6) .ss-dna-skill-bar i{background:#23999a}
+.ss-dna-skill:nth-child(7) .ss-dna-skill-bar i{background:#d89d18}
+.ss-dna-skill:nth-child(8) .ss-dna-skill-bar i{background:#7949d8}
+
+.ss-dna-insights{
+  display:grid;
+  gap:8px;
+}
+
+.ss-dna-insight{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  padding:12px;
+  border-radius:17px;
+  background:#fff;
+  border:1px solid #e5eaf2;
+  box-shadow:0 5px 14px rgba(28,53,98,.04);
+}
+
+.ss-dna-insight-icon{
+  width:39px;
+  height:39px;
+  flex:none;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:13px;
+  font-size:20px;
+  background:#eef4ff;
+}
+
+.ss-dna-insight:nth-child(2) .ss-dna-insight-icon{
+  background:#eaf8ef;
+}
+
+.ss-dna-insight:nth-child(3) .ss-dna-insight-icon{
+  background:#fff0e8;
+}
+
+.ss-dna-insight small{
+  display:block;
+  color:#8290a4;
+  font-size:8px;
+  font-weight:900;
+}
+
+.ss-dna-insight b{
+  display:block;
+  margin-top:3px;
+  color:#172442;
+  font-size:12px;
+}
+
+.ss-dna-insight span{
+  display:block;
+  margin-top:2px;
+  color:#74829a;
+  font-size:8px;
+}
+
+.ss-dna-mastery{
+  padding:13px;
+  border-radius:19px;
+  background:#fff;
+  border:1px solid #e5eaf2;
+  box-shadow:0 6px 17px rgba(28,53,98,.05);
+}
+
+.ss-dna-mastery-row{
+  margin-bottom:11px;
+}
+
+.ss-dna-mastery-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  color:#25334d;
+  font-size:9px;
+  font-weight:900;
+}
+
+.ss-dna-mastery-head span{
+  color:#1769ff;
+}
+
+.ss-dna-mastery-bar{
+  height:6px;
+  margin-top:5px;
+  border-radius:7px;
+  overflow:hidden;
+  background:#e6ebf2;
+}
+
+.ss-dna-mastery-bar i{
+  display:block;
+  height:100%;
+  border-radius:7px;
+  background:linear-gradient(90deg,#1769ff,#7546df);
+}
+
+.ss-dna-empty{
+  padding:17px;
+  border-radius:17px;
+  background:#f4f7fb;
+  color:#74829a;
+  text-align:center;
+  font-size:9px;
+  line-height:1.4;
+}
+
+@media(max-width:380px){
+  .ss-dna-title{font-size:27px}
+  .ss-dna-copy{width:70%}
+  .ss-dna-mascot{font-size:62px}
+}
+
+</style>
+
 </head><body><div id="root"></div><script>
 const LOGO='logo.png';
 const firebaseConfig={apiKey:'AIzaSyAeItjskb7Gv-eyi4daMZYjsU8Cr88MtiQ',authDomain:'skill-saga-cb695.firebaseapp.com',projectId:'skill-saga-cb695',storageBucket:'skill-saga-cb695.firebasestorage.app',messagingSenderId:'354189057486',appId:'1:354189057486:web:ed5425cd8ff0f8d08fdf9f'};
@@ -1950,51 +2287,13 @@ async function saveStudentDirectory(u){
   }
 }
 
-async function saveCloudUser(u,authUser){
-  var au=authUser||cloudUser;
-  if(!au||!cloudDb)return;
-  let data={...u,password:null,uid:au.uid,email:au.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  delete data.password;
-  await cloudDb.collection('users').doc(au.uid).set(data,{merge:true});
-}
-function normalizeQuizQuestions(qs){
-  if(!Array.isArray(qs))return [];
-
-  return qs.map(function(x){
-    if(Array.isArray(x)){
-      return [
-        String(x[0]||''),
-        Array.isArray(x[1])?x[1].map(String):[],
-        Number(x[2]||0),
-        String(x[3]||'')
-      ];
-    }
-
-    if(x&&typeof x==='object'){
-      return [
-        String(x.question||''),
-        Array.isArray(x.options)?x.options.map(String):[],
-        Number(x.correctIndex??0),
-        String(x.explanation||x.feedback||'')
-      ];
-    }
-
-    return null;
-  }).filter(function(x){
-    return x&&x[1].length===4;
-  });
-}
-
+async function saveCloudUser(u){if(!cloudUser||!cloudDb)return;let data={...u,password:null,uid:cloudUser.uid,email:cloudUser.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};delete data.password;await cloudDb.collection('users').doc(cloudUser.uid).set(data,{merge:true})}
 async function loadCloudContent(){
   if(!cloudDb)return;
   try{
     let snap=await cloudDb.collection('quizzes').where('published','==',true).get();
     let today=new Date().toISOString().slice(0,10);
-    local.content=snap.docs.map(function(d){
-        var x={id:d.id,...d.data()};
-        x.questions=normalizeQuizQuestions(x.questions);
-        return x;
-      })
+    local.content=snap.docs.map(function(d){return {id:d.id,...d.data()};})
       .filter(function(x){
         var pd=x.publishDate||x.date||'';
         return !pd||pd<=today;
@@ -2016,22 +2315,6 @@ function daily(){
     return x.type==='daily';
   })||fallbackQuiz;
 }
-
-function weekly(){
-  var today=new Date().toISOString().slice(0,10);
-  var arr=Array.isArray(local.content)?local.content:[];
-
-  return arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)===today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)<=today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false;
-  }) || null;
-}
-
 async function leaderboardData(){
   let me=user();
   let arr=[];
@@ -2065,7 +2348,6 @@ async function home(){
 
   let r=await rank();
   let d=daily();
-  let w=weekly();
 
   let lastHistory=
     Array.isArray(u.history)&&u.history.length
@@ -2136,7 +2418,7 @@ async function home(){
         </div>
 
         <button class="ss-home-continue-btn"
-          onclick="startQuiz('${String(continueQuiz.id).replace(/'/g,"\'")}')">
+          onclick="startQuiz('${String(continueQuiz.id).replace(/'/g,"\\'")}')">
           Continue →
         </button>
       </div>`;
@@ -2226,7 +2508,7 @@ async function home(){
           </p>
 
           <button class="ss-home-start"
-            onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+            onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
             Start Challenge →
           </button>
 
@@ -2297,8 +2579,6 @@ function weekKey(){
 
 function challengesScreen(){
   var d=daily();
-  var w=weekly();
-  var w=weekly();
   var u=ensureUserData(user());
   var today=challengeDateKey();
   var week=weekKey();
@@ -2334,7 +2614,7 @@ function challengesScreen(){
       '<p><b>'+Math.min(5,weeklyCount)+'/5</b> weekly challenges completed</p>'+
       (weeklyCount>=5?
         '<div class="notice">🎉 Weekly goal complete! Keep practicing for more XP.</div>':
-        '<button class="btn gold block" onclick="startQuiz(\''+(w&&w.id?w.id:d.id)+'\')">Continue Weekly Goal</button>')+
+        '<button class="btn gold block" onclick="startQuiz(\''+d.id+'\')">Continue Weekly Goal</button>')+
     '</div>'+
 
     '<div class="section"><b>Your Challenge Streak</b></div>'+
@@ -2386,7 +2666,7 @@ async function showStudentAssignments(){
         '<div class="muted" style="margin-top:5px">'+esc(a.skill||a.category||'General')+
         (a.topic?' · '+esc(a.topic):'')+
         ' · '+esc(a.difficulty||'Medium')+'</div></div></div>'+
-        (quiz?'<button class="btn" style="margin-top:12px" onclick="startAssignedQuiz(\''+String(a.quizId||'').replace(/'/g,"\'")+'\',\''+String(a.id||'').replace(/'/g,"\'")+'\')">Start Quiz →</button>':
+        (quiz?'<button class="btn" style="margin-top:12px" onclick="startAssignedQuiz(\''+String(a.quizId||'').replace(/'/g,"\\'")+'\',\''+String(a.id||'').replace(/'/g,"\\'")+'\')">Start Quiz →</button>':
         '<div class="muted" style="margin-top:10px">This quiz is no longer available.</div>')+
         '</div>';
     });
@@ -2395,26 +2675,9 @@ async function showStudentAssignments(){
   shell(html);
 }
 
-async function startAssignedQuiz(quizId,assignmentId){
+function startAssignedQuiz(quizId,assignmentId){
   var quiz=Array.isArray(local.content)?local.content.find(function(q){return q.id===quizId;}):null;
-
-  try{
-    if(!quiz&&cloudDb&&quizId){
-      var snap=await cloudDb.collection('quizzes').doc(quizId).get();
-      if(snap.exists){
-        quiz={id:snap.id,...snap.data()};
-        quiz.questions=normalizeQuizQuestions(quiz.questions);
-      }
-    }
-  }catch(e){
-    console.warn('Assigned quiz load failed',e);
-  }
-
   if(!quiz)return toast('Quiz is no longer available');
-  if(!Array.isArray(quiz.questions)||!quiz.questions.length){
-    return toast('This quiz has no valid questions');
-  }
-
   quizState={c:quiz,q:0,score:0,answered:false,assignmentId:assignmentId};
   renderQuiz();
 }
@@ -2426,7 +2689,6 @@ async function play(){
   ensureUserData(u);
 
   var d=daily();
-  var w=weekly();
 
   var today=challengeDateKey();
   var week=typeof weekKey==='function'?weekKey():today;
@@ -2455,7 +2717,7 @@ async function play(){
   var categoryHtml=categories.map(function(c){
     return `
       <div class="ss-play-category"
-           onclick="ssPlayCategory('${c[1].replace(/'/g,"\'")}')">
+           onclick="ssPlayCategory('${c[1].replace(/'/g,"\\'")}')">
         <div class="ss-play-category-icon">${c[0]}</div>
         <b>${esc(c[1])}</b>
         <small>Practice & Improve</small>
@@ -2592,7 +2854,7 @@ async function play(){
             </div>
 
             <button class="ss-play-action"
-              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               ${doneToday?'Practice Again →':'Start Now →'}
             </button>
 
@@ -2625,7 +2887,7 @@ async function play(){
             </div>
 
             <button class="ss-play-action"
-              onclick="startQuiz('${String((w&&w.id)||d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               Continue Weekly Goal →
             </button>
 
@@ -2832,9 +3094,9 @@ shell(
 '<div class="grid" style="margin-top:18px">'+
 skills.map(function(x){
 return '<div class="tile" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-x.replace(/'/g,"\'")+
+x.replace(/'/g,"\\'")+
 '\')">'+
 '<span class="ico">🎯</span>'+
 '<b>'+esc(x)+'</b>'+
@@ -2851,7 +3113,7 @@ if(!topic){
 shell(
 '<div class="row">'+
 '<button class="back" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\')">‹</button>'+
 '<div>'+
 '<h1 style="margin:0">'+esc(skill)+'</h1>'+
@@ -2861,11 +3123,11 @@ category.replace(/'/g,"\'")+
 '<div class="grid" style="margin-top:18px">'+
 topics.map(function(x){
 return '<div class="tile" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-skill.replace(/'/g,"\'")+
+skill.replace(/'/g,"\\'")+
 '\',\''+
-x.replace(/'/g,"\'")+
+x.replace(/'/g,"\\'")+
 '\')">'+
 '<span class="ico">📘</span>'+
 '<b>'+esc(x)+'</b>'+
@@ -2897,9 +3159,9 @@ var levelRequirements={
 shell(
 '<div class="row">'+
 '<button class="back" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-skill.replace(/'/g,"\'")+
+skill.replace(/'/g,"\\'")+
 '\')">‹</button>'+
 '<div>'+
 '<h1 style="margin:0">'+esc(topic)+'</h1>'+
@@ -2963,7 +3225,6 @@ async function compete(){
 
   var myRank=await rank();
   var d=daily();
-  var w=weekly();
 
   var xp=Number(u.xp||0);
   var level=Number(u.level||1);
@@ -3082,7 +3343,7 @@ async function compete(){
             </div>
 
             <button class="ss-compete-button"
-              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               Start Challenge →
             </button>
 
@@ -3120,7 +3381,7 @@ async function compete(){
             </div>
 
             <button class="ss-compete-button"
-              onclick="startQuiz('${String((w&&w.id)||d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               View Weekly Challenge →
             </button>
 
@@ -3228,8 +3489,10 @@ function leaderboard(arr){
 
 
 function skills(){
-  var u=ensureUserData(user());
+  var u=user();
   if(!u)return loginScreen();
+
+  ensureUserData(u);
 
   var xp=Number(u.xp||0);
   var level=Number(u.level||1);
@@ -3239,7 +3502,7 @@ function skills(){
     ['➗','Numerical'],
     ['🧩','Reasoning'],
     ['💡','Problem Solving'],
-    ['⏱️','Speed'],
+    ['⚡','Speed'],
     ['🎯','Accuracy'],
     ['🧠','Memory'],
     ['📖','Vocabulary'],
@@ -3247,55 +3510,55 @@ function skills(){
   ];
 
   function score(name){
+    var v=0;
+
     if(u.skillScores &&
        typeof u.skillScores[name]==='number'){
-      return Math.round(Math.max(0,Math.min(100,u.skillScores[name])));
+      v=u.skillScores[name];
     }
-    return null;
+
+    return Math.max(0,Math.min(100,Math.round(v)));
   }
 
   var rows=skillList.map(function(x){
+    var v=score(x[1]);
+
+    return `
+      <div class="ss-dna-skill" onclick="go('play')">
+
+        <div class="ss-dna-skill-top">
+          <div class="ss-dna-skill-icon">${x[0]}</div>
+          <div class="ss-dna-score">${v}%</div>
+        </div>
+
+        <div class="ss-dna-skill-name">
+          ${esc(x[1])}
+        </div>
+
+        <div class="ss-dna-skill-bar">
+          <i style="width:${v}%"></i>
+        </div>
+
+      </div>`;
+  }).join('');
+
+  var scored=skillList.map(function(x){
     return {
-      icon:x[0],
       name:x[1],
-      score:score(x[1])
+      value:score(x[1])
     };
   });
 
-  var assessed=rows.filter(function(x){
-    return x.score!==null;
-  });
+  var strongest=scored.slice().sort(function(a,b){
+    return b.value-a.value;
+  })[0];
 
-  var strongest=assessed.length
-    ? assessed.slice().sort(function(a,b){return b.score-a.score;})[0]
-    : null;
-
-  var needs=assessed.length
-    ? assessed.slice().sort(function(a,b){return a.score-b.score;})[0]
-    : null;
-
-  var growing=null;
-
-  if(u.mastery && typeof u.mastery==='object'){
-    var growth=Object.values(u.mastery).filter(function(m){
-      return m &&
-        typeof m.improvement==='number' &&
-        m.improvement>0;
-    });
-
-    growth.sort(function(a,b){
-      return Number(b.improvement||0)-Number(a.improvement||0);
-    });
-
-    if(growth.length){
-      growing={
-        name:growth[0].skill||'Skill',
-        improvement:Number(growth[0].improvement||0)
-      };
-    }
-  }
+  var weakest=scored.slice().sort(function(a,b){
+    return a.value-b.value;
+  })[0];
 
   var mastery=[];
+
   if(u.mastery && typeof u.mastery==='object'){
     mastery=Object.values(u.mastery)
       .filter(function(m){
@@ -3304,473 +3567,181 @@ function skills(){
       .sort(function(a,b){
         return Number(b.mastery||0)-Number(a.mastery||0);
       })
-      .slice(0,4);
+      .slice(0,5);
   }
 
-  var skillCards=rows.map(function(x){
-    var v=x.score;
+  var masteryHtml='';
 
-    return `
-      <div class="ss-dna-skill">
-        <div class="ss-dna-skill-top">
-          <div class="ss-dna-skill-icon">${x.icon}</div>
-          <div class="ss-dna-score">${v===null?'—':v+'%'}</div>
-        </div>
-        <div class="ss-dna-skill-name">${esc(x.name)}</div>
-        <div class="ss-dna-skill-bar">
-          <i style="width:${v===null?0:v}%"></i>
-        </div>
+  if(mastery.length){
+    masteryHtml=mastery.map(function(m){
+      var value=Math.max(
+        0,
+        Math.min(100,Math.round(Number(m.mastery||0)))
+      );
+
+      return `
+        <div class="ss-dna-mastery-row">
+
+          <div class="ss-dna-mastery-head">
+            <span>${esc(m.skill||'General')}</span>
+            <span>${value}%</span>
+          </div>
+
+          <div class="ss-dna-mastery-bar">
+            <i style="width:${value}%"></i>
+          </div>
+
+        </div>`;
+    }).join('');
+  }else{
+    masteryHtml=`
+      <div class="ss-dna-empty">
+        Complete quizzes to start building topic mastery.
       </div>`;
-  }).join('');
-
-  var masteryHtml=mastery.length
-    ? mastery.map(function(m){
-        var v=Math.round(Math.max(0,Math.min(100,Number(m.mastery||0))));
-        var icon='🧬';
-
-        if((m.skill||'').toLowerCase().includes('numerical'))icon='➗';
-        else if((m.skill||'').toLowerCase().includes('reason'))icon='🧩';
-        else if((m.skill||'').toLowerCase().includes('problem'))icon='💡';
-        else if((m.skill||'').toLowerCase().includes('speed'))icon='⏱️';
-        else if((m.skill||'').toLowerCase().includes('accuracy'))icon='🎯';
-        else if((m.skill||'').toLowerCase().includes('memory'))icon='🧠';
-        else if((m.skill||'').toLowerCase().includes('vocabulary'))icon='📖';
-        else if((m.skill||'').toLowerCase().includes('scientific'))icon='🧪';
-
-        return `
-          <div class="ss-mastery-row">
-            <div class="ss-mastery-icon">${icon}</div>
-            <div class="ss-mastery-main">
-              <div class="ss-mastery-top">
-                <b>${esc(m.skill||'General')}</b>
-                <span>${v}%</span>
-              </div>
-              <div class="ss-mastery-bar">
-                <i style="width:${v}%"></i>
-              </div>
-            </div>
-            <span class="ss-mastery-arrow">›</span>
-          </div>`;
-      }).join('')
-    : `<div class="ss-empty-mastery">
-         Complete a quiz to start building your Skill Mastery.
-       </div>`;
+  }
 
   shell(`
-    <style>
-      .ss-dna-hero{
-        background:linear-gradient(135deg,#edf5ff 0%,#f5f0ff 100%);
-        border-radius:24px;
-        padding:20px 17px;
-        margin:-2px 0 15px;
-        position:relative;
-        overflow:hidden;
-      }
+    <div class="ss-skills-final">
 
-      .ss-dna-hero h1{
-        margin:0;
-        font-size:27px;
-        line-height:1.05;
-        color:#07152f;
-      }
+      <!-- HERO -->
+      <section class="ss-dna-hero">
 
-      .ss-dna-hero h1 span{color:#1769ff}
+        <div class="ss-dna-copy">
 
-      .ss-dna-hero p{
-        margin:9px 0 0;
-        color:#64718b;
-        font-size:12px;
-        line-height:1.5;
-        max-width:220px;
-      }
+          <div class="ss-dna-eyebrow">
+            DISCOVER • DEVELOP • GROW
+          </div>
 
-      .ss-dna-hero-art{
-        position:absolute;
-        right:5px;
-        bottom:-4px;
-        font-size:74px;
-        line-height:1;
-      }
+          <h1 class="ss-dna-title">
+            My Skill DNA
+          </h1>
 
-      .ss-dna-words{
-        position:absolute;
-        right:12px;
-        top:17px;
-        font-size:11px;
-        line-height:1.15;
-        color:#1769ff;
-        font-weight:900;
-        text-align:center;
-        transform:rotate(-5deg);
-      }
+          <div class="ss-dna-sub">
+            Your skills change as you learn and practice.
+            Track your progress. Discover your strengths.
+          </div>
 
-      .ss-dna-words b{
-        color:#1769ff;
-      }
-
-      .ss-dna-stats{
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:8px;
-        margin-bottom:18px;
-      }
-
-      .ss-dna-stat{
-        border-radius:17px;
-        padding:12px 9px;
-        min-height:86px;
-      }
-
-      .ss-dna-stat:nth-child(1){background:#fff5d7}
-      .ss-dna-stat:nth-child(2){background:#ffeef2}
-      .ss-dna-stat:nth-child(3){background:#eaf3ff}
-
-      .ss-dna-stat-icon{
-        font-size:18px;
-      }
-
-      .ss-dna-stat b{
-        display:block;
-        font-size:20px;
-        margin-top:3px;
-        color:#07152f;
-      }
-
-      .ss-dna-stat small{
-        display:block;
-        color:#728099;
-        font-size:9px;
-        margin-top:2px;
-      }
-
-      .ss-dna-section-title{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin:17px 2px 9px;
-      }
-
-      .ss-dna-section-title b{
-        font-size:15px;
-        color:#07152f;
-      }
-
-      .ss-dna-link{
-        color:#1769ff;
-        font-size:11px;
-        font-weight:800;
-      }
-
-      .ss-dna-skills{
-        display:grid;
-        grid-template-columns:repeat(2,1fr);
-        gap:9px;
-      }
-
-      .ss-dna-skill{
-        border-radius:17px;
-        padding:12px;
-        min-height:93px;
-        box-shadow:0 5px 18px #10204d0b;
-        cursor:pointer;
-        transition:transform .12s ease;
-      }
-
-      .ss-dna-skill:active{
-        transform:scale(.97);
-      }
-
-      .ss-dna-skill:nth-child(1){background:#eaf3ff}
-      .ss-dna-skill:nth-child(2){background:#f0eaff}
-      .ss-dna-skill:nth-child(3){background:#fff5df}
-      .ss-dna-skill:nth-child(4){background:#ffecef}
-      .ss-dna-skill:nth-child(5){background:#e9f8ef}
-      .ss-dna-skill:nth-child(6){background:#ffeaf0}
-      .ss-dna-skill:nth-child(7){background:#eaf3ff}
-      .ss-dna-skill:nth-child(8){background:#e8f7ef}
-
-      .ss-dna-skill-top{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      }
-
-      .ss-dna-skill-icon{
-        font-size:23px;
-      }
-
-      .ss-dna-score{
-        font-size:15px;
-        font-weight:900;
-        color:#07152f;
-      }
-
-      .ss-dna-skill-name{
-        font-size:11px;
-        font-weight:850;
-        margin-top:6px;
-        color:#17233e;
-      }
-
-      .ss-dna-skill-bar{
-        height:6px;
-        border-radius:6px;
-        background:#ffffff99;
-        overflow:hidden;
-        margin-top:8px;
-      }
-
-      .ss-dna-skill-bar i{
-        display:block;
-        height:100%;
-        border-radius:6px;
-        background:#1769ff;
-      }
-
-      .ss-dna-skill:nth-child(2) .ss-dna-skill-bar i{background:#7546df}
-      .ss-dna-skill:nth-child(3) .ss-dna-skill-bar i{background:#e5a329}
-      .ss-dna-skill:nth-child(4) .ss-dna-skill-bar i{background:#e05d65}
-      .ss-dna-skill:nth-child(5) .ss-dna-skill-bar i{background:#24a967}
-      .ss-dna-skill:nth-child(6) .ss-dna-skill-bar i{background:#df6680}
-      .ss-dna-skill:nth-child(7) .ss-dna-skill-bar i{background:#1769ff}
-      .ss-dna-skill:nth-child(8) .ss-dna-skill-bar i{background:#24a967}
-
-      .ss-insights{
-        display:grid;
-        gap:8px;
-      }
-
-      .ss-insight{
-        border-radius:17px;
-        padding:13px;
-        min-height:78px;
-        display:grid;
-        grid-template-columns:36px 1fr;
-        column-gap:9px;
-        align-items:center;
-      }
-
-      .ss-insight:nth-child(1){background:#eaf8ef}
-      .ss-insight:nth-child(2){background:#eaf3ff}
-      .ss-insight:nth-child(3){background:#ffedef}
-
-      .ss-insight-icon{
-        font-size:25px;
-        text-align:center;
-      }
-
-      .ss-insight-title{
-        font-size:9px;
-        font-weight:900;
-        color:#738099;
-        text-transform:uppercase;
-      }
-
-      .ss-insight b{
-        display:block;
-        font-size:15px;
-        color:#07152f;
-        margin-top:2px;
-      }
-
-      .ss-insight small{
-        color:#74819b;
-        font-size:10px;
-      }
-
-      .ss-mastery{
-        background:#fff;
-        border-radius:19px;
-        padding:4px 13px;
-        box-shadow:0 7px 24px #10204d0c;
-      }
-
-      .ss-mastery-row{
-        display:flex;
-        align-items:center;
-        gap:9px;
-        padding:12px 0;
-        border-bottom:1px solid #edf0f5;
-      }
-
-      .ss-mastery-row:last-child{border-bottom:0}
-
-      .ss-mastery-icon{
-        width:31px;
-        font-size:20px;
-        text-align:center;
-      }
-
-      .ss-mastery-main{
-        flex:1;
-        min-width:0;
-      }
-
-      .ss-mastery-top{
-        display:flex;
-        justify-content:space-between;
-        gap:8px;
-        font-size:11px;
-      }
-
-      .ss-mastery-top span{
-        font-weight:900;
-      }
-
-      .ss-mastery-bar{
-        height:6px;
-        background:#e8edf5;
-        border-radius:6px;
-        overflow:hidden;
-        margin-top:6px;
-      }
-
-      .ss-mastery-bar i{
-        display:block;
-        height:100%;
-        border-radius:6px;
-        background:#1769ff;
-      }
-
-      .ss-mastery-arrow{
-        font-size:22px;
-        color:#9aa5b7;
-      }
-
-      .ss-empty-mastery{
-        padding:18px 5px;
-        text-align:center;
-        color:#74819b;
-        font-size:11px;
-      }
-
-      .ss-practice-banner{
-        margin-top:12px;
-        padding:13px;
-        border-radius:17px;
-        background:#eef5ff;
-        display:flex;
-        align-items:center;
-        gap:10px;
-      }
-
-      .ss-practice-icon{
-        font-size:23px;
-      }
-
-      .ss-practice-text{
-        flex:1;
-        font-size:10px;
-        line-height:1.35;
-        color:#59677f;
-      }
-
-      .ss-practice-text b{
-        display:block;
-        color:#17233e;
-        font-size:11px;
-      }
-
-      .ss-practice-btn{
-        border:0;
-        background:#1769ff;
-        color:#fff;
-        border-radius:10px;
-        padding:8px 10px;
-        font-size:9px;
-        font-weight:850;
-        cursor:pointer;
-      }
-    </style>
-
-    <section class="ss-dna-hero">
-      <h1>My Skill <span>DNA</span></h1>
-      <p>Your skills change as you learn and practice.<br>
-      Track your progress. Discover your strengths.</p>
-      <div class="ss-dna-hero-art">🧑‍🎓</div>
-      <div class="ss-dna-words"><b>Better</b><br>Skills<br><b>Brighter</b><br>You!</div>
-    </section>
-
-    <section class="ss-dna-stats">
-      <div class="ss-dna-stat">
-        <div class="ss-dna-stat-icon">⭐</div>
-        <b>${level}</b>
-        <small>Level · Keep going!</small>
-      </div>
-
-      <div class="ss-dna-stat">
-        <div class="ss-dna-stat-icon">🔥</div>
-        <b>${streak}</b>
-        <small>Day Streak · Build your habit!</small>
-      </div>
-
-      <div class="ss-dna-stat">
-        <div class="ss-dna-stat-icon">📊</div>
-        <b>${xp.toLocaleString()}</b>
-        <small>Total XP · Learn · Improve · Win</small>
-      </div>
-    </section>
-
-    <div class="ss-dna-section-title">
-      <b>Core Skill Scores</b>
-      <span class="ss-dna-link">View Details →</span>
-    </div>
-
-    <section class="ss-dna-skills">
-      ${skillCards}
-    </section>
-
-    <div class="ss-dna-section-title">
-      <b>Your Skill Insights</b>
-    </div>
-
-    <section class="ss-insights">
-
-      <div class="ss-insight">
-        <div class="ss-insight-icon">🏆</div>
-        <div>
-          <div class="ss-insight-title">Strongest Skill</div>
-          <b>${strongest?esc(strongest.name):'Not assessed'}</b>
-          <small>${strongest?strongest.score+'% · Keep it up!':'Complete a quiz to assess your skills.'}</small>
         </div>
-      </div>
 
-      <div class="ss-insight">
-        <div class="ss-insight-icon">📈</div>
-        <div>
-          <div class="ss-insight-title">Growing Fastest</div>
-          <b>${growing?esc(growing.name):'Not assessed'}</b>
-          <small>${growing?'+'+growing.improvement+'% · Great progress!':'Complete more quizzes to track growth.'}</small>
+        <div class="ss-dna-art">
+
+          <div class="ss-dna-circle"></div>
+
+          <div class="ss-dna-words">
+            Learn<br>
+            <b>Practice</b><br>
+            Grow
+            <i></i>
+          </div>
+
+          <div class="ss-dna-mascot">
+            🧬
+          </div>
+
         </div>
-      </div>
 
-      <div class="ss-insight">
-        <div class="ss-insight-icon">🎯</div>
-        <div>
-          <div class="ss-insight-title">Needs Focus</div>
-          <b>${needs?esc(needs.name):'Not assessed'}</b>
-          <small>${needs?needs.score+'% · More practice needed.':'Complete a quiz to identify areas to improve.'}</small>
+      </section>
+
+
+      <!-- SUMMARY -->
+      <section class="ss-dna-stats">
+
+        <div class="ss-dna-stat">
+          <div class="ss-dna-stat-icon">⭐</div>
+          <div class="ss-dna-stat-value">
+            ${level}
+          </div>
+          <div class="ss-dna-stat-label">
+            Level
+          </div>
         </div>
+
+        <div class="ss-dna-stat">
+          <div class="ss-dna-stat-icon">🔥</div>
+          <div class="ss-dna-stat-value">
+            ${streak}
+          </div>
+          <div class="ss-dna-stat-label">
+            Day Streak
+          </div>
+        </div>
+
+        <div class="ss-dna-stat">
+          <div class="ss-dna-stat-icon">⚡</div>
+          <div class="ss-dna-stat-value">
+            ${xp.toLocaleString()}
+          </div>
+          <div class="ss-dna-stat-label">
+            Total XP
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- CORE SKILLS -->
+      <div class="ss-dna-section">
+        <b>Core Skill Scores</b>
+        <span>8 Skills</span>
       </div>
 
-    </section>
+      <section class="ss-dna-skills">
+        ${rows}
+      </section>
 
-    <div class="ss-dna-section-title">
-      <b>Skill Mastery</b>
-      <span class="ss-dna-link">View All →</span>
-    </div>
 
-    <section class="ss-mastery">
-      ${masteryHtml}
-    </section>
-
-    <div class="ss-practice-banner">
-      <div class="ss-practice-icon">📊</div>
-      <div class="ss-practice-text">
-        <b>Practice regularly to improve all your skills!</b>
-        Keep learning and build your Skill DNA.
+      <!-- INSIGHTS -->
+      <div class="ss-dna-section">
+        <b>Skill Insights</b>
       </div>
-      <button class="ss-practice-btn" onclick="go('play')">Practice Now →</button>
+
+      <section class="ss-dna-insights">
+
+        <div class="ss-dna-insight">
+          <div class="ss-dna-insight-icon">💪</div>
+          <div>
+            <small>STRONGEST SKILL</small>
+            <b>${esc(strongest.name)}</b>
+            <span>${strongest.value}% current score</span>
+          </div>
+        </div>
+
+        <div class="ss-dna-insight">
+          <div class="ss-dna-insight-icon">📈</div>
+          <div>
+            <small>GROWING FASTEST</small>
+            <b>Keep Practicing</b>
+            <span>Your recent quiz results will shape this insight.</span>
+          </div>
+        </div>
+
+        <div class="ss-dna-insight">
+          <div class="ss-dna-insight-icon">🎯</div>
+          <div>
+            <small>NEEDS PRACTICE</small>
+            <b>${esc(weakest.name)}</b>
+            <span>${weakest.value}% current score</span>
+          </div>
+        </div>
+
+      </section>
+
+
+      <!-- TOPIC MASTERY -->
+      <div class="ss-dna-section">
+        <b>Topic Mastery</b>
+        <span>Based on quizzes</span>
+      </div>
+
+      <section class="ss-dna-mastery">
+        ${masteryHtml}
+      </section>
+
+
+      <div class="ss-home-bottom-note" style="margin-top:12px">
+        ✨ Every quiz makes your Skill DNA stronger.
+      </div>
+
     </div>
   `);
 }
@@ -3850,25 +3821,20 @@ async function claimReward(name,cost){
 
 function history(){
   var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
+  var h=u.history||[];
 
   var rows='';
   if(!h.length){
     rows='<div class="card center" style="margin-top:15px"><div style="font-size:50px">📚</div><h3>No quiz history yet</h3><p class="muted">Complete your first challenge and your results will appear here.</p><button class="btn" onclick="go(\'play\')">Start Learning</button></div>';
   }else{
-    rows=h.map(function(x,i){
+    rows=h.map(function(x){
       var d=new Date(x.date);
       var date=isNaN(d.getTime())?'':d.toLocaleDateString();
-      var pct=Number(x.percentage);
-      if(!Number.isFinite(pct)){
-        pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-      }
-
-      return '<button class="card" style="width:100%;text-align:left;border:0;margin:10px 0;cursor:pointer" onclick="showQuizAttemptDetail('+i+')">'+
+      return '<div class="card" style="margin:10px 0">'+
         '<div class="row"><b>'+esc(x.title||'Quiz')+'</b><span class="badge">'+date+'</span></div>'+
-        '<p class="muted">'+Number(x.score||0)+'/'+Number(x.total||0)+' correct • '+pct+'% accuracy</p>'+
-        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b><span style="margin-left:auto">View Details →</span></div>'+
-      '</button>';
+        '<p class="muted">'+x.score+'/'+x.total+' correct • '+x.accuracy+'% accuracy</p>'+
+        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b></div>'+
+      '</div>';
     }).join('');
   }
 
@@ -3878,68 +3844,6 @@ function history(){
     '<div class="section"><b>Recent Attempts</b></div>'+
     rows
   );
-}
-
-function showQuizAttemptDetail(index){
-  var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
-  var x=h[Number(index)];
-
-  if(!x)return toast('Attempt not found');
-
-  var pct=Number(x.percentage);
-  if(!Number.isFinite(pct)){
-    pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-  }
-
-  var html=
-    '<div class="row">'+
-      '<button class="back" onclick="history()">‹</button>'+
-      '<div><h1 style="margin:0">Attempt Details</h1><div class="muted">'+esc(x.title||'Quiz')+'</div></div>'+
-      '<span>📊</span>'+
-    '</div>'+
-    '<div class="hero" style="margin-top:15px">'+
-      '<small>QUIZ RESULT</small>'+
-      '<h2>'+Number(x.score||0)+' / '+Number(x.total||0)+'</h2>'+
-      '<p>'+pct+'% accuracy • +'+Number(x.studentXp||x.xp||0)+' XP • +'+Number(x.coins||0)+' 🪙</p>'+
-    '</div>';
-
-  if(Array.isArray(x.questions)&&x.questions.length){
-    html+='<div class="section"><b>Question Review</b></div>';
-
-    x.questions.forEach(function(q,i){
-      var r=Array.isArray(x.responses)?x.responses.find(function(z){
-        return Number(z.questionIndex)===i;
-      }):null;
-
-      var selected=r?Number(r.selected):null;
-      var correctIndex=Number(q.correctIndex||0);
-      var options=Array.isArray(q.options)?q.options:[];
-
-      html+=
-        '<div class="card" style="margin-bottom:10px">'+
-          '<b>Q'+(i+1)+'. '+esc(q.question||'Question')+'</b>'+
-          '<div class="muted" style="margin-top:8px">Your answer: '+
-            (selected!==null&&options[selected]!=null?esc(options[selected]):'Not answered')+
-          '</div>'+
-          '<div style="margin-top:5px"><b>Correct answer: '+
-            (options[correctIndex]!=null?esc(options[correctIndex]):'—')+
-          '</b></div>'+
-          (q.explanation?'<div class="muted" style="margin-top:7px">'+esc(q.explanation)+'</div>':'')+
-          '<div style="margin-top:8px;font-weight:800">'+
-            (r&&r.correct?'✓ Correct':'✗ Incorrect')+
-          '</div>'+
-        '</div>';
-    });
-  }else{
-    html+=
-      '<div class="card" style="margin-top:15px">'+
-        '<b>Attempt summary</b>'+
-        '<p class="muted">Detailed question-by-question answers are not available for this older attempt.</p>'+
-      '</div>';
-  }
-
-  shell(html);
 }
 
 function editStudentProfile(){
@@ -4034,690 +3938,66 @@ function shareLinkCode(){
 
 function profile(){
   var u=ensureUserData(user());
-  if(!u)return loginScreen();
-
-  var history=Array.isArray(u.history)?u.history:[];
-  var accuracy=Number(u.accuracy||0);
-  var coins=Number(u.coins||0);
-  var level=Number(u.level||1);
-  var xp=Number(u.xp||0);
-  var streak=Number(u.streak||0);
-
-  var avatar=u.photo
-    ? '<img src="'+esc(u.photo)+'" style="width:92px;height:92px;border-radius:50%;object-fit:cover">'
-    : '<div style="font-size:62px;line-height:92px;text-align:center">🧑‍🎓</div>';
-
-  var adminBlock=u.role==='admin'
-    ? '<div class="ss-profile-section-title"><b>Administration</b></div>'+
-      '<div class="ss-profile-admin">'+
-        '<div><b>Admin Console</b><small>Manage quizzes and daily content</small></div>'+
-        '<button onclick="admin()">Open →</button>'+
-      '</div>'
-    : '';
-
-  shell(`
-    <style>
-
-      .ss-profile-hero{
-        margin:-2px -2px 12px;
-        padding:7px 4px 2px;
-        position:relative;
-      }
-
-      .ss-profile-hero h1{
-        margin:0;
-        font-size:30px;
-        line-height:1.05;
-        color:#07152f;
-      }
-
-      .ss-profile-hero p{
-        margin:7px 0 0;
-        color:#6f7c94;
-        font-size:12px;
-        line-height:1.4;
-      }
-
-      .ss-profile-hero-art{
-        position:absolute;
-        right:8px;
-        top:2px;
-        color:#07152f;
-        font-size:12px;
-        font-weight:900;
-        line-height:1.12;
-        transform:rotate(-5deg);
-        text-align:center;
-      }
-
-      .ss-profile-hero-art b{
-        color:#1769ff;
-      }
-
-      .ss-profile-card{
-        background:#fff;
-        border-radius:22px;
-        padding:14px;
-        box-shadow:0 8px 28px #10204d12;
-      }
-
-      .ss-profile-main{
-        display:flex;
-        align-items:center;
-        gap:11px;
-      }
-
-      .ss-profile-avatar{
-        width:92px;
-        height:92px;
-        border-radius:50%;
-        background:#cfe5ff;
-        overflow:hidden;
-        flex:none;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-      }
-
-      .ss-profile-identity{
-        min-width:0;
-        flex:1;
-      }
-
-      .ss-profile-name{
-        font-size:20px;
-        font-weight:900;
-        color:#07152f;
-        line-height:1.1;
-      }
-
-      .ss-profile-email{
-        color:#7a879d;
-        font-size:11px;
-        margin-top:5px;
-        overflow:hidden;
-        white-space:nowrap;
-        text-overflow:ellipsis;
-      }
-
-      .ss-profile-edit{
-        border:0;
-        border-radius:10px;
-        background:#edf4ff;
-        color:#1769ff;
-        padding:9px 11px;
-        font-size:10px;
-        font-weight:900;
-        cursor:pointer;
-        white-space:nowrap;
-      }
-
-      .ss-profile-mini-stats{
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:6px;
-        margin-top:13px;
-      }
-
-      .ss-profile-mini{
-        padding:8px 5px;
-        border-radius:12px;
-        text-align:center;
-        font-size:9px;
-        font-weight:850;
-      }
-
-      .ss-profile-mini:nth-child(1){background:#fff5d8}
-      .ss-profile-mini:nth-child(2){background:#ffedf0}
-      .ss-profile-mini:nth-child(3){background:#eeeaff}
-      .ss-profile-mini:nth-child(4){background:#fff5d8}
-
-      .ss-profile-mini-icon{
-        font-size:17px;
-      }
-
-      .ss-profile-mini b{
-        display:block;
-        color:#17233e;
-        font-size:10px;
-        margin-top:2px;
-      }
-
-      .ss-profile-quote{
-        margin-top:11px;
-        background:#eef5ff;
-        color:#1769ff;
-        border-radius:13px;
-        padding:10px 11px;
-        font-size:10px;
-        font-weight:700;
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-      }
-
-      .ss-profile-section-title{
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin:17px 2px 8px;
-        color:#07152f;
-      }
-
-      .ss-profile-section-title b{
-        font-size:15px;
-      }
-
-      .ss-profile-section-link{
-        color:#1769ff;
-        font-size:10px;
-        font-weight:900;
-      }
-
-      .ss-profile-progress{
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:7px;
-      }
-
-      .ss-profile-progress-card{
-        min-height:105px;
-        border-radius:16px;
-        padding:11px 8px;
-      }
-
-      .ss-profile-progress-card:nth-child(1){background:#e9f3ff}
-      .ss-profile-progress-card:nth-child(2){background:#e9f9ef}
-      .ss-profile-progress-card:nth-child(3){background:#fff5d9}
-      .ss-profile-progress-card:nth-child(4){background:#ffecee}
-
-      .ss-profile-progress-icon{
-        font-size:22px;
-      }
-
-      .ss-profile-progress-card b{
-        display:block;
-        font-size:17px;
-        margin-top:5px;
-        color:#07152f;
-      }
-
-      .ss-profile-progress-card span{
-        display:block;
-        font-size:10px;
-        line-height:1.25;
-        color:#526078;
-        margin-top:2px;
-      }
-
-      .ss-profile-info{
-        background:#fff;
-        border-radius:19px;
-        padding:10px 8px;
-        box-shadow:0 7px 24px #10204d0b;
-        display:grid;
-        grid-template-columns:repeat(5,1fr);
-      }
-
-      .ss-profile-info-item{
-        min-width:0;
-        text-align:center;
-        padding:4px 5px;
-        border-right:1px solid #edf0f5;
-      }
-
-      .ss-profile-info-item:last-child{
-        border-right:0;
-      }
-
-      .ss-profile-info-icon{
-        font-size:21px;
-      }
-
-      .ss-profile-info-label{
-        color:#77849a;
-        font-size:9px;
-        margin-top:3px;
-      }
-
-      .ss-profile-info-value{
-        color:#27344d;
-        font-size:9px;
-        font-weight:850;
-        margin-top:2px;
-        word-break:break-word;
-      }
-
-      .ss-profile-link-card{
-        background:#fff;
-        border-radius:19px;
-        padding:13px;
-        box-shadow:0 7px 24px #10204d0b;
-      }
-
-      .ss-profile-link-top{
-        display:flex;
-        gap:10px;
-        align-items:center;
-      }
-
-      .ss-profile-link-icon{
-        width:39px;
-        height:39px;
-        border-radius:12px;
-        background:#eeeaff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-size:22px;
-      }
-
-      .ss-profile-link-text{
-        flex:1;
-        color:#7a879d;
-        font-size:10px;
-        line-height:1.35;
-      }
-
-      .ss-profile-code{
-        border:1px dashed #c9d2e2;
-        border-radius:12px;
-        padding:9px;
-        text-align:center;
-        margin-top:10px;
-        color:#17233e;
-      }
-
-      .ss-profile-code b{
-        display:block;
-        font-size:17px;
-        letter-spacing:2px;
-      }
-
-      .ss-profile-code small{
-        color:#8792a5;
-        font-size:8px;
-      }
-
-      .ss-profile-link-actions{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-        gap:7px;
-        margin-top:9px;
-      }
-
-      .ss-profile-action{
-        border:0;
-        border-radius:10px;
-        padding:10px 6px;
-        font-size:10px;
-        font-weight:900;
-        cursor:pointer;
-        background:#1769ff;
-        color:#fff;
-      }
-
-      .ss-profile-action.share{
-        background:#e7f0ff;
-        color:#1769ff;
-      }
-
-      .ss-profile-learning{
-        display:grid;
-        grid-template-columns:repeat(3,1fr);
-        gap:7px;
-      }
-
-      .ss-profile-learning-card{
-        background:#eef5ff;
-        border-radius:15px;
-        padding:11px 8px;
-        min-height:83px;
-        cursor:pointer;
-        position:relative;
-      }
-
-      .ss-profile-learning-card:nth-child(2){background:#eaf9ef}
-      .ss-profile-learning-card:nth-child(3){background:#fff4d8}
-
-      .ss-profile-learning-icon{
-        font-size:25px;
-      }
-
-      .ss-profile-learning-card b{
-        display:block;
-        color:#17233e;
-        font-size:10px;
-        margin-top:4px;
-      }
-
-      .ss-profile-learning-card small{
-        color:#728098;
-        font-size:8px;
-        display:block;
-        margin-top:2px;
-        line-height:1.25;
-      }
-
-      .ss-profile-arrow{
-        position:absolute;
-        right:7px;
-        top:50%;
-        transform:translateY(-50%);
-        color:#1769ff;
-        font-size:20px;
-      }
-
-      .ss-profile-account{
-        display:grid;
-        grid-template-columns:repeat(4,1fr);
-        gap:7px;
-      }
-
-      .ss-profile-account-card{
-        background:#fff;
-        border-radius:15px;
-        padding:11px 7px;
-        min-height:78px;
-        box-shadow:0 6px 20px #10204d0a;
-        cursor:pointer;
-      }
-
-      .ss-profile-account-icon{
-        font-size:24px;
-      }
-
-      .ss-profile-account-card b{
-        display:block;
-        font-size:10px;
-        color:#17233e;
-        margin-top:4px;
-      }
-
-      .ss-profile-account-card small{
-        display:block;
-        font-size:8px;
-        color:#7a879d;
-        margin-top:2px;
-      }
-
-      .ss-profile-account-card.logout b{
-        color:#d94c56;
-      }
-
-      .ss-profile-admin{
-        background:#fff7df;
-        border:1px solid #f1d98d;
-        border-radius:16px;
-        padding:12px;
-        display:flex;
-        align-items:center;
-        justify-content:space-between;
-        gap:10px;
-      }
-
-      .ss-profile-admin small{
-        display:block;
-        color:#7a879d;
-        font-size:9px;
-        margin-top:3px;
-      }
-
-      .ss-profile-admin button{
-        border:0;
-        background:#e9b84d;
-        color:#07152f;
-        border-radius:10px;
-        padding:9px 11px;
-        font-size:9px;
-        font-weight:900;
-        cursor:pointer;
-      }
-
-      @media(max-width:380px){
-        .ss-profile-progress-card{
-          min-height:100px;
-        }
-        .ss-profile-mini-stats{
-          gap:4px;
-        }
-        .ss-profile-info{
-          padding-left:3px;
-          padding-right:3px;
-        }
-      }
-
-    </style>
-
-    <section class="ss-profile-hero">
-      <h1>Profile</h1>
-      <p>Your learning journey matters!<br>
-      Keep learning, keep growing.</p>
-
-      <div class="ss-profile-hero-art">
-        Better<br>
-        <b>Learner</b><br>
-        Brighter<br>
-        <b>Future!</b>
-      </div>
-    </section>
-
-    <section class="ss-profile-card">
-
-      <div class="ss-profile-main">
-
-        <div class="ss-profile-avatar">
-          ${avatar}
-        </div>
-
-        <div class="ss-profile-identity">
-          <div class="ss-profile-name">${esc(u.name||'Student')}</div>
-          <div class="ss-profile-email">${esc(u.email||'')}</div>
-        </div>
-
-        <button class="ss-profile-edit" onclick="editStudentProfile()">
-          ✏️ Edit Profile
-        </button>
-
-      </div>
-
-      <div class="ss-profile-mini-stats">
-
-        <div class="ss-profile-mini">
-          <div class="ss-profile-mini-icon">⭐</div>
-          <b>Level ${level}</b>
-        </div>
-
-        <div class="ss-profile-mini">
-          <div class="ss-profile-mini-icon">🔥</div>
-          <b>${streak}-day streak</b>
-        </div>
-
-        <div class="ss-profile-mini">
-          <div class="ss-profile-mini-icon">📊</div>
-          <b>${xp} XP</b>
-        </div>
-
-        <div class="ss-profile-mini">
-          <div class="ss-profile-mini-icon">🪙</div>
-          <b>${coins} Coins</b>
-        </div>
-
-      </div>
-
-      <div class="ss-profile-quote">
-        <span>💬 &nbsp; Small Steps Today, Big Achievements Tomorrow!</span>
-        <b>›</b>
-      </div>
-
-    </section>
-
-    <div class="ss-profile-section-title">
-      <b>My Progress</b>
-      <span class="ss-profile-section-link" onclick="progress()">View Details →</span>
-    </div>
-
-    <section class="ss-profile-progress">
-
-      <div class="ss-profile-progress-card">
-        <div class="ss-profile-progress-icon">📚</div>
-        <b>${Number(u.quizzes||0)}</b>
-        <span>Quizzes<br>completed</span>
-      </div>
-
-      <div class="ss-profile-progress-card">
-        <div class="ss-profile-progress-icon">🎯</div>
-        <b>${accuracy}%</b>
-        <span>Overall<br>accuracy</span>
-      </div>
-
-      <div class="ss-profile-progress-card">
-        <div class="ss-profile-progress-icon">📊</div>
-        <b>${level}</b>
-        <span>Current<br>level</span>
-      </div>
-
-      <div class="ss-profile-progress-card">
-        <div class="ss-profile-progress-icon">☑️</div>
-        <b>${history.length}</b>
-        <span>Recorded<br>attempts</span>
-      </div>
-
-    </section>
-
-    <div class="ss-profile-section-title">
-      <b>Student Information</b>
-      <span class="ss-profile-section-link" onclick="editStudentProfile()">✏️ Edit</span>
-    </div>
-
-    <section class="ss-profile-info">
-
-      <div class="ss-profile-info-item">
-        <div class="ss-profile-info-icon">🎓</div>
-        <div class="ss-profile-info-label">Class</div>
-        <div class="ss-profile-info-value">${u.studentClass?'Class '+esc(u.studentClass):'Not added'}</div>
-      </div>
-
-      <div class="ss-profile-info-item">
-        <div class="ss-profile-info-icon">🏫</div>
-        <div class="ss-profile-info-label">School</div>
-        <div class="ss-profile-info-value">${esc(u.school||'Not added')}</div>
-      </div>
-
-      <div class="ss-profile-info-item">
-        <div class="ss-profile-info-icon">📍</div>
-        <div class="ss-profile-info-label">District</div>
-        <div class="ss-profile-info-value">${esc(u.district||'Not added')}</div>
-      </div>
-
-      <div class="ss-profile-info-item">
-        <div class="ss-profile-info-icon">🏛️</div>
-        <div class="ss-profile-info-label">State</div>
-        <div class="ss-profile-info-value">${esc(u.state||'Not added')}</div>
-      </div>
-
-      <div class="ss-profile-info-item">
-        <div class="ss-profile-info-icon">🌐</div>
-        <div class="ss-profile-info-label">Country</div>
-        <div class="ss-profile-info-value">${esc(u.country||'India')}</div>
-      </div>
-
-    </section>
-
-    ${u.role==='learner' ? `
-      <div class="ss-profile-section-title">
-        <b>Parent / Teacher Link</b>
-        <span class="ss-profile-section-link" onclick="toast('Share this code with your parent or teacher to request access.')">❓ How it works?</span>
-      </div>
-
-      <section class="ss-profile-link-card">
-
-        <div class="ss-profile-link-top">
-          <div class="ss-profile-link-icon">👥</div>
-          <div class="ss-profile-link-text">
-            Share this code with your parent or teacher so they can request access to your learning progress.
-          </div>
-        </div>
-
-        <div class="ss-profile-code">
-          <b>${esc(u.linkCode||'Not available')}</b>
-          <small>Student Link Code</small>
-        </div>
-
-        <div class="ss-profile-link-actions">
-          <button class="ss-profile-action" onclick="copyLinkCode()">📋 Copy Code</button>
-          <button class="ss-profile-action share" onclick="shareLinkCode()">↗ Share</button>
-        </div>
-
-      </section>
-    ` : ''}
-
-    <div class="ss-profile-section-title">
-      <b>Learning</b>
-    </div>
-
-    <section class="ss-profile-learning">
-
-      <div class="ss-profile-learning-card" onclick="go('history')">
-        <div class="ss-profile-learning-icon">📚</div>
-        <b>Quiz History</b>
-        <small>View your past quizzes</small>
-        <span class="ss-profile-arrow">›</span>
-      </div>
-
-      <div class="ss-profile-learning-card" onclick="progress()">
-        <div class="ss-profile-learning-icon">📊</div>
-        <b>Learning Progress</b>
-        <small>Track your improvement</small>
-        <span class="ss-profile-arrow">›</span>
-      </div>
-
-      <div class="ss-profile-learning-card" onclick="rewardsScreen()">
-        <div class="ss-profile-learning-icon">🏆</div>
-        <b>Rewards & Coins</b>
-        <small>View badges and rewards</small>
-        <span class="ss-profile-arrow">›</span>
-      </div>
-
-    </section>
-
-    ${adminBlock}
-
-    <div class="ss-profile-section-title">
-      <b>Account</b>
-    </div>
-
-    <section class="ss-profile-account">
-
-      <div class="ss-profile-account-card" onclick="go('settings')">
-        <div class="ss-profile-account-icon">⚙️</div>
-        <b>Settings</b>
-        <small>App preferences</small>
-      </div>
-
-      <div class="ss-profile-account-card" onclick="toast('Privacy controls are available through your account settings.')">
-        <div class="ss-profile-account-icon">🛡️</div>
-        <b>Privacy</b>
-        <small>Data & security</small>
-      </div>
-
-      <div class="ss-profile-account-card" onclick="toast('Help & Support will be available here.')">
-        <div class="ss-profile-account-icon">❓</div>
-        <b>Help & Support</b>
-        <small>Get assistance</small>
-      </div>
-
-      <div class="ss-profile-account-card logout" onclick="logout()">
-        <div class="ss-profile-account-icon">🚪</div>
-        <b>Log out</b>
-        <small>Sign out safely</small>
-      </div>
-
-    </section>
-
-    <div style="height:8px"></div>
-  `);
+  var history=u.history||[];
+
+  shell(
+    '<h1>Profile</h1>'+
+    '<div class="card center" style="margin-top:15px">'+
+      '<div style="font-size:58px">👤</div>'+
+      '<h2>'+esc(u.name)+'</h2>'+
+      '<div class="muted">'+esc(u.email)+'</div>'+
+      '<span class="badge">Level '+u.level+'</span>'+
+      '<span class="badge">🔥 '+u.streak+'-day streak</span>'+
+      '<span class="badge">⭐ '+u.xp+' XP</span>'+
+      '<span class="badge">🪙 '+(u.coins||0)+' Coins</span>'+
+    '</div>'+
+
+    '<div class="section"><b>My Progress</b></div>'+
+    '<div class="grid">'+
+      '<div class="tile"><b>'+u.quizzes+'</b><small>Quizzes completed</small></div>'+
+      '<div class="tile"><b>'+u.accuracy+'%</b><small>Overall accuracy</small></div>'+
+      '<div class="tile"><b>'+u.level+'</b><small>Current level</small></div>'+
+      '<div class="tile"><b>'+history.length+'</b><small>Recorded attempts</small></div>'+
+    '</div>'+
+
+    '<div class="section"><b>Student Information</b></div>'+
+    '<div class="card">'+
+      '<div class="row"><span class="muted">Class</span><b>'+(u.studentClass?'Class '+esc(u.studentClass):'Not added')+'</b></div>'+
+      '<div class="row" style="margin-top:10px"><span class="muted">School</span><b>'+esc(u.school||'Not added')+'</b></div>'+
+      '<div class="row" style="margin-top:10px"><span class="muted">District</span><b>'+esc(u.district||'Not added')+'</b></div>'+
+      '<div class="row" style="margin-top:10px"><span class="muted">State</span><b>'+esc(u.state||'Not added')+'</b></div>'+
+      '<div class="row" style="margin-top:10px"><span class="muted">Country</span><b>'+esc(u.country||'India')+'</b></div>'+
+      '<button class="btn light block" style="margin-top:14px" onclick="editStudentProfile()">✏️ Edit Student Profile</button>'+
+    '</div>'+
+
+    (u.role==='learner'?
+      '<div class="section"><b>Parent / Teacher Link</b></div>'+
+      '<div class="card"><div class="muted">Share this code with your parent or teacher so they can request access to your learning progress.</div>'+
+      '<div style="font-size:28px;font-weight:900;letter-spacing:3px;text-align:center;margin:14px 0">'+esc(u.linkCode||'Not available')+'</div>'+
+      '<div class="muted center">Student Link Code</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn block" onclick="copyLinkCode()">📋 Copy Code</button><button class="btn gold block" onclick="shareLinkCode()">↗ Share</button></div></div>':'')+
+
+    '<div class="section"><b>Learning</b></div>'+
+    '<div class="card">'+
+      '<button class="btn block" onclick="go(\'history\')">📚 Quiz History</button>'+
+      '<button class="btn light block" style="margin-top:8px" onclick="progress()">📊 Learning Progress</button>'+
+      '<button class="btn light block" style="margin-top:8px" onclick="rewardsScreen()">🏅 Rewards & Coins</button>'+
+    '</div>'+
+
+    (u.role==='admin'?
+      '<div class="section"><b>Administration</b></div>'+
+      '<div class="card admin"><p class="muted">Manage quizzes and publish daily content.</p>'+
+      '<button class="btn gold" onclick="admin()">Open Admin Console</button></div>':'')+
+
+    '<div class="section"><b>Account</b></div>'+
+    '<div class="card">'+
+      '<button class="btn light block" onclick="go(\'settings\')">⚙️ Settings</button>'+
+    '</div>'+
+    '<div class="card">'+
+      '<button class="btn block" onclick="logout()">Log out</button>'+
+      '<button class="btn danger block" style="margin-top:8px" onclick="deleteAccount()">Delete account</button>'+
+    '</div>');
 }
+
 function progress(){
   var u=ensureUserData(user());
   var history=u.history||[];
@@ -4929,7 +4209,6 @@ async function notifications(){
 
   shell(`
     <div class="row" style="margin-bottom:14px">      <div>        <h1 style="margin:0">Notifications</h1>        <div class="muted">Stay updated with your Skill Saga journey.</div>      </div>    </div>
-    ${requestHtml}
     <div class="section"><b>For You</b><span class="muted">Your latest learning updates</span></div>
     <div class="card" style="margin-bottom:10px">
       <div class="row">
@@ -4962,103 +4241,35 @@ async function notifications(){
       </div>
     </div>  `);
 }
-function startQuiz(id){
-  if(window.skillSagaQuizTimer){
-    clearInterval(window.skillSagaQuizTimer);
-    window.skillSagaQuizTimer=null;
-  }
-
-  let c=local.content.find(x=>x.id===id)||daily();
-
-  if(!c||!Array.isArray(c.questions)||!c.questions.length){
-    alert('This quiz has no questions available.');
-    return;
-  }
-
-  quizState={
-    c:c,
-    q:0,
-    score:0,
-    answered:false,
-    completed:false,
-    timedOut:false,
-    responses:[]
-  };
-
-  renderQuiz();
-}
-
+function startQuiz(id){let c=local.content.find(x=>x.id===id)||daily();quizState={c,q:0,score:0,answered:false};renderQuiz()}
 function renderQuiz(){
-  let s=quizState;
-
-  if(!s||s.completed||!s.c||!Array.isArray(s.c.questions)){
-    return;
-  }
-
-  let x=s.c.questions[s.q];
-
-  if(!x){
-    return finishQuiz();
-  }
-
-  if(window.skillSagaQuizTimer){
-    clearInterval(window.skillSagaQuizTimer);
-    window.skillSagaQuizTimer=null;
-  }
-
-  s.timeLeft=Number(s.c.timePerQuestion||s.c.timeLimit||60);
-  if(!Number.isFinite(s.timeLeft)||s.timeLeft<5)s.timeLeft=60;
-
-  shell(`<div class="row"><button class="back" onclick="go('home')">‹</button><b>${esc(s.c.title)}</b><span id="quizTimer">⏱ ${s.timeLeft}s</span></div><p class="muted">Question ${s.q+1} of ${s.c.questions.length}</p><div class="bar"><i style="width:${(s.q/s.c.questions.length)*100}%"></i></div><div class="card" style="margin-top:18px"><h2>${esc(x[0])}</h2>${x[1].map((o,i)=>`<button class="option" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}</div>`);
-
-  window.skillSagaQuizTimer=setInterval(()=>{
-    if(!quizState||quizState.completed){
-      clearInterval(window.skillSagaQuizTimer);
-      window.skillSagaQuizTimer=null;
-      return;
-    }
-
-    quizState.timeLeft--;
-
-    let el=document.getElementById('quizTimer');
-    if(el)el.textContent='⏱ '+Math.max(0,quizState.timeLeft)+'s';
-
-    if(quizState.timeLeft<=0){
-      clearInterval(window.skillSagaQuizTimer);
-      window.skillSagaQuizTimer=null;
-
-      if(!quizState.answered){
-        quizState.answered=true;
-        quizState.timedOut=true;
-
-        quizState.responses.push({
-          questionIndex:quizState.q,
-          selected:null,
-          correct:false,
-          timedOut:true,
-          timeLimit:Number(s.timeLimit||60)
-        });
-
-        setTimeout(()=>{
-          if(!quizState||quizState.completed)return;
-
-          if(quizState.q<quizState.c.questions.length-1){
-            quizState.q++;
-            quizState.answered=false;
-            quizState.timedOut=false;
-            renderQuiz();
-          }else{
-            finishQuiz();
-          }
-        },150);
-      }
-    }
-  },1000);
+let s=quizState,x=s.c.questions[s.q];
+if(window.skillSagaQuizTimer)clearInterval(window.skillSagaQuizTimer);
+s.timeLeft=60;
+shell(`<div class="row"><button class="back" onclick="go('home')">‹</button><b>${esc(s.c.title)}</b><span id="quizTimer">⏱ 60s</span></div><p class="muted">Question ${s.q+1} of ${s.c.questions.length}</p><div class="bar"><i style="width:${(s.q/s.c.questions.length)*100}%"></i></div><div class="card" style="margin-top:18px"><h2>${esc(x[0])}</h2>${x[1].map((o,i)=>`<button class="option" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}</div>`);
+window.skillSagaQuizTimer=setInterval(()=>{
+if(!quizState)return;
+quizState.timeLeft--;
+let el=document.getElementById('quizTimer');
+if(el)el.textContent='⏱ '+Math.max(0,quizState.timeLeft)+'s';
+if(quizState.timeLeft<=0){
+clearInterval(window.skillSagaQuizTimer);
+if(!quizState.answered){
+quizState.answered=true;
+setTimeout(()=>{
+if(quizState.q<quizState.c.questions.length-1){
+quizState.q++;
+quizState.answered=false;
+renderQuiz();
+}else finishQuiz();
+},150);
+}
+}
+},1000);
 }
 
 function answer(i){
-  if(!quizState||quizState.completed||quizState.answered)return;
-
+  if(quizState.answered)return;
   quizState.answered=true;
 
   let x=quizState.c.questions[quizState.q];
@@ -5072,15 +4283,6 @@ function answer(i){
     if(os[i])os[i].classList.add('no');
     if(os[x[2]])os[x[2]].classList.add('ok');
   }
-
-  if(!Array.isArray(quizState.responses))quizState.responses=[];
-  quizState.responses.push({
-    questionIndex:quizState.q,
-    selected:i,
-    correct:correct,
-    timedOut:false,
-    timeLeft:Math.max(0,Number(quizState.timeLeft||0))
-  });
 
   if(window.skillSagaQuizTimer){
     clearInterval(window.skillSagaQuizTimer);
@@ -5101,17 +4303,12 @@ function answer(i){
   box.className='card';
   box.style.marginTop='12px';
 
-  var isLastQuestion = quizState.q >= quizState.c.questions.length - 1;
-
   box.innerHTML=
     '<b style="color:'+(correct?'#18a66f':'#d94b55')+'">'+
     (correct?'✓ Correct!':'✗ Not quite')+
     '</b>'+
     '<p class="muted" style="margin:8px 0 12px">'+esc(feedback)+'</p>'+
-    (isLastQuestion
-      ? '<div style="margin:10px 0;font-weight:800;font-size:18px">🎉 Quiz Completed!</div>'+
-        '<button class="btn gold block" onclick="finishQuiz()">View Result →</button>'
-      : '<button class="btn gold block" onclick="nextQuizQuestion()">Next Question →</button>');
+    '<button class="btn gold block" onclick="nextQuizQuestion()">Next Question →</button>';
 
   let roots=document.querySelectorAll('.card');
   let quizRoot=roots.length?roots[0]:null;
@@ -5126,12 +4323,8 @@ async function finishQuiz(){
   var u=user();
 
   if(!s||!s.c||!Array.isArray(s.c.questions)||!u){
-    return;
+    return go('play');
   }
-
-  if(s.resultShown)return;
-  s.resultShown=true;
-  s.completed=true;
 
   if(window.skillSagaQuizTimer){
     clearInterval(window.skillSagaQuizTimer);
@@ -5244,24 +4437,7 @@ async function finishQuiz(){
     percentage:pct,
     xp:xpEarned,
     coins:coinsEarned,
-    skill:skillName,
-    topic:s.c.topic||'General',
-    responses:Array.isArray(s.responses)?s.responses.map(function(r){
-      return {
-        questionIndex:Number(r.questionIndex||0),
-        selected:Number(r.selected),
-        correct:!!r.correct,
-        timedOut:!!r.timedOut
-      };
-    }):[],
-    questions:Array.isArray(s.c.questions)?s.c.questions.map(function(q){
-      return {
-        question:String(q.question||q[0]||''),
-        options:Array.isArray(q.options)?q.options.map(String):(Array.isArray(q[1])?q[1].map(String):[]),
-        correctIndex:Number(q.correctIndex!=null?q.correctIndex:(q[2]||0)),
-        explanation:String(q.explanation||q[3]||q.feedback||'')
-      };
-    }):[]
+    skill:skillName
   });
 
   if(u.history.length>50)u.history=u.history.slice(0,50);
@@ -5269,27 +4445,11 @@ async function finishQuiz(){
   ensureUserData(u);
   writeLocal(u);
 
-  // Save cloud data in the background so Firebase/network issues
-  // can never block the learner from seeing the quiz result.
   try{
-    saveCloudUser(u).catch(function(e){
-      console.warn('Quiz user cloud save failed',e);
-    });
+    await saveCloudUser(u);
 
     if(firebase&&firebase.firestore&&firebase.auth&&firebase.auth().currentUser){
-      
-      // Mark teacher assignment completed after learner finishes the quiz.
-      if(s.assignmentId&&cloudDb){
-        cloudDb.collection('assignments').doc(s.assignmentId).update({
-          status:'completed',
-          completedAt:firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function(e){
-          console.warn('Assignment completion update failed',e);
-        });
-      }
-
-      cloudDb.collection('quizAttempts').add({
+      await cloudDb.collection('quizAttempts').add({
         quizId:s.c.id||'',
         quizTitle:s.c.title||'Quiz',
         uid:firebase.auth().currentUser.uid,
@@ -5301,12 +4461,10 @@ async function finishQuiz(){
         skill:skillName,
         topic:s.c.topic||'General',
         completedAt:firebase.firestore.FieldValue.serverTimestamp()
-      }).catch(function(e){
-        console.warn('Quiz attempt cloud save failed',e);
       });
     }
   }catch(e){
-    console.warn('Quiz result cloud save setup failed',e);
+    console.warn('Quiz result cloud save failed',e);
   }
 
   var message=
@@ -5330,34 +4488,18 @@ async function finishQuiz(){
       '<button class="btn light block" style="margin-top:8px" onclick="go(\'home\')">Go to Home</button>'+
     '</div>';
 
-  var root=document.getElementById('root');
-  if(root){
-    root.innerHTML=message;
-    document.body.scrollTop=0;
-    document.documentElement.scrollTop=0;
-  }
-
-  // Result is already fully calculated locally.
-  // Keep the learner's result visible even if a cloud write has an issue.
-  try{
-    window.scrollTo({top:0,behavior:'smooth'});
-  }catch(e){
-    window.scrollTo(0,0);
-  }
+  var app=document.getElementById('app');
+  if(app)app.innerHTML=message;
 }
 
 function nextQuizQuestion(){
   let s=quizState;
-
-  if(!s||s.completed)return;
-
   let box=document.getElementById('quizFeedback');
   if(box)box.remove();
 
   if(s.q<s.c.questions.length-1){
     s.q++;
     s.answered=false;
-    s.timedOut=false;
     renderQuiz();
   }else{
     finishQuiz();
@@ -5722,11 +4864,7 @@ async function verifyMobileSignupOTP(){
     var user=result.user;
 
     var name=window.skillSagaSignupName||'Skill Saga Learner';
-    var role=(document.getElementById('signupRole')||{}).value||'learner';
-    if(!['learner','parent','teacher'].includes(role))role='learner';
-
     var data=freshUser(name,'');
-    data.role=role;
     data.mobile=user.phoneNumber||'';
     data.uid=user.uid;
 
@@ -5742,7 +4880,7 @@ async function verifyMobileSignupOTP(){
     }
 
     currentUser=data;
-    toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created');
+    toast('Account created successfully');
     setTimeout(function(){home();},500);
   }catch(err){
     toast(err.message||'Invalid OTP');
@@ -5770,9 +4908,7 @@ async function verifySSOTP(){
 }
 
 async function login(){let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
-async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u,cred.user);
-if(role==='learner')await saveStudentDirectory(u);
-local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
+async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u);if(role==='learner')await saveStudentDirectory(u);local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
 async function resetPassword(){let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
 async function logout(){try{if(firebaseReady)await firebase.auth().signOut()}catch(e){ }cloudUser=null;local={content:[],users:{}};loginScreen()}
 async function deleteAccount(){if(!cloudUser)return;if(!confirm('Delete your Skill Saga account? This cannot be undone.'))return;try{await cloudDb.collection('users').doc(cloudUser.uid).delete();await cloudUser.delete();toast('Account deleted');}catch(e){toast('Please sign in again before deleting the account.')}}
@@ -6044,14 +5180,7 @@ function adminQuizData(published){
     date:date,
     publishDate:date,
     xp:xp,
-    questions:qs.map(function(x){
-      return {
-        question:String(x[0]||''),
-        options:Array.isArray(x[1])?x[1].map(String):[],
-        correctIndex:Number(x[2]||0),
-        explanation:String(x[3]||'')
-      };
-    }),
+    questions:qs,
     published:published,
     status:published?'published':'draft',
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
@@ -6114,63 +5243,23 @@ async function publishQuiz(){
 }
 
 async function previewAdminQuizById(id){
+  var q=null;
   try{
-    var q=null;
-
     if(cloudDb){
       var d=await cloudDb.collection('quizzes').doc(id).get();
       if(d.exists)q={id:d.id,...d.data()};
     }
-
-    if(!q){
-      q=(Array.isArray(local.content)?local.content:[]).find(function(x){
-        return x.id===id;
-      });
-    }
-
-    if(!q)return toast('Quiz not found');
-
-    q.questions=normalizeQuizQuestions(q.questions);
-
-    if(!q.questions.length)return toast('This quiz has no valid questions');
-
-    var data=q;
-    var question=data.questions[0];
-
-    var html='<div class="card">'+
-      '<h2>'+esc(data.title||'Quiz')+'</h2>'+
-      '<div class="muted">'+
-        esc(data.category||'Academic')+' • '+
-        esc(data.difficulty||'Foundation')+' • '+
-        esc(data.topic||'General')+
-      '</div>'+
-      '<hr>'+
-      '<b>Question 1</b>'+
-      '<p>'+esc(question[0])+'</p>'+
-      question[1].map(function(o,i){
-        return '<div class="notice" style="margin:6px 0">'+
-          String.fromCharCode(65+i)+'. '+esc(o)+
-        '</div>';
-      }).join('')+
-      '<p class="small muted">'+
-        (data.questions.length-1)+' more question(s)'+
-      '</p>'+
-      '</div>'+
-      '<button class="btn light block" onclick="admin()">← Back to Admin</button>';
-
-    shell(
-      '<div class="row">'+
-      '<button class="back" onclick="admin()">‹</button>'+
-      '<h1>Quiz Preview</h1>'+
-      '</div>'+
-      html
-    );
-
-  }catch(e){
-    console.error('Quiz preview error:',e);
-    toast(e.message||'Could not preview quiz');
+  }catch(e){}
+  if(!q){
+    q=(Array.isArray(local.content)?local.content:[]).find(function(x){return x.id===id;});
   }
+  if(!q)return toast('Quiz not found');
+  var old=local.content;
+  local.content=[q];
+  previewAdminQuiz();
+  local.content=old;
 }
+
 function previewAdminQuiz(){
   try{
     var data=adminQuizData(false);
@@ -6459,15 +5548,6 @@ async function importAdminCSV(){
         q.status='draft';
       }
 
-      q.questions=q.questions.map(function(x){
-        return {
-          question:String(x[0]||''),
-          options:Array.isArray(x[1])?x[1].map(String):[],
-          correctIndex:Number(x[2]||0),
-          explanation:String(x[3]||'')
-        };
-      });
-
       await cloudDb.collection('quizzes').add(q);
     }
 
@@ -6529,7 +5609,7 @@ async function teacherDashboard(){
     '<button class="btn block" style="margin-top:8px" onclick="linkStudentByEmail()">🔗 Link Student</button></div>'+
     '<div class="section"><b>My Students</b></div>'+
     (students.length?students.map(function(x){
-      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+' • '+(x.studentAccuracy||x.accuracy||0)+'% accuracy</div></div><button class="btn light" onclick="viewTeacherStudent(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">View</button></div></div>';
+      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+' • '+(x.studentAccuracy||x.accuracy||0)+'% accuracy</div></div><button class="btn light" onclick="viewTeacherStudent(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">View</button></div></div>';
     }).join(''):'<div class="card"><div class="muted">No students linked yet.</div></div>')+
     '<div class="section"><b>Teacher Tools</b></div>'+
     '<div class="grid"><div class="tile" onclick="teacherClassProgress()"><span class="ico">📊</span><b>Class Progress</b><small>Performance overview</small></div>'+
@@ -6566,7 +5646,7 @@ function teacherStudentChooser(title,subtitle,callback){
     '<div class="section"><b>Select Student</b></div>';
 
   students.forEach(function(x){
-    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">'+
+    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">'+
       '<div class="row"><div style="font-size:28px">🎓</div><div><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'')+'</div></div><span style="margin-left:auto">›</span></div>'+
       '</button>';
   });
@@ -6654,8 +5734,8 @@ function chooseTeacherAssignmentQuiz(uid){
   }else{
     quizzes.forEach(function(q){
       html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="assignQuizToStudent(\''+
-        String(student.uid||'').replace(/'/g,"\'")+'\',\''+
-        String(q.id||'').replace(/'/g,"\'")+'\')">'+
+        String(student.uid||'').replace(/'/g,"\\'")+'\',\''+
+        String(q.id||'').replace(/'/g,"\\'")+'\')">'+
         '<div class="row"><div><b>'+esc(q.title||'Quiz')+'</b>'+
         '<div class="muted" style="margin-top:5px">'+esc(q.skill||q.category||'General')+
         (q.topic?' · '+esc(q.topic):'')+
@@ -6773,9 +5853,9 @@ async function syncRelationships(){
       .where('status','==','active')
       .get();
 
-    var links=await Promise.all(snap.docs.map(async function(d){
+    var links=snap.docs.map(function(d){
       var r=d.data();
-      var student={
+      return {
         uid:r.studentUid,
         name:r.studentName||'Student',
         email:r.studentEmail||'',
@@ -6788,35 +5868,7 @@ async function syncRelationships(){
         mastery:{},
         skills:[50,50,50,50]
       };
-
-      try{
-        if(r.studentUid){
-          var studentSnap=await cloudDb.collection('users').doc(r.studentUid).get();
-          if(studentSnap.exists){
-            var data=studentSnap.data()||{};
-            student={
-              ...student,
-              ...data,
-              uid:r.studentUid,
-              name:data.name||student.name,
-              email:data.email||student.email
-            };
-
-            var history=Array.isArray(data.history)?data.history:[];
-            student.quizzes=history.length;
-            student.accuracy=history.length
-              ? Math.round(history.reduce(function(sum,x){
-                  return sum+Number(x.percentage||0);
-                },0)/history.length)
-              : 0;
-          }
-        }
-      }catch(e){
-        console.warn('Unable to load student data',r.studentUid,e);
-      }
-
-      return student;
-    }));
+    });
 
     if(links.length){
       u.linkedStudents=links;
@@ -6882,10 +5934,8 @@ async function linkStudentByEmail(){
     if(input)input.value='';
     toast('Link request sent to student');
   }catch(e){
-    console.error('Link request failed:',e);
-    console.error('Link request error code:',e && e.code);
-    console.error('Link request error message:',e && e.message);
-    toast((e && e.code)?('Link failed: '+e.code):'Unable to send link request');
+    console.warn('Link request failed',e);
+    toast('Unable to send link request');
   }
 }
 
@@ -6901,7 +5951,7 @@ async function parentDashboard(){
     '<button class="btn block" style="margin-top:8px" onclick="linkStudentByEmail()">🔗 Link Student</button></div>'+
     '<div class="section"><b>Linked Students</b></div>'+
     (students.length?students.map(function(x){
-      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+'</div></div><button class="btn light" onclick="viewLinkedStudent(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">View</button></div></div>';
+      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+'</div></div><button class="btn light" onclick="viewLinkedStudent(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">View</button></div></div>';
     }).join(''):'<div class="card"><div class="muted">No students linked yet.</div></div>')+
     '<div class="section"><b>Parent Tools</b></div>'+
     '<div class="grid"><div class="tile" onclick="parentProgress()"><span class="ico">📊</span><b>Progress</b><small>Learning overview</small></div>'+
@@ -6934,7 +5984,7 @@ function parentStudentChooser(title,subtitle,callback){
     '<div class="section"><b>Select Student</b></div>';
 
   students.forEach(function(x){
-    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">'+
+    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">'+
       '<div class="row"><div style="font-size:28px">🎓</div><div><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'')+'</div></div><span style="margin-left:auto">›</span></div>'+
       '</button>';
   });
@@ -7122,7 +6172,7 @@ function ssPlayRenderResults(matches,title){
             '</small>'+
           '</div>'+
           '<button onclick="startQuiz(\''+
-            String(q.id||'').replace(/'/g,"\'")+
+            String(q.id||'').replace(/'/g,"\\'")+
           '\')">Start</button>'+
         '</div>';
     });
@@ -7155,15 +6205,15 @@ function ssPlayFilter(){
   var html=
     '<div id="ssPlayFilterOverlay" style="position:fixed;inset:0;background:rgba(7,27,67,.45);z-index:99999;padding:18px;display:flex;align-items:flex-end">'+
       '<div style="width:100%;background:#fff;border-radius:22px;padding:18px;max-height:80vh;overflow:auto">'+
-        '<div class="row"><h2 style="margin:0">Filter Play</h2><button class="back" onclick="document.getElementById(\'ssPlayFilterOverlay\').remove()">×</button></div>'+
+        '<div class="row"><h2 style="margin:0">Filter Play</h2><button class="back" onclick="document.getElementById(\\'ssPlayFilterOverlay\\').remove()">×</button></div>'+
         '<p class="muted">Choose a category to explore.</p>'+
         '<div class="ss-play-grid">';
 
   categories.forEach(function(c){
     html+=
-      '<div class="ss-play-category" onclick="document.getElementById(\'ssPlayFilterOverlay\').remove();ssPlayCategory(\''+
-      c[0].replace(/'/g,"\'")+
-      '\')">'+
+      '<div class="ss-play-category" onclick="document.getElementById(\\'ssPlayFilterOverlay\\').remove();ssPlayCategory(\\''+
+      c[0].replace(/'/g,"\\'")+
+      '\\')">'+
         '<div class="ss-play-category-icon">'+c[1]+'</div>'+
         '<b>'+esc(c[0])+'</b>'+
         '<small>Explore quizzes</small>'+

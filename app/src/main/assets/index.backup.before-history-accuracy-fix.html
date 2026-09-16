@@ -1950,51 +1950,13 @@ async function saveStudentDirectory(u){
   }
 }
 
-async function saveCloudUser(u,authUser){
-  var au=authUser||cloudUser;
-  if(!au||!cloudDb)return;
-  let data={...u,password:null,uid:au.uid,email:au.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
-  delete data.password;
-  await cloudDb.collection('users').doc(au.uid).set(data,{merge:true});
-}
-function normalizeQuizQuestions(qs){
-  if(!Array.isArray(qs))return [];
-
-  return qs.map(function(x){
-    if(Array.isArray(x)){
-      return [
-        String(x[0]||''),
-        Array.isArray(x[1])?x[1].map(String):[],
-        Number(x[2]||0),
-        String(x[3]||'')
-      ];
-    }
-
-    if(x&&typeof x==='object'){
-      return [
-        String(x.question||''),
-        Array.isArray(x.options)?x.options.map(String):[],
-        Number(x.correctIndex??0),
-        String(x.explanation||x.feedback||'')
-      ];
-    }
-
-    return null;
-  }).filter(function(x){
-    return x&&x[1].length===4;
-  });
-}
-
+async function saveCloudUser(u){if(!cloudUser||!cloudDb)return;let data={...u,password:null,uid:cloudUser.uid,email:cloudUser.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};delete data.password;await cloudDb.collection('users').doc(cloudUser.uid).set(data,{merge:true})}
 async function loadCloudContent(){
   if(!cloudDb)return;
   try{
     let snap=await cloudDb.collection('quizzes').where('published','==',true).get();
     let today=new Date().toISOString().slice(0,10);
-    local.content=snap.docs.map(function(d){
-        var x={id:d.id,...d.data()};
-        x.questions=normalizeQuizQuestions(x.questions);
-        return x;
-      })
+    local.content=snap.docs.map(function(d){return {id:d.id,...d.data()};})
       .filter(function(x){
         var pd=x.publishDate||x.date||'';
         return !pd||pd<=today;
@@ -2016,22 +1978,6 @@ function daily(){
     return x.type==='daily';
   })||fallbackQuiz;
 }
-
-function weekly(){
-  var today=new Date().toISOString().slice(0,10);
-  var arr=Array.isArray(local.content)?local.content:[];
-
-  return arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)===today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)<=today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false;
-  }) || null;
-}
-
 async function leaderboardData(){
   let me=user();
   let arr=[];
@@ -2065,7 +2011,6 @@ async function home(){
 
   let r=await rank();
   let d=daily();
-  let w=weekly();
 
   let lastHistory=
     Array.isArray(u.history)&&u.history.length
@@ -2136,7 +2081,7 @@ async function home(){
         </div>
 
         <button class="ss-home-continue-btn"
-          onclick="startQuiz('${String(continueQuiz.id).replace(/'/g,"\'")}')">
+          onclick="startQuiz('${String(continueQuiz.id).replace(/'/g,"\\'")}')">
           Continue →
         </button>
       </div>`;
@@ -2226,7 +2171,7 @@ async function home(){
           </p>
 
           <button class="ss-home-start"
-            onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+            onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
             Start Challenge →
           </button>
 
@@ -2297,8 +2242,6 @@ function weekKey(){
 
 function challengesScreen(){
   var d=daily();
-  var w=weekly();
-  var w=weekly();
   var u=ensureUserData(user());
   var today=challengeDateKey();
   var week=weekKey();
@@ -2334,7 +2277,7 @@ function challengesScreen(){
       '<p><b>'+Math.min(5,weeklyCount)+'/5</b> weekly challenges completed</p>'+
       (weeklyCount>=5?
         '<div class="notice">🎉 Weekly goal complete! Keep practicing for more XP.</div>':
-        '<button class="btn gold block" onclick="startQuiz(\''+(w&&w.id?w.id:d.id)+'\')">Continue Weekly Goal</button>')+
+        '<button class="btn gold block" onclick="startQuiz(\''+d.id+'\')">Continue Weekly Goal</button>')+
     '</div>'+
 
     '<div class="section"><b>Your Challenge Streak</b></div>'+
@@ -2386,7 +2329,7 @@ async function showStudentAssignments(){
         '<div class="muted" style="margin-top:5px">'+esc(a.skill||a.category||'General')+
         (a.topic?' · '+esc(a.topic):'')+
         ' · '+esc(a.difficulty||'Medium')+'</div></div></div>'+
-        (quiz?'<button class="btn" style="margin-top:12px" onclick="startAssignedQuiz(\''+String(a.quizId||'').replace(/'/g,"\'")+'\',\''+String(a.id||'').replace(/'/g,"\'")+'\')">Start Quiz →</button>':
+        (quiz?'<button class="btn" style="margin-top:12px" onclick="startAssignedQuiz(\''+String(a.quizId||'').replace(/'/g,"\\'")+'\',\''+String(a.id||'').replace(/'/g,"\\'")+'\')">Start Quiz →</button>':
         '<div class="muted" style="margin-top:10px">This quiz is no longer available.</div>')+
         '</div>';
     });
@@ -2395,26 +2338,9 @@ async function showStudentAssignments(){
   shell(html);
 }
 
-async function startAssignedQuiz(quizId,assignmentId){
+function startAssignedQuiz(quizId,assignmentId){
   var quiz=Array.isArray(local.content)?local.content.find(function(q){return q.id===quizId;}):null;
-
-  try{
-    if(!quiz&&cloudDb&&quizId){
-      var snap=await cloudDb.collection('quizzes').doc(quizId).get();
-      if(snap.exists){
-        quiz={id:snap.id,...snap.data()};
-        quiz.questions=normalizeQuizQuestions(quiz.questions);
-      }
-    }
-  }catch(e){
-    console.warn('Assigned quiz load failed',e);
-  }
-
   if(!quiz)return toast('Quiz is no longer available');
-  if(!Array.isArray(quiz.questions)||!quiz.questions.length){
-    return toast('This quiz has no valid questions');
-  }
-
   quizState={c:quiz,q:0,score:0,answered:false,assignmentId:assignmentId};
   renderQuiz();
 }
@@ -2426,7 +2352,6 @@ async function play(){
   ensureUserData(u);
 
   var d=daily();
-  var w=weekly();
 
   var today=challengeDateKey();
   var week=typeof weekKey==='function'?weekKey():today;
@@ -2455,7 +2380,7 @@ async function play(){
   var categoryHtml=categories.map(function(c){
     return `
       <div class="ss-play-category"
-           onclick="ssPlayCategory('${c[1].replace(/'/g,"\'")}')">
+           onclick="ssPlayCategory('${c[1].replace(/'/g,"\\'")}')">
         <div class="ss-play-category-icon">${c[0]}</div>
         <b>${esc(c[1])}</b>
         <small>Practice & Improve</small>
@@ -2592,7 +2517,7 @@ async function play(){
             </div>
 
             <button class="ss-play-action"
-              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               ${doneToday?'Practice Again →':'Start Now →'}
             </button>
 
@@ -2625,7 +2550,7 @@ async function play(){
             </div>
 
             <button class="ss-play-action"
-              onclick="startQuiz('${String((w&&w.id)||d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               Continue Weekly Goal →
             </button>
 
@@ -2832,9 +2757,9 @@ shell(
 '<div class="grid" style="margin-top:18px">'+
 skills.map(function(x){
 return '<div class="tile" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-x.replace(/'/g,"\'")+
+x.replace(/'/g,"\\'")+
 '\')">'+
 '<span class="ico">🎯</span>'+
 '<b>'+esc(x)+'</b>'+
@@ -2851,7 +2776,7 @@ if(!topic){
 shell(
 '<div class="row">'+
 '<button class="back" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\')">‹</button>'+
 '<div>'+
 '<h1 style="margin:0">'+esc(skill)+'</h1>'+
@@ -2861,11 +2786,11 @@ category.replace(/'/g,"\'")+
 '<div class="grid" style="margin-top:18px">'+
 topics.map(function(x){
 return '<div class="tile" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-skill.replace(/'/g,"\'")+
+skill.replace(/'/g,"\\'")+
 '\',\''+
-x.replace(/'/g,"\'")+
+x.replace(/'/g,"\\'")+
 '\')">'+
 '<span class="ico">📘</span>'+
 '<b>'+esc(x)+'</b>'+
@@ -2897,9 +2822,9 @@ var levelRequirements={
 shell(
 '<div class="row">'+
 '<button class="back" onclick="quizBrowser(\''+
-category.replace(/'/g,"\'")+
+category.replace(/'/g,"\\'")+
 '\',\''+
-skill.replace(/'/g,"\'")+
+skill.replace(/'/g,"\\'")+
 '\')">‹</button>'+
 '<div>'+
 '<h1 style="margin:0">'+esc(topic)+'</h1>'+
@@ -2963,7 +2888,6 @@ async function compete(){
 
   var myRank=await rank();
   var d=daily();
-  var w=weekly();
 
   var xp=Number(u.xp||0);
   var level=Number(u.level||1);
@@ -3082,7 +3006,7 @@ async function compete(){
             </div>
 
             <button class="ss-compete-button"
-              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               Start Challenge →
             </button>
 
@@ -3120,7 +3044,7 @@ async function compete(){
             </div>
 
             <button class="ss-compete-button"
-              onclick="startQuiz('${String((w&&w.id)||d.id||'').replace(/'/g,"\'")}')">
+              onclick="startQuiz('${String(d.id||'').replace(/'/g,"\\'")}')">
               View Weekly Challenge →
             </button>
 
@@ -3850,25 +3774,20 @@ async function claimReward(name,cost){
 
 function history(){
   var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
+  var h=u.history||[];
 
   var rows='';
   if(!h.length){
     rows='<div class="card center" style="margin-top:15px"><div style="font-size:50px">📚</div><h3>No quiz history yet</h3><p class="muted">Complete your first challenge and your results will appear here.</p><button class="btn" onclick="go(\'play\')">Start Learning</button></div>';
   }else{
-    rows=h.map(function(x,i){
+    rows=h.map(function(x){
       var d=new Date(x.date);
       var date=isNaN(d.getTime())?'':d.toLocaleDateString();
-      var pct=Number(x.percentage);
-      if(!Number.isFinite(pct)){
-        pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-      }
-
-      return '<button class="card" style="width:100%;text-align:left;border:0;margin:10px 0;cursor:pointer" onclick="showQuizAttemptDetail('+i+')">'+
+      return '<div class="card" style="margin:10px 0">'+
         '<div class="row"><b>'+esc(x.title||'Quiz')+'</b><span class="badge">'+date+'</span></div>'+
-        '<p class="muted">'+Number(x.score||0)+'/'+Number(x.total||0)+' correct • '+pct+'% accuracy</p>'+
-        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b><span style="margin-left:auto">View Details →</span></div>'+
-      '</button>';
+        '<p class="muted">'+x.score+'/'+x.total+' correct • '+x.accuracy+'% accuracy</p>'+
+        '<div class="row"><span>XP earned</span><b>+'+(x.studentXp||x.xp||0)+'</b></div>'+
+      '</div>';
     }).join('');
   }
 
@@ -3878,68 +3797,6 @@ function history(){
     '<div class="section"><b>Recent Attempts</b></div>'+
     rows
   );
-}
-
-function showQuizAttemptDetail(index){
-  var u=ensureUserData(user());
-  var h=Array.isArray(u.history)?u.history:[];
-  var x=h[Number(index)];
-
-  if(!x)return toast('Attempt not found');
-
-  var pct=Number(x.percentage);
-  if(!Number.isFinite(pct)){
-    pct=x.total?Math.round((Number(x.score||0)/Number(x.total))*100):0;
-  }
-
-  var html=
-    '<div class="row">'+
-      '<button class="back" onclick="history()">‹</button>'+
-      '<div><h1 style="margin:0">Attempt Details</h1><div class="muted">'+esc(x.title||'Quiz')+'</div></div>'+
-      '<span>📊</span>'+
-    '</div>'+
-    '<div class="hero" style="margin-top:15px">'+
-      '<small>QUIZ RESULT</small>'+
-      '<h2>'+Number(x.score||0)+' / '+Number(x.total||0)+'</h2>'+
-      '<p>'+pct+'% accuracy • +'+Number(x.studentXp||x.xp||0)+' XP • +'+Number(x.coins||0)+' 🪙</p>'+
-    '</div>';
-
-  if(Array.isArray(x.questions)&&x.questions.length){
-    html+='<div class="section"><b>Question Review</b></div>';
-
-    x.questions.forEach(function(q,i){
-      var r=Array.isArray(x.responses)?x.responses.find(function(z){
-        return Number(z.questionIndex)===i;
-      }):null;
-
-      var selected=r?Number(r.selected):null;
-      var correctIndex=Number(q.correctIndex||0);
-      var options=Array.isArray(q.options)?q.options:[];
-
-      html+=
-        '<div class="card" style="margin-bottom:10px">'+
-          '<b>Q'+(i+1)+'. '+esc(q.question||'Question')+'</b>'+
-          '<div class="muted" style="margin-top:8px">Your answer: '+
-            (selected!==null&&options[selected]!=null?esc(options[selected]):'Not answered')+
-          '</div>'+
-          '<div style="margin-top:5px"><b>Correct answer: '+
-            (options[correctIndex]!=null?esc(options[correctIndex]):'—')+
-          '</b></div>'+
-          (q.explanation?'<div class="muted" style="margin-top:7px">'+esc(q.explanation)+'</div>':'')+
-          '<div style="margin-top:8px;font-weight:800">'+
-            (r&&r.correct?'✓ Correct':'✗ Incorrect')+
-          '</div>'+
-        '</div>';
-    });
-  }else{
-    html+=
-      '<div class="card" style="margin-top:15px">'+
-        '<b>Attempt summary</b>'+
-        '<p class="muted">Detailed question-by-question answers are not available for this older attempt.</p>'+
-      '</div>';
-  }
-
-  shell(html);
 }
 
 function editStudentProfile(){
@@ -4929,7 +4786,6 @@ async function notifications(){
 
   shell(`
     <div class="row" style="margin-bottom:14px">      <div>        <h1 style="margin:0">Notifications</h1>        <div class="muted">Stay updated with your Skill Saga journey.</div>      </div>    </div>
-    ${requestHtml}
     <div class="section"><b>For You</b><span class="muted">Your latest learning updates</span></div>
     <div class="card" style="margin-bottom:10px">
       <div class="row">
@@ -5073,7 +4929,6 @@ function answer(i){
     if(os[x[2]])os[x[2]].classList.add('ok');
   }
 
-  if(!Array.isArray(quizState.responses))quizState.responses=[];
   quizState.responses.push({
     questionIndex:quizState.q,
     selected:i,
@@ -5101,17 +4956,12 @@ function answer(i){
   box.className='card';
   box.style.marginTop='12px';
 
-  var isLastQuestion = quizState.q >= quizState.c.questions.length - 1;
-
   box.innerHTML=
     '<b style="color:'+(correct?'#18a66f':'#d94b55')+'">'+
     (correct?'✓ Correct!':'✗ Not quite')+
     '</b>'+
     '<p class="muted" style="margin:8px 0 12px">'+esc(feedback)+'</p>'+
-    (isLastQuestion
-      ? '<div style="margin:10px 0;font-weight:800;font-size:18px">🎉 Quiz Completed!</div>'+
-        '<button class="btn gold block" onclick="finishQuiz()">View Result →</button>'
-      : '<button class="btn gold block" onclick="nextQuizQuestion()">Next Question →</button>');
+    '<button class="btn gold block" onclick="nextQuizQuestion()">Next Question →</button>';
 
   let roots=document.querySelectorAll('.card');
   let quizRoot=roots.length?roots[0]:null;
@@ -5125,13 +4975,17 @@ async function finishQuiz(){
   var s=quizState;
   var u=user();
 
-  if(!s||!s.c||!Array.isArray(s.c.questions)||!u){
-    return;
+  if(s&&s.completed)return;
+  if(s)s.completed=true;
+
+  if(window.skillSagaQuizTimer){
+    clearInterval(window.skillSagaQuizTimer);
+    window.skillSagaQuizTimer=null;
   }
 
-  if(s.resultShown)return;
-  s.resultShown=true;
-  s.completed=true;
+  if(!s||!s.c||!Array.isArray(s.c.questions)||!u){
+    return go('play');
+  }
 
   if(window.skillSagaQuizTimer){
     clearInterval(window.skillSagaQuizTimer);
@@ -5244,24 +5098,7 @@ async function finishQuiz(){
     percentage:pct,
     xp:xpEarned,
     coins:coinsEarned,
-    skill:skillName,
-    topic:s.c.topic||'General',
-    responses:Array.isArray(s.responses)?s.responses.map(function(r){
-      return {
-        questionIndex:Number(r.questionIndex||0),
-        selected:Number(r.selected),
-        correct:!!r.correct,
-        timedOut:!!r.timedOut
-      };
-    }):[],
-    questions:Array.isArray(s.c.questions)?s.c.questions.map(function(q){
-      return {
-        question:String(q.question||q[0]||''),
-        options:Array.isArray(q.options)?q.options.map(String):(Array.isArray(q[1])?q[1].map(String):[]),
-        correctIndex:Number(q.correctIndex!=null?q.correctIndex:(q[2]||0)),
-        explanation:String(q.explanation||q[3]||q.feedback||'')
-      };
-    }):[]
+    skill:skillName
   });
 
   if(u.history.length>50)u.history=u.history.slice(0,50);
@@ -5269,27 +5106,11 @@ async function finishQuiz(){
   ensureUserData(u);
   writeLocal(u);
 
-  // Save cloud data in the background so Firebase/network issues
-  // can never block the learner from seeing the quiz result.
   try{
-    saveCloudUser(u).catch(function(e){
-      console.warn('Quiz user cloud save failed',e);
-    });
+    await saveCloudUser(u);
 
     if(firebase&&firebase.firestore&&firebase.auth&&firebase.auth().currentUser){
-      
-      // Mark teacher assignment completed after learner finishes the quiz.
-      if(s.assignmentId&&cloudDb){
-        cloudDb.collection('assignments').doc(s.assignmentId).update({
-          status:'completed',
-          completedAt:firebase.firestore.FieldValue.serverTimestamp(),
-          updatedAt:firebase.firestore.FieldValue.serverTimestamp()
-        }).catch(function(e){
-          console.warn('Assignment completion update failed',e);
-        });
-      }
-
-      cloudDb.collection('quizAttempts').add({
+      await cloudDb.collection('quizAttempts').add({
         quizId:s.c.id||'',
         quizTitle:s.c.title||'Quiz',
         uid:firebase.auth().currentUser.uid,
@@ -5301,12 +5122,10 @@ async function finishQuiz(){
         skill:skillName,
         topic:s.c.topic||'General',
         completedAt:firebase.firestore.FieldValue.serverTimestamp()
-      }).catch(function(e){
-        console.warn('Quiz attempt cloud save failed',e);
       });
     }
   }catch(e){
-    console.warn('Quiz result cloud save setup failed',e);
+    console.warn('Quiz result cloud save failed',e);
   }
 
   var message=
@@ -5330,20 +5149,8 @@ async function finishQuiz(){
       '<button class="btn light block" style="margin-top:8px" onclick="go(\'home\')">Go to Home</button>'+
     '</div>';
 
-  var root=document.getElementById('root');
-  if(root){
-    root.innerHTML=message;
-    document.body.scrollTop=0;
-    document.documentElement.scrollTop=0;
-  }
-
-  // Result is already fully calculated locally.
-  // Keep the learner's result visible even if a cloud write has an issue.
-  try{
-    window.scrollTo({top:0,behavior:'smooth'});
-  }catch(e){
-    window.scrollTo(0,0);
-  }
+  var app=document.getElementById('app');
+  if(app)app.innerHTML=message;
 }
 
 function nextQuizQuestion(){
@@ -5722,11 +5529,7 @@ async function verifyMobileSignupOTP(){
     var user=result.user;
 
     var name=window.skillSagaSignupName||'Skill Saga Learner';
-    var role=(document.getElementById('signupRole')||{}).value||'learner';
-    if(!['learner','parent','teacher'].includes(role))role='learner';
-
     var data=freshUser(name,'');
-    data.role=role;
     data.mobile=user.phoneNumber||'';
     data.uid=user.uid;
 
@@ -5742,7 +5545,7 @@ async function verifyMobileSignupOTP(){
     }
 
     currentUser=data;
-    toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created');
+    toast('Account created successfully');
     setTimeout(function(){home();},500);
   }catch(err){
     toast(err.message||'Invalid OTP');
@@ -5770,9 +5573,7 @@ async function verifySSOTP(){
 }
 
 async function login(){let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
-async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u,cred.user);
-if(role==='learner')await saveStudentDirectory(u);
-local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
+async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u);if(role==='learner')await saveStudentDirectory(u);local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
 async function resetPassword(){let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
 async function logout(){try{if(firebaseReady)await firebase.auth().signOut()}catch(e){ }cloudUser=null;local={content:[],users:{}};loginScreen()}
 async function deleteAccount(){if(!cloudUser)return;if(!confirm('Delete your Skill Saga account? This cannot be undone.'))return;try{await cloudDb.collection('users').doc(cloudUser.uid).delete();await cloudUser.delete();toast('Account deleted');}catch(e){toast('Please sign in again before deleting the account.')}}
@@ -6044,14 +5845,7 @@ function adminQuizData(published){
     date:date,
     publishDate:date,
     xp:xp,
-    questions:qs.map(function(x){
-      return {
-        question:String(x[0]||''),
-        options:Array.isArray(x[1])?x[1].map(String):[],
-        correctIndex:Number(x[2]||0),
-        explanation:String(x[3]||'')
-      };
-    }),
+    questions:qs,
     published:published,
     status:published?'published':'draft',
     updatedAt:firebase.firestore.FieldValue.serverTimestamp()
@@ -6114,63 +5908,23 @@ async function publishQuiz(){
 }
 
 async function previewAdminQuizById(id){
+  var q=null;
   try{
-    var q=null;
-
     if(cloudDb){
       var d=await cloudDb.collection('quizzes').doc(id).get();
       if(d.exists)q={id:d.id,...d.data()};
     }
-
-    if(!q){
-      q=(Array.isArray(local.content)?local.content:[]).find(function(x){
-        return x.id===id;
-      });
-    }
-
-    if(!q)return toast('Quiz not found');
-
-    q.questions=normalizeQuizQuestions(q.questions);
-
-    if(!q.questions.length)return toast('This quiz has no valid questions');
-
-    var data=q;
-    var question=data.questions[0];
-
-    var html='<div class="card">'+
-      '<h2>'+esc(data.title||'Quiz')+'</h2>'+
-      '<div class="muted">'+
-        esc(data.category||'Academic')+' • '+
-        esc(data.difficulty||'Foundation')+' • '+
-        esc(data.topic||'General')+
-      '</div>'+
-      '<hr>'+
-      '<b>Question 1</b>'+
-      '<p>'+esc(question[0])+'</p>'+
-      question[1].map(function(o,i){
-        return '<div class="notice" style="margin:6px 0">'+
-          String.fromCharCode(65+i)+'. '+esc(o)+
-        '</div>';
-      }).join('')+
-      '<p class="small muted">'+
-        (data.questions.length-1)+' more question(s)'+
-      '</p>'+
-      '</div>'+
-      '<button class="btn light block" onclick="admin()">← Back to Admin</button>';
-
-    shell(
-      '<div class="row">'+
-      '<button class="back" onclick="admin()">‹</button>'+
-      '<h1>Quiz Preview</h1>'+
-      '</div>'+
-      html
-    );
-
-  }catch(e){
-    console.error('Quiz preview error:',e);
-    toast(e.message||'Could not preview quiz');
+  }catch(e){}
+  if(!q){
+    q=(Array.isArray(local.content)?local.content:[]).find(function(x){return x.id===id;});
   }
+  if(!q)return toast('Quiz not found');
+  var old=local.content;
+  local.content=[q];
+  previewAdminQuiz();
+  local.content=old;
 }
+
 function previewAdminQuiz(){
   try{
     var data=adminQuizData(false);
@@ -6459,15 +6213,6 @@ async function importAdminCSV(){
         q.status='draft';
       }
 
-      q.questions=q.questions.map(function(x){
-        return {
-          question:String(x[0]||''),
-          options:Array.isArray(x[1])?x[1].map(String):[],
-          correctIndex:Number(x[2]||0),
-          explanation:String(x[3]||'')
-        };
-      });
-
       await cloudDb.collection('quizzes').add(q);
     }
 
@@ -6529,7 +6274,7 @@ async function teacherDashboard(){
     '<button class="btn block" style="margin-top:8px" onclick="linkStudentByEmail()">🔗 Link Student</button></div>'+
     '<div class="section"><b>My Students</b></div>'+
     (students.length?students.map(function(x){
-      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+' • '+(x.studentAccuracy||x.accuracy||0)+'% accuracy</div></div><button class="btn light" onclick="viewTeacherStudent(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">View</button></div></div>';
+      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+' • '+(x.studentAccuracy||x.accuracy||0)+'% accuracy</div></div><button class="btn light" onclick="viewTeacherStudent(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">View</button></div></div>';
     }).join(''):'<div class="card"><div class="muted">No students linked yet.</div></div>')+
     '<div class="section"><b>Teacher Tools</b></div>'+
     '<div class="grid"><div class="tile" onclick="teacherClassProgress()"><span class="ico">📊</span><b>Class Progress</b><small>Performance overview</small></div>'+
@@ -6566,7 +6311,7 @@ function teacherStudentChooser(title,subtitle,callback){
     '<div class="section"><b>Select Student</b></div>';
 
   students.forEach(function(x){
-    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">'+
+    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">'+
       '<div class="row"><div style="font-size:28px">🎓</div><div><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'')+'</div></div><span style="margin-left:auto">›</span></div>'+
       '</button>';
   });
@@ -6654,8 +6399,8 @@ function chooseTeacherAssignmentQuiz(uid){
   }else{
     quizzes.forEach(function(q){
       html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="assignQuizToStudent(\''+
-        String(student.uid||'').replace(/'/g,"\'")+'\',\''+
-        String(q.id||'').replace(/'/g,"\'")+'\')">'+
+        String(student.uid||'').replace(/'/g,"\\'")+'\',\''+
+        String(q.id||'').replace(/'/g,"\\'")+'\')">'+
         '<div class="row"><div><b>'+esc(q.title||'Quiz')+'</b>'+
         '<div class="muted" style="margin-top:5px">'+esc(q.skill||q.category||'General')+
         (q.topic?' · '+esc(q.topic):'')+
@@ -6773,9 +6518,9 @@ async function syncRelationships(){
       .where('status','==','active')
       .get();
 
-    var links=await Promise.all(snap.docs.map(async function(d){
+    var links=snap.docs.map(function(d){
       var r=d.data();
-      var student={
+      return {
         uid:r.studentUid,
         name:r.studentName||'Student',
         email:r.studentEmail||'',
@@ -6788,35 +6533,7 @@ async function syncRelationships(){
         mastery:{},
         skills:[50,50,50,50]
       };
-
-      try{
-        if(r.studentUid){
-          var studentSnap=await cloudDb.collection('users').doc(r.studentUid).get();
-          if(studentSnap.exists){
-            var data=studentSnap.data()||{};
-            student={
-              ...student,
-              ...data,
-              uid:r.studentUid,
-              name:data.name||student.name,
-              email:data.email||student.email
-            };
-
-            var history=Array.isArray(data.history)?data.history:[];
-            student.quizzes=history.length;
-            student.accuracy=history.length
-              ? Math.round(history.reduce(function(sum,x){
-                  return sum+Number(x.percentage||0);
-                },0)/history.length)
-              : 0;
-          }
-        }
-      }catch(e){
-        console.warn('Unable to load student data',r.studentUid,e);
-      }
-
-      return student;
-    }));
+    });
 
     if(links.length){
       u.linkedStudents=links;
@@ -6882,10 +6599,8 @@ async function linkStudentByEmail(){
     if(input)input.value='';
     toast('Link request sent to student');
   }catch(e){
-    console.error('Link request failed:',e);
-    console.error('Link request error code:',e && e.code);
-    console.error('Link request error message:',e && e.message);
-    toast((e && e.code)?('Link failed: '+e.code):'Unable to send link request');
+    console.warn('Link request failed',e);
+    toast('Unable to send link request');
   }
 }
 
@@ -6901,7 +6616,7 @@ async function parentDashboard(){
     '<button class="btn block" style="margin-top:8px" onclick="linkStudentByEmail()">🔗 Link Student</button></div>'+
     '<div class="section"><b>Linked Students</b></div>'+
     (students.length?students.map(function(x){
-      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+'</div></div><button class="btn light" onclick="viewLinkedStudent(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">View</button></div></div>';
+      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎓</div><div style="flex:1"><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'Linked learner')+'</div></div><button class="btn light" onclick="viewLinkedStudent(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">View</button></div></div>';
     }).join(''):'<div class="card"><div class="muted">No students linked yet.</div></div>')+
     '<div class="section"><b>Parent Tools</b></div>'+
     '<div class="grid"><div class="tile" onclick="parentProgress()"><span class="ico">📊</span><b>Progress</b><small>Learning overview</small></div>'+
@@ -6934,7 +6649,7 @@ function parentStudentChooser(title,subtitle,callback){
     '<div class="section"><b>Select Student</b></div>';
 
   students.forEach(function(x){
-    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\'")+'\')">'+
+    html+='<button class="card" style="width:100%;text-align:left;border:0;margin-bottom:10px" onclick="'+callback+'(\''+String(x.uid||'').replace(/'/g,"\\'")+'\')">'+
       '<div class="row"><div style="font-size:28px">🎓</div><div><b>'+esc(x.name||'Student')+'</b><div class="muted">'+esc(x.email||'')+'</div></div><span style="margin-left:auto">›</span></div>'+
       '</button>';
   });
@@ -7122,7 +6837,7 @@ function ssPlayRenderResults(matches,title){
             '</small>'+
           '</div>'+
           '<button onclick="startQuiz(\''+
-            String(q.id||'').replace(/'/g,"\'")+
+            String(q.id||'').replace(/'/g,"\\'")+
           '\')">Start</button>'+
         '</div>';
     });
@@ -7155,15 +6870,15 @@ function ssPlayFilter(){
   var html=
     '<div id="ssPlayFilterOverlay" style="position:fixed;inset:0;background:rgba(7,27,67,.45);z-index:99999;padding:18px;display:flex;align-items:flex-end">'+
       '<div style="width:100%;background:#fff;border-radius:22px;padding:18px;max-height:80vh;overflow:auto">'+
-        '<div class="row"><h2 style="margin:0">Filter Play</h2><button class="back" onclick="document.getElementById(\'ssPlayFilterOverlay\').remove()">×</button></div>'+
+        '<div class="row"><h2 style="margin:0">Filter Play</h2><button class="back" onclick="document.getElementById(\\'ssPlayFilterOverlay\\').remove()">×</button></div>'+
         '<p class="muted">Choose a category to explore.</p>'+
         '<div class="ss-play-grid">';
 
   categories.forEach(function(c){
     html+=
-      '<div class="ss-play-category" onclick="document.getElementById(\'ssPlayFilterOverlay\').remove();ssPlayCategory(\''+
-      c[0].replace(/'/g,"\'")+
-      '\')">'+
+      '<div class="ss-play-category" onclick="document.getElementById(\\'ssPlayFilterOverlay\\').remove();ssPlayCategory(\\''+
+      c[0].replace(/'/g,"\\'")+
+      '\\')">'+
         '<div class="ss-play-category-icon">'+c[1]+'</div>'+
         '<b>'+esc(c[0])+'</b>'+
         '<small>Explore quizzes</small>'+

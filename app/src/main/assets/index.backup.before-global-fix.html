@@ -1,0 +1,588 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#07152f"><title>Skill Saga</title>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#071127;font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:#14213d}.app{width:min(460px,100vw);min-height:100vh;margin:auto;background:#f7f9fd;padding-bottom:96px}.top{padding:calc(14px + env(safe-area-inset-top)) 17px 14px;display:flex;justify-content:space-between;align-items:center;background:#07152f;color:#fff;position:sticky;top:0;z-index:5}.brand{display:flex;align-items:center;gap:9px}.brand img{width:42px;height:42px;border-radius:12px;object-fit:cover}.brand b{font-size:20px}.brand b span{color:#e8b94f}.iconbtn{border:0;background:#ffffff12;color:#fff;border-radius:12px;padding:9px 11px}.main{padding:18px}.muted{color:#74819b;font-size:13px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}.stat,.card,.tile{background:#fff;border-radius:18px;padding:15px;box-shadow:0 7px 24px #10204d12}.stat b{display:block;font-size:18px}.stat small{color:#7b88a0}.hero{background:linear-gradient(135deg,#0a2453,#1769ff 55%,#7047ef);color:#fff;border-radius:21px;padding:18px;margin:13px 0}.hero h2{margin:4px 0}.btn{border:0;border-radius:12px;padding:12px 17px;font-weight:850;cursor:pointer;background:#1769ff;color:#fff}.btn.gold{background:#e9b84d;color:#07152f}.btn.light{background:#fff;color:#1769ff}.btn.block{width:100%}.section{display:flex;justify-content:space-between;align-items:center;margin:19px 2px 9px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.tile{cursor:pointer}.tile .ico{font-size:27px}.tile b{display:block;margin-top:6px}.skills{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.skill{text-align:center;background:#fff;border-radius:14px;padding:11px 3px;font-size:11px}.skill b{display:block;font-size:15px}.bar{height:8px;background:#e7ebf4;border-radius:8px;overflow:hidden}.bar i{display:block;height:100%;background:#1769ff}.nav{position:fixed;bottom:0;width:min(460px,100vw);height:82px;padding-bottom:env(safe-area-inset-bottom);background:#fff;border-top:1px solid #e9edf4;display:flex;justify-content:space-around;align-items:center;z-index:10}.nav button{border:0;background:none;color:#7d89a1;font-size:10px;font-weight:800;min-width:0;flex:1;padding:3px 0;line-height:1.05;overflow:hidden}.nav button.active{color:#1769ff}.nav span{display:block;font-size:15px;line-height:1.15;white-space:normal;overflow:hidden;text-overflow:ellipsis}.option{display:block;width:100%;padding:14px;margin:8px 0;border:1px solid #dce3ef;background:#fff;border-radius:13px;text-align:left;font-weight:650;cursor:pointer}.option.ok{background:#e9faf3;border-color:#18b978}.option.no{background:#fff0f1;border-color:#ef5b62}.badge{display:inline-block;padding:7px 9px;border-radius:9px;background:#fff3ca;margin:3px;font-size:11px;font-weight:800}.row{display:flex;align-items:center;justify-content:space-between;gap:10px}.back{border:0;background:none;font-size:27px;cursor:pointer}.input,.area{width:100%;padding:13px 14px;border:1px solid #d9e1ee;border-radius:12px;margin:6px 0 11px;font-size:15px}.auth{min-height:100vh;background:linear-gradient(160deg,#06132e,#0c2553);color:#fff;padding:28px 20px;display:flex;align-items:center}.authbox{width:100%;background:#fff;color:#14213d;border-radius:24px;padding:22px;box-shadow:0 20px 60px #0005}.authlogo{display:block;width:92px;height:92px;border-radius:22px;margin:0 auto 10px}.tabs{display:flex;background:#eef2f8;border-radius:12px;padding:3px;margin:12px 0}.tabs button{flex:1;border:0;padding:10px;border-radius:9px;background:none;font-weight:800}.tabs .on{background:#fff;box-shadow:0 2px 8px #0001}.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:#07152f;color:#fff;padding:11px 15px;border-radius:12px;z-index:30;font-size:13px;max-width:90%;text-align:center}.active-row{background:#eef5ff}.active-row td{font-weight:800}.table{width:100%;border-collapse:collapse}.table td,.table th{padding:10px 5px;border-bottom:1px solid #edf0f5;text-align:left;font-size:13px}.admin{background:#fff7df;border:1px solid #f1d98d}.danger{background:#fff0f1;color:#b4232d}.small{font-size:11px}.center{text-align:center}.pill{padding:5px 8px;border-radius:9px;background:#edf3ff;font-size:11px;font-weight:800}.link{color:#1769ff;font-weight:800;cursor:pointer}.notice{padding:11px 13px;border-radius:12px;background:#eef5ff;margin:10px 0;font-size:12px}
+</style></head><body><div id="root"></div><script>
+(async function(){
+
+const LOGO='logo.png';
+const firebaseConfig={apiKey:'AIzaSyDGYbsgP-vyDP2QOOjVzH1gqgZ4i7viyTQ',authDomain:'skill-saga-cb695.firebaseapp.com',projectId:'skill-saga-cb695',storageBucket:'skill-saga-cb695.firebasestorage.app',messagingSenderId:'354189057486',appId:'1:354189057486:android:766d2f40945b738f8fdf9f'};
+let firebaseReady=false,cloudUser=null,cloudDb=null,screen='home',quizState=null,authMode='login',local={content:[],users:{}};
+try{firebase.initializeApp(firebaseConfig);cloudDb=firebase.firestore();firebaseReady=true}catch(e){console.warn(e)}
+const fallbackQuiz={id:'daily-science',type:'daily',title:"Today's Science Challenge",category:'Science',difficulty:'Easy',xp:120,date:new Date().toISOString().slice(0,10),published:true,questions:[
+['Which process allows green plants to prepare their own food?',['Respiration','Digestion','Photosynthesis','Transpiration'],2],
+['Which gas is mainly used by plants during photosynthesis?',['Oxygen','Carbon dioxide','Nitrogen','Hydrogen'],1],
+['What is the main source of energy for Earth?',['Moon','Wind','Sun','Soil'],2],
+['Which part of a plant absorbs most water from soil?',['Flower','Roots','Fruit','Leaf'],1],
+['Which organ pumps blood through the human body?',['Lungs','Brain','Heart','Kidney'],2]]};
+const rewards=[{id:'first',name:'First Step',cost:0},{id:'streak7',name:'7 Day Streak',cost:500},{id:'champion',name:'Quiz Champion',cost:1000},{id:'master',name:'Skill Master',cost:2500}];
+function toast(t){let x=document.createElement('div');x.className='toast';x.textContent=t;document.body.appendChild(x);setTimeout(()=>x.remove(),2200)}
+function key(){return cloudUser?'ss_'+cloudUser.uid:'ss_guest'}
+function readLocal(){try{return JSON.parse(localStorage.getItem(key()))||{}}catch(e){return {}}}
+function writeLocal(u){localStorage.setItem(key(),JSON.stringify(u))}
+function freshUser(name,email){return{name,email,xp:0,streak:0,level:1,quizzes:0,accuracy:0,skills:[0,0,0,0],badges:[],lastQuizDate:'',role:'learner'}}
+function user(){if(!cloudUser)return null;return local.user||freshUser(cloudUser.displayName||cloudUser.email.split('@')[0],cloudUser.email)}
+async function cloudUserDoc(){if(!cloudUser)return null;let s=await cloudDb.collection('users').doc(cloudUser.uid).get();return s.exists?s.data():null}
+async function saveCloudUser(u){if(!cloudUser||!cloudDb)return;let data={...u,password:null,uid:cloudUser.uid,email:cloudUser.email,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};delete data.password;await cloudDb.collection('users').doc(cloudUser.uid).set(data,{merge:true})}
+async function loadCloudContent(){if(!cloudDb)return;try{let snap=await cloudDb.collection('quizzes').where('published','==',true).get();local.content=snap.docs.map(d=>({id:d.id,...d.data()}));if(!local.content.length)local.content=[fallbackQuiz]}catch(e){local.content=[fallbackQuiz]}}
+function daily(){let today=new Date().toISOString().slice(0,10);return local.content.find(x=>x.type==='daily'&&x.date===today)||local.content.find(x=>x.type==='daily')||fallbackQuiz}
+async function leaderboardData(){if(!cloudDb)return Object.values(local.users||{});try{let s=await cloudDb.collection('users').orderBy('xp','desc').limit(20).get();return s.docs.map(d=>d.data())}catch(e){return []}}
+async function rank(){let u=user();let arr=await leaderboardData();if(!u||!arr.length)return null;let same=arr.some(x=>x.uid===u.uid);if(!same&&!(u.xp||0))return null;return 1+arr.filter(x=>(x.xp||0)>(u.xp||0)).length}
+function shell(content){document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><button class="iconbtn" onclick="notifications()">🔔</button></header><main class="main">${content}${screen==="home"?`<div class="section"><b>Challenges</b></div><div class="card challenge-card"><div class="row"><div><b>📅 Daily Challenge</b><div class="muted">${challengeDailyDone()?"Completed today 🎉":"Complete today’s daily quiz"}</div></div><span class="badge">${challengeDailyDone()?"✓":"+"+challengeDailyReward.coins+" 🪙"}</span></div>${challengeDailyDone()?`<div class="bar" style="margin-top:10px"><i style="width:100%"></i></div>`:`<button class="btn block" style="margin-top:10px" onclick="startDailyChallenge()">Start Daily Challenge</button>`}</div><div class="card challenge-card" style="margin-top:10px"><div class="row"><div><b>📆 Weekly Challenge</b><div class="muted">${weeklyChallengeProgress()}/5 quizzes completed</div></div><span class="badge">+${challengeWeeklyReward.coins} 🪙</span></div><div class="bar" style="margin-top:10px"><i style="width:${Math.min(100,weeklyChallengeProgress()/5*100)}%"></i></div><p class="muted">${weeklyChallengeDone()?"🏆 Weekly challenge completed!":"Complete 5 quizzes this week to earn your reward."}</p></div>`:""}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
+async function go(n){screen=n;if(n==='home')return home();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile()}
+async function home(){let u=user();if(!u)return loginScreen();let r=await rank();let d=daily();shell(`<div class="muted">Welcome back 👋</div><h1>Hi, ${esc(u.name)}!</h1><div class="muted">A smarter way to learn — one challenge at a time.</div><div class="stats"><div class="stat"><b>${u.xp}</b><small>XP</small></div><div class="stat"><b>${u.streak} 🔥</b><small>Streak</small></div><div class="stat"><b>${r==null?"—":"#"+r}</b><small>Rank</small></div></div><div class="hero"><small>TODAY'S MISSION</small><h2>${esc(d.title)}</h2><p>${d.questions.length} Questions • ${esc(d.difficulty||'Mixed')}</p><button class="btn light" onclick="startQuiz('${d.id}')">Start Challenge →</button></div><div class="section"><b>Your Skills</b><span class="link" onclick="go('skills')">View all</span></div><div class="skills">${[['➗','Numerical'],['🧪','Science'],['📖','English'],['🧠','Reasoning']].map((x,i)=>`<div class="skill">${x[0]}<b>${u.skills[i]}</b>${x[1]}</div>`).join('')}</div><div class="section"><b>Next milestone</b></div><div class="card"><b>Level ${u.level}</b><p class="muted">${u.xp%500}/500 XP toward the next level.</p><div class="bar"><i style="width:${(u.xp%500)/5}%"></i></div></div>`)}
+function play(){shell(`<h1>Play</h1><div class="muted">Practice school subjects and real-world skills.</div><div class="section"><b>Learn & Practice</b></div><div class="grid">${[['➗','Maths'],['🧪','Science'],['📖','English'],['🌍','Social Science'],['🧠','Logic'],['⚡','Speed'],['🧩','Memory'],['🔤','Vocabulary']].map(x=>`<div class="tile" onclick="startQuiz('${daily().id}')"><span class="ico">${x[0]}</span><b>${x[1]}</b><small>Practice</small></div>`).join('')}</div><div class="section"><b>Daily goal</b></div><div class="card"><b>Complete one focused challenge</b><p class="muted">Build XP, improve accuracy and maintain your streak.</p><button class="btn" onclick="startQuiz('${daily().id}')">Practice now</button></div>`)}
+async function compete(){
+  let arr=await leaderboardData(),p=challengeProgress();
+  shell(`<h1>Compete</h1>
+  <div class="muted">Healthy competition. Real improvement.</div>
+
+  <div class="card" style="margin-top:15px">
+    <div class="row"><b>Today's Challenge 🏆</b>
+    <span class="badge">${p.dailyDone?'✓ Done':'Ready'}</span></div>
+    <p class="muted">${p.dailyDone?'Great work! Come back tomorrow for a new challenge.':'Complete today\'s challenge and earn XP + Skill Saga Coins.'}</p>
+    <button class="btn ${p.dailyDone?'light':'gold'}" ${p.dailyDone?'disabled':''} onclick="startDailyChallenge()">
+      ${p.dailyDone?'Completed Today':'Start Today’s Challenge'}
+    </button>
+  </div>
+
+  <div class="section"><b>Weekly Challenge</b></div>
+  <div class="card">
+    <div class="row"><b>🎯 Weekly Skill Champion</b><span class="badge">${p.weekly}/${p.weeklyGoal}</span></div>
+    <p class="muted">Complete 5 challenges this week and earn bonus recognition.</p>
+    <div class="bar"><i style="width:${Math.min(100,p.weekly/p.weeklyGoal*100)}%"></i></div>
+    <button class="btn block" style="margin-top:12px" onclick="weeklyChallengeScreen()">View Weekly Challenge</button>
+  </div>
+
+  <div class="section"><b>Leaderboard</b></div>
+  ${leaderboard(arr)}`);
+}
+function leaderboard(arr){let u=user();arr=Array.isArray(arr)?arr.filter(x=>x&&x.name):[];arr.sort((a,b)=>(b.xp||0)-(a.xp||0));if(!arr.length)return '<div class="card"><div class="center"><div style="font-size:42px">🏆</div><b>No leaderboard entries yet</b><p class="muted">Complete a quiz to start your ranking journey.</p></div></div>';let me=arr.findIndex(x=>x.uid&&u&&x.uid===u.uid);let myRank=me>=0?me+1:null;let rows=arr.slice(0,10).map((x,i)=>`<tr class="${x.uid&&u&&x.uid===u.uid?'active-row':''}"><td>${i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1}</td><td><b>${esc(x.name||'Learner')}</b><br><small>Level ${1+Math.floor((x.xp||0)/500)}</small></td><td><b>${x.xp||0}</b><br><small>XP</small></td></tr>`).join('');let myRow=myRank&&myRank>10?`<div class="notice" style="margin-top:10px">Your position: <b>#${myRank}</b> • ${u.xp||0} XP</div>`:'';return `<div class="card"><table class="table"><tr><th>#</th><th>Learner</th><th>Score</th></tr>${rows}</table>${myRow}</div>`}
+function skills(){let u=user();let names=['Numerical','Reasoning','Problem Solving','Speed','Accuracy','Memory','Vocabulary','Scientific Thinking'];let vals=[u.skills[0],u.skills[3],u.skills[0],u.skills[3],u.accuracy,u.skills[2],u.skills[1],u.skills[2]];shell(`<h1>My Skill DNA</h1><div class="muted">Your skills change as you learn and practice.</div><div class="card" style="margin-top:15px">${names.map((n,i)=>`<div style="margin:12px 0"><div class="row"><span>${n}</span><b>${vals[i]}</b></div><div class="bar"><i style="width:${vals[i]}%"></i></div></div>`).join('')}</div><div class="section"><b>Achievements & Rewards</b></div><div class="card">${u.badges.length?u.badges.map(x=>`<span class="badge">🏅 ${esc(x)}</span>`).join(''):'<span class="muted">Complete challenges to unlock badges.</span>'}</div><button class="btn gold block" onclick="rewardsScreen()">Open Rewards</button>`)}
+function rewardsScreen(){let u=user();u.coins=Number(u.coins||0);u.claimedRewards=Array.isArray(u.claimedRewards)?u.claimedRewards:[];shell(`<div class="row"><button class="back" onclick="go('skills')">‹</button><h1>Rewards</h1><span></span></div><div class="hero"><small>SKILL SAGA COINS</small><h2>🪙 ${u.coins}</h2><p>Earn coins by learning and completing challenges.</p></div>${rewards.map(r=>{let done=u.claimedRewards.includes(r.id);let can=u.coins>=r.cost;return `<div class="card" style="margin:10px 0"><div class="row"><div><b>${r.icon||'🏅'} ${r.name}</b><div class="muted">${r.cost===0?'Free achievement':r.cost+' 🪙'}</div></div><button class="btn gold" ${done||!can?'disabled':''} onclick="claimReward('${r.id}')">${done?'Unlocked':can?'Unlock':'Need Coins'}</button></div></div>`}).join('')}<div class="notice">Skill Saga Coins are educational rewards only. They cannot be withdrawn as cash and are not gambling credits.</div>`)}
+
+async function claimReward(id){let u=user(),r=rewards.find(x=>x.id===id);if(!r)return;u.coins=Number(u.coins||0);u.claimedRewards=Array.isArray(u.claimedRewards)?u.claimedRewards:[];u.badges=Array.isArray(u.badges)?u.badges:[];if(u.claimedRewards.includes(id))return;if(u.coins<r.cost)return toast('Not enough Skill Saga Coins');u.coins-=r.cost;u.claimedRewards.push(id);if(!u.badges.includes(r.name))u.badges.push(r.name);await persistUser(u);toast('🎉 Reward unlocked!');rewardsScreen()}
+async function claimReward(id){let u=user(),r=rewards.find(x=>x.id===id);if(u.badges.includes(r.name))return;if(r.cost&&u.xp<r.cost)return toast('Not enough XP yet');if(r.cost)u.xp-=r.cost;u.badges.push(r.name);await persistUser(u);toast('Achievement unlocked!');rewardsScreen()}
+function profile(){let u=user();shell(`<h1>Profile</h1><div class="card center" style="margin-top:15px"><div style="font-size:58px">👤</div><h2>${esc(u.name)}</h2><div class="muted">${esc(u.email)}</div><span class="badge">Level ${u.level}</span><span class="badge">🔥 ${u.streak}-day streak</span><span class="badge">⭐ ${u.xp} XP</span></div><div class="section"><b>My progress</b></div><div class="grid"><div class="tile"><b>${u.quizzes}</b><small>Quizzes completed</small></div><div class="tile"><b>${u.accuracy}%</b><small>Accuracy</small></div></div>${u.role==='admin'?'<div class="section"><b>Administration</b></div><div class="card admin"><p class="muted">Manage quizzes and publish daily content.</p><button class="btn gold" onclick="admin()">Open Admin Console</button></div>':''}<div class="section"><b>Rewards & History</b></div><div class="card"><p>🪙 Skill Saga Coins: <b>${Number(u.coins||0)}</b></p><button class="btn block" onclick="rewardsScreen()">Open Rewards</button><button class="btn light block" style="margin-top:8px" onclick="badgesScreen()">🏆 Achievements</button><button class="btn light block" style="margin-top:8px" onclick="showQuizHistory()">Quiz History</button><button class="btn light block" style="margin-top:8px" onclick="progressScreen()">📊 My Progress</button><button class="btn light block" style="margin-top:8px" onclick="settingsScreen()">⚙️ Settings</button></div><div class="section"><b>Account</b></div><div class="card"><button class="btn block" onclick="logout()">Log out</button><button class="btn danger block" style="margin-top:8px" onclick="deleteAccount()">Delete account</button></div>`)}
+const challengeDailyReward={xp:100,coins:50};
+const challengeWeeklyReward={xp:500,coins:250};
+
+function challengeToday(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function weekKey(){
+  let d=new Date(),day=d.getUTCDay()||7;
+  d.setUTCDate(d.getUTCDate()-day+1);
+  return d.toISOString().slice(0,10);
+}
+
+function challengeDailyDone(){
+  let u=user(),today=challengeToday();
+  return Array.isArray(u.quizHistory)&&u.quizHistory.some(x=>x.date&&x.date.slice(0,10)===today);
+}
+
+function weeklyChallengeProgress(){
+  let u=user(),start=weekKey();
+  return Array.isArray(u.quizHistory)?u.quizHistory.filter(x=>x.date&&x.date.slice(0,10)>=start).length:0;
+}
+
+function weeklyChallengeDone(){
+  return weeklyChallengeProgress()>=5;
+}
+
+function startDailyChallenge(){
+  if(challengeDailyDone())return toast('Daily Challenge already completed today 🎉');
+  let c=daily();
+  if(!c)return toast('Daily quiz is not available yet');
+  quizState={c:c,g:0,score:0,answered:false};
+  renderQuiz();
+}
+
+function badgesScreen(){
+  let u=user();
+  let badges=[
+    {id:'first',icon:'🌟',name:'First Step',desc:'Complete your first quiz',ok:(u.quizzes||0)>=1},
+    {id:'accuracy',icon:'🎯',name:'Accuracy Ace',desc:'Reach 80% overall accuracy',ok:(u.accuracy||0)>=80},
+    {id:'streak7',icon:'🔥',name:'7 Day Streak',desc:'Maintain a 7-day learning streak',ok:(u.streak||0)>=7},
+    {id:'champion',icon:'🏆',name:'Quiz Champion',desc:'Complete 10 quizzes',ok:(u.quizzes||0)>=10},
+    {id:'level5',icon:'⭐',name:'Rising Star',desc:'Reach Level 5',ok:(u.level||1)>=5},
+    {id:'master',icon:'🥇',name:'Skill Master',desc:'Reach Level 10',ok:(u.level||1)>=10},{id:'weekly',icon:'🏅',name:'Weekly Champion',desc:'Complete 5 challenges in a week',ok:(u.weeklyChallengeCount||0)>=5}
+  ];
+  shell(`<div class="row"><button class="back" onclick="go('profile')">‹</button><h1>Achievements</h1><span></span></div>
+  <div class="hero"><small>YOUR ACHIEVEMENTS</small><h2>🏆 ${badges.filter(b=>b.ok).length}/${badges.length}</h2><p>Keep learning to unlock more badges.</p></div>
+  ${badges.map(b=>`<div class="card" style="margin:10px 0;opacity:${b.ok?1:.55}">
+    <div class="row"><div style="font-size:34px">${b.icon}</div><div style="flex:1;margin-left:10px"><b>${b.name}</b><div class="muted">${b.desc}</div></div><span class="badge">${b.ok?'✓ Earned':'Locked'}</span></div>
+  </div>`).join('')}`);
+}
+
+
+function notificationCenter(){
+  let u=user();
+  let n=Array.isArray(u.notifications)?u.notifications:[];
+  let html='<div class="row"><button class="back" onclick="go(\'home\')">‹</button><h1>Notifications</h1><button class="btn light" onclick="markNotificationsRead()">Clear</button></div>';
+
+  if(!n.length){
+    html+='<div class="card center" style="margin-top:18px;padding:32px"><div style="font-size:48px">🔔</div><h2>You’re all caught up</h2><p class="muted">New quiz results, achievements and challenge updates will appear here.</p></div>';
+  }else{
+    html+=n.map(x=>'<div class="card" style="margin:10px 0"><div class="row"><div style="font-size:28px">'+esc(x.icon||'🔔')+'</div><div style="flex:1;margin-left:10px"><b>'+esc(x.title||'Skill Saga')+'</b><p class="muted" style="margin:4px 0">'+esc(x.message||'')+'</p><small class="muted">'+esc(x.date||'')+'</small></div></div></div>').join('');
+  }
+
+  shell(html);
+}
+
+async function addNotification(title,message,icon){
+  let u=user();
+  u.notifications=Array.isArray(u.notifications)?u.notifications:[];
+  u.notifications.unshift({
+    id:Date.now(),
+    title:title,
+    message:message,
+    icon:icon||'🔔',
+    date:new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short'})
+  });
+  u.notifications=u.notifications.slice(0,30);
+  await persistUser(u);
+}
+
+async function markNotificationsRead(){
+  let u=user();
+  u.notifications=[];
+  await persistUser(u);
+  notificationCenter();
+}
+
+
+function progressScreen(){
+  let u=user();
+  let h=Array.isArray(u.quizHistory)?u.quizHistory:[];
+  let recent=h.slice(0,10);
+  let avg=recent.length?Math.round(recent.reduce((a,x)=>a+(x.pct||0),0)/recent.length):0;
+  let best=recent.length?Math.max(...recent.map(x=>x.pct||0)):0;
+
+  shell(`<div class="row"><button class="back" onclick="go('profile')">‹</button><h1>My Progress</h1><span></span></div>
+  <div class="hero">
+    <small>SKILL SAGA PROGRESS</small>
+    <h2>Level ${u.level||1}</h2>
+    <p>Keep learning, practising and improving every day.</p>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>${u.quizzes||0}</b><small>Quizzes</small></div>
+    <div class="stat"><b>${u.accuracy||0}%</b><small>Accuracy</small></div>
+    <div class="stat"><b>${u.xp||0}</b><small>XP</small></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b>🪙 ${u.coins||0}</b><small>Coins</small></div>
+    <div class="stat"><b>🔥 ${u.streak||0}</b><small>Streak</small></div>
+    <div class="stat"><b>${u.badges?.length||0}</b><small>Badges</small></div>
+  </div>
+  <div class="section"><b>Recent Performance</b></div>
+  <div class="card">
+    <p>Average recent accuracy: <b>${avg}%</b></p>
+    <p>Best recent score: <b>${best}%</b></p>
+    <div class="bar"><i style="width:${Math.min(avg,100)}%"></i></div>
+  </div>
+  <div class="section"><b>Recent Quizzes</b></div>
+  ${recent.length?recent.map(x=>`<div class="card" style="margin:8px 0"><b>${esc(x.title||'Quiz')}</b><div class="muted">${esc(x.category||'General')} • ${x.pct||0}% • +${x.xp||0} XP • 🪙 +${x.coins||0}</div></div>`).join(''):'<div class="card"><p class="muted">Complete your first quiz to start building your progress history.</p></div>'}`);
+}
+function notifications(){
+  notificationCenter();
+}
+function notifications(){toast('Your daily challenge is ready!')}
+function startQuiz(id){let c=local.content.find(x=>x.id===id)||daily();quizState={c,q:0,score:0,answered:false};renderQuiz()}
+function renderQuiz(){let s=quizState,x=s.c.questions[s.q];shell(`<div class="row"><button class="back" onclick="go('home')">‹</button><b>${esc(s.c.title)}</b><span>⏱</span></div><p class="muted">Question ${s.q+1} of ${s.c.questions.length}</p><div class="bar"><i style="width:${(s.q/s.c.questions.length)*100}%"></i></div><div class="card" style="margin-top:18px"><h2>${esc(x[0])}</h2>${x[1].map((o,i)=>`<button class="option" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}</div>`)}
+function answer(i){if(quizState.answered)return;quizState.answered=true;let x=quizState.c.questions[quizState.q],os=document.querySelectorAll('.option');if(i===x[2]){quizState.score++;os[i].classList.add('ok')}else{os[i].classList.add('no');os[x[2]].classList.add('ok')}setTimeout(()=>{if(quizState.q<quizState.c.questions.length-1){quizState.q++;quizState.answered=false;renderQuiz()}else finishQuiz()},450)}
+
+async function applyChallengeRewards(){
+  let u=user();
+  let today=new Date().toISOString().slice(0,10);
+
+  if(u.challengeRewardDate!==today){
+    u.challengeRewardDate=today;
+    u.weeklyChallengeCount=Number(u.weeklyChallengeCount||0)+1;
+    u.coins=Number(u.coins||0)+25;
+
+    if(u.weeklyChallengeCount>=5){
+      u.coins+=100;
+      if(!Array.isArray(u.badges))u.badges=[];
+      if(!u.badges.includes('Weekly Champion'))u.badges.push('Weekly Champion');
+    }
+
+    await persistUser(u);
+    return true;
+  }
+  return false;
+}
+
+async function finishQuiz(){let s=quizState,u=user(),total=s.c.questions.length,pct=Math.round(s.score/total*100),earned=Math.max(10,Math.round((s.c.xp||100)*(s.score/total))),coins=Math.max(10,Math.round(earned/2)),today=new Date().toISOString().slice(0,10);if(u.lastQuizDate!==today){let yesterday=new Date(Date.now()-86400000).toISOString().slice(0,10);u.streak=(u.lastQuizDate===yesterday)?u.streak+1:1;u.lastQuizDate=today}u.xp+=earned;u.coins=Number(u.coins||0)+coins;u.quizzes++;u.accuracy=Math.round(((u.accuracy*(u.quizzes-1))+pct)/u.quizzes);u.level=1+Math.floor(u.xp/500);u.quizHistory=Array.isArray(u.quizHistory)?u.quizHistory:[];u.quizHistory.unshift({id:Date.now(),title:s.c.title,category:s.c.category||"General",score:s.score,total:total,pct:pct,xp:earned,coins:coins,date:new Date().toISOString()});u.quizHistory=u.quizHistory.slice(0,100);u.badges=Array.isArray(u.badges)?u.badges:[];if(u.quizzes===1&&!u.badges.includes("First Step"))u.badges.push("First Step");if(pct>=80&&!u.badges.includes("Most Improved"))u.badges.push("Most Improved");if(u.streak>=7&&!u.badges.includes("7 Day Streak"))u.badges.push("7 Day Streak");await persistUser(u);shell(`<div class="center" style="padding-top:25px"><div style="font-size:70px">🏆</div><h1>Challenge Complete!</h1><div class="muted">Great work!<br>Keep building your skills.</div><div class="card" style="margin-top:18px"><h1>${s.score}/${total}</h1><div class="grid"><div>Accuracy<br><b>${pct}%</b></div><div>XP Earned<br><b>+${earned}</b></div></div><p>🪙 Coins Earned<br><b>+${coins}</b></p><p class="muted">Your progress has been saved.</p></div><button class="btn" style="margin-top:14px" onclick="go('skills')">View Skill DNA</button></div>`) }
+async function login(){let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
+async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n})}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
+async function resetPassword(){let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
+async function logout(){try{if(firebaseReady)await firebase.auth().signOut()}catch(e){ }cloudUser=null;local={content:[],users:{}};loginScreen()}
+async function deleteAccount(){if(!cloudUser)return;if(!confirm('Delete your Skill Saga account? This cannot be undone.'))return;try{await cloudDb.collection('users').doc(cloudUser.uid).delete();await cloudUser.delete();toast('Account deleted');}catch(e){toast('Please sign in again before deleting the account.')}}
+async function persistUser(u){local.user=u;writeLocal(u);try{await saveCloudUser(u)}catch(e){console.warn('Cloud save failed',e)}}
+
+
+function currentWeekKey(){
+  let d=new Date(), one=new Date(d.getFullYear(),0,1);
+  let week=Math.ceil((((d-one)/86400000)+one.getDay()+1)/7);
+  return d.getFullYear()+"-W"+week;
+}
+function adminContentTools(){
+  let html=`<div class="section"><b>Content Management</b></div>
+  <div class="card">
+    <p class="muted">Create and publish learning content for Skill Saga learners.</p>
+    <button class="btn gold block" onclick="adminQuizForm()">➕ Create Quiz</button>
+    <button class="btn light block" style="margin-top:8px" onclick="adminDailyPreview()">📅 Daily Challenge</button>
+    <button class="btn light block" style="margin-top:8px" onclick="adminWeeklyPreview()">🏆 Weekly Challenge</button>
+  </div>`;
+  return html;
+}
+
+function adminDailyPreview(){
+  let c=daily();
+  toast(c?'Daily challenge is ready to publish/use.':'No daily quiz available yet.');
+}
+
+function adminWeeklyPreview(){
+  toast('Weekly Championship content is active. Complete 5 challenges to earn the Weekly Champion achievement.');
+}
+function admin(){let u=user();if(!u||u.role!=='admin')return toast('Admin access is not enabled for this account');document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><button class="iconbtn" onclick="go('profile')">Back</button></header><main class="main"><h1>Admin Console</h1><div class="card admin"><b>Content Manager</b>${adminContentTools()}<p class="muted">Create quizzes and publish them to learners.</p><button class="btn gold" onclick="adminQuizForm()">+ New Quiz</button></div><div class="section"><b>Published content</b></div>${local.content.map(x=>`<div class="card" style="margin:8px 0"><b>${esc(x.title)}</b><div class="muted">${esc(x.category||'General')} • ${(x.questions||[]).length} questions • ${x.xp||100} XP</div></div>`).join('')}<div class="section"><b>Admin note</b></div><div class="notice">For production, only accounts with the Firebase users/{uid} role set to admin should be able to publish content.</div></main></div>`}
+function adminQuizForm(){document.getElementById('root').innerHTML=`<div class="app"><main class="main"><div class="row"><button class="back" onclick="admin()">‹</button><h2>Create Quiz</h2><span></span></div><div class="card"><input id="qt" class="input" placeholder="Quiz title"><input id="qc" class="input" placeholder="Category"><input id="qd" class="input" type="date" value="${new Date().toISOString().slice(0,10)}"><input id="qx" class="input" type="number" min="10" max="500" value="100" placeholder="XP"><p class="small muted">One JSON question per line: [question,[option A,option B,option C,option D],correctIndex].</p><textarea id="qq" class="area" rows="10" placeholder='["2+2 = ?",["3","4","5","6"],1]'></textarea><button class="btn block" onclick="publishQuiz()">Publish Quiz</button></div></main></div>`}
+async function publishQuiz(){try{let title=document.getElementById('qt').value.trim(),cat=document.getElementById('qc').value.trim()||'General',date=document.getElementById('qd').value||new Date().toISOString().slice(0,10),xp=Math.max(10,Math.min(500,Number(document.getElementById('qx').value)||100)),lines=document.getElementById('qq').value.split('\n').map(x=>x.trim()).filter(Boolean),qs=lines.map(JSON.parse);if(!title||!qs.length||qs.some(x=>!Array.isArray(x)||x.length!==3||!Array.isArray(x[1])||x[1].length!==4||![0,1,2,3].includes(x[2])))throw Error();let doc={type:'daily',title,category:cat,difficulty:'Mixed',xp,date,published:true,questions:qs,createdBy:cloudUser.uid,createdAt:firebase.firestore.FieldValue.serverTimestamp()};await cloudDb.collection('quizzes').add(doc);await loadCloudContent();toast('Quiz published');admin()}catch(e){toast(e.message||'Could not publish quiz')}}
+function esc(v){return String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+
+function loginScreen(){
+  document.body.innerHTML=`
+    <div style="min-height:100vh;background:#071226;color:#fff;font-family:Arial;padding:28px 20px;box-sizing:border-box;display:flex;align-items:center;justify-content:center">
+      <div style="width:100%;max-width:420px">
+        <div style="text-align:center;margin-bottom:28px">
+          <div style="font-size:52px;margin-bottom:8px">⭐</div>
+          <h1 style="margin:0;font-size:34px">SKILL SAGA</h1>
+          <p style="color:#c9a227;margin-top:8px">A smarter way to learn</p>
+        </div>
+
+        <div style="background:#101d36;border-radius:20px;padding:22px;box-shadow:0 12px 30px rgba(0,0,0,.25)">
+          <h2 id="authTitle" style="margin-top:0">Welcome Back</h2>
+
+          <input id="authName" placeholder="Your name"
+            style="display:none;width:100%;box-sizing:border-box;padding:14px;margin:8px 0;border-radius:12px;border:1px solid #30415f;background:#0b1730;color:#fff">
+
+          <input id="authEmail" type="email" placeholder="Email"
+            style="width:100%;box-sizing:border-box;padding:14px;margin:8px 0;border-radius:12px;border:1px solid #30415f;background:#0b1730;color:#fff">
+
+          <input id="authPassword" type="password" placeholder="Password"
+            style="width:100%;box-sizing:border-box;padding:14px;margin:8px 0;border-radius:12px;border:1px solid #30415f;background:#0b1730;color:#fff">
+
+          <button id="authBtn" onclick="doLogin()"
+            style="width:100%;padding:15px;margin-top:12px;border:0;border-radius:12px;background:#c9a227;color:#071226;font-weight:bold;font-size:16px">
+            Login
+          </button>
+
+          <button id="authSwitch" onclick="toggleAuthMode()"
+            style="width:100%;padding:13px;margin-top:10px;border:1px solid #405273;border-radius:12px;background:transparent;color:#fff">
+            Create new account
+          </button>
+
+          <p id="authMsg" style="min-height:20px;color:#ffb4b4;text-align:center"></p>
+        </div>
+      </div>
+    </div>`;
+  window.authSignup=false;
+}
+
+window.toggleAuthMode=function toggleAuthMode(){
+  window.authSignup=!window.authSignup;
+  const signup=window.authSignup;
+  document.getElementById('authTitle').textContent=signup?'Create Account':'Welcome Back';
+  document.getElementById('authName').style.display=signup?'block':'none';
+  document.getElementById('authBtn').textContent=signup?'Sign Up':'Login';
+  document.getElementById('authBtn').onclick=signup?doSignup:doLogin;
+  document.getElementById('authSwitch').textContent=signup?'Already have an account? Login':'Create new account';
+  document.getElementById('authSwitch').onclick=toggleAuthMode;
+  document.getElementById('authMsg').textContent='';
+}
+
+window.doLogin=async function doLogin(){
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+  const msg=document.getElementById('authMsg');
+  if(!email||!password){msg.textContent='Enter email and password.';return;}
+  msg.textContent='Signing in...';
+  try{
+    await firebase.auth().signInWithEmailAndPassword(email,password);
+  }catch(e){
+    msg.textContent=e.message||'Login failed.';
+  }
+}
+
+window.doSignup=async function doSignup(){
+  const name=document.getElementById('authName').value.trim();
+  const email=document.getElementById('authEmail').value.trim();
+  const password=document.getElementById('authPassword').value;
+  const msg=document.getElementById('authMsg');
+  if(!name||!email||!password){msg.textContent='Enter name, email and password.';return;}
+  if(password.length<6){msg.textContent='Password must be at least 6 characters.';return;}
+  msg.textContent='Creating account...';
+  try{
+    const cred=await firebase.auth().createUserWithEmailAndPassword(email,password);
+    await cred.user.updateProfile({displayName:name});
+  }catch(e){
+    msg.textContent=e.message||'Signup failed.';
+  }
+}
+
+async function boot(){if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;try{let remote=await cloudUserDoc();local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal(),...(remote||{})};if(!local.user.name)local.user.name=fu.displayName||fu.email.split('@')[0];await persistUser(local.user);await loadCloudContent();go('home')}catch(e){local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal()};await loadCloudContent();go('home')}})}
+window.addEventListener('error',function(e){
+  document.body.innerHTML='<div style="padding:24px;color:#fff;background:#071226;min-height:100vh;font-family:Arial"><h2>Skill Saga Startup Error</h2><p>'+String(e.message||e.error||e)+'</p><p style="color:#9aa8bd">Line: '+String(e.lineno||'?')+'</p></div>';
+});
+window.addEventListener('unhandledrejection',function(e){
+  document.body.innerHTML='<div style="padding:24px;color:#fff;background:#071226;min-height:100vh;font-family:Arial"><h2>Skill Saga Startup Error</h2><p>'+String(e.reason?.message||e.reason||e)+'</p></div>';
+});
+boot().catch(function(e){
+  document.body.innerHTML='<div style="padding:24px;color:#fff;background:#071226;min-height:100vh;font-family:Arial"><h2>Skill Saga Startup Error</h2><p>'+String(e?.message||e)+'</p><pre style="white-space:pre-wrap;color:#ffb4b4">'+String(e?.stack||'')+'</pre></div>';
+});
+
+})();
+</script>
+<script>
+(async function(){
+/* ===== SKILL SAGA FINAL CORE UPGRADE ===== */
+(function(){
+
+window.skillSagaRewards=[
+ {id:"first",name:"First Step",cost:0,icon:"🌟",desc:"Complete your first challenge"},
+ {id:"streak7",name:"7 Day Streak",cost:500,icon:"🔥",desc:"Maintain a 7-day learning streak"},
+ {id:"champion",name:"Quiz Champion",cost:1000,icon:"🏆",desc:"Complete quizzes and unlock the badge"},
+ {id:"master",name:"Skill Master",cost:2500,icon:"🥇",desc:"Reach Skill Master level"},
+ {id:"ebook",name:"Educational E-book",cost:5000,icon:"📚",desc:"Sponsored educational e-book when available"},
+ {id:"stationery",name:"Stationery Reward",cost:10000,icon:"✏️",desc:"Sponsored stationery reward when available"}
+];
+
+function ssUser(){
+ try{
+   if(typeof user==="function") return user();
+ }catch(e){}
+ return window.local?.user || {};
+}
+
+async function ssSave(u){
+ try{
+   if(typeof persistUser==="function") await persistUser(u);
+ }catch(e){}
+ try{
+   local.user=u;
+   localStorage.setItem("skillSaga",JSON.stringify(local));
+ }catch(e){}
+}
+
+window.addSkillSagaCoins=async function(amount){
+ let u=ssUser();
+ u.coins=Number(u.coins||0)+Number(amount||0);
+ await ssSave(u);
+};
+
+window.addQuizHistory=async function(record){
+ let u=ssUser();
+ u.quizHistory=Array.isArray(u.quizHistory)?u.quizHistory:[];
+ u.quizHistory.unshift({
+   ...record,
+   id:Date.now(),
+   date:new Date().toISOString()
+ });
+ u.quizHistory=u.quizHistory.slice(0,100);
+ await ssSave(u);
+};
+
+window.showQuizHistory=function(){
+ let u=ssUser();
+ let h=Array.isArray(u.quizHistory)?u.quizHistory:[];
+ let html='<div class="card"><h2>📚 Quiz History</h2>';
+ if(!h.length){
+   html+='<p class="muted">No quizzes completed yet. Start your first challenge!</p>';
+ }else{
+   html+=h.map(x=>`
+   <div class="card" style="margin:10px 0;padding:14px">
+     <b>${x.title||"Quiz"}</b>
+     <div class="muted">${x.category||"General"} • ${x.score||0}/${x.total||0}</div>
+     <div>⭐ ${x.xp||0} XP &nbsp; 🪙 ${x.coins||0} Coins</div>
+     <small>${x.date?new Date(x.date).toLocaleString():""}</small>
+   </div>`).join("");
+ }
+ html+='</div>';
+ document.body.insertAdjacentHTML("beforeend",
+ `<div id="ssHistoryOverlay" style="position:fixed;inset:0;background:#f7f8fc;z-index:99999;overflow:auto;padding:20px">
+   <button class="btn" onclick="document.getElementById('ssHistoryOverlay').remove()">← Back</button>
+   ${html}
+ </div>`);
+};
+
+window.showSkillSagaRewards=function(){
+ let u=ssUser();
+ let coins=Number(u.coins||0);
+ let claimed=Array.isArray(u.claimedRewards)?u.claimedRewards:[];
+ let html=`<div class="card"><h2>🪙 Skill Saga Coins</h2>
+ <h1>${coins}</h1>
+ <p class="muted">Earn coins by learning and completing challenges.</p></div>`;
+
+ html+=window.skillSagaRewards.map(r=>{
+   let done=claimed.includes(r.id);
+   let can=coins>=r.cost;
+   return `<div class="card" style="margin:10px 0">
+    <h3>${r.icon} ${r.name}</h3>
+    <p class="muted">${r.desc}</p>
+    <b>${r.cost===0?"FREE":r.cost+" 🪙"}</b>
+    <button class="btn gold" ${done?"disabled":(!can?"disabled":"")}
+      onclick="redeemSkillSagaReward('${r.id}')">
+      ${done?"✓ Unlocked":(can?"Unlock":"Not enough Coins")}
+    </button>
+   </div>`;
+ }).join("");
+
+ html+=`<div class="card">
+ <p class="muted">Coins are an in-app educational reward only. They cannot be withdrawn as cash and are not gambling credits.</p>
+ </div>`;
+
+ document.body.insertAdjacentHTML("beforeend",
+ `<div id="ssRewardsOverlay" style="position:fixed;inset:0;background:#f7f8fc;z-index:99999;overflow:auto;padding:20px">
+ <button class="btn" onclick="document.getElementById('ssRewardsOverlay').remove()">← Back</button>
+ ${html}</div>`);
+};
+
+window.redeemSkillSagaReward=async function(id){
+ let u=ssUser();
+ let r=window.skillSagaRewards.find(x=>x.id===id);
+ if(!r)return;
+ u.coins=Number(u.coins||0);
+ u.claimedRewards=Array.isArray(u.claimedRewards)?u.claimedRewards:[];
+ u.badges=Array.isArray(u.badges)?u.badges:[];
+
+ if(u.claimedRewards.includes(id))return;
+ if(u.coins<r.cost){
+   if(typeof toast==="function")toast("Not enough Skill Saga Coins");
+   return;
+ }
+
+ u.coins-=r.cost;
+ u.claimedRewards.push(id);
+ if(!u.badges.includes(r.name))u.badges.push(r.name);
+ await ssSave(u);
+
+ if(typeof toast==="function")toast("🎉 Reward unlocked!");
+ document.getElementById("ssRewardsOverlay")?.remove();
+ window.showSkillSagaRewards();
+};
+
+window.deleteSkillSagaAccount=async function(){
+ let u=ssUser();
+ if(!confirm("Delete your Skill Saga account permanently? This cannot be undone."))return;
+
+ try{
+   if(window.firebaseReady && firebase.auth().currentUser){
+     let cu=firebase.auth().currentUser;
+     try{
+       await firebase.firestore().collection("users").doc(cu.uid).delete();
+     }catch(e){}
+     await cu.delete();
+   }
+ }catch(e){
+   if(typeof toast==="function")toast("Please log in again before deleting your account.");
+   return;
+ }
+
+ try{localStorage.removeItem("skillSaga");}catch(e){}
+ if(typeof logout==="function"){
+   try{await logout();return}catch(e){}
+ }
+ location.reload();
+};
+
+/* Migrate existing users without destroying their data */
+try{
+ let u=ssUser();
+ if(u && typeof u==="object"){
+   if(typeof u.coins!=="number")u.coins=0;
+   if(!Array.isArray(u.quizHistory))u.quizHistory=[];
+   if(!Array.isArray(u.claimedRewards))u.claimedRewards=[];
+   if(!Array.isArray(u.badges))u.badges=[];
+   ssSave(u);
+ }
+}catch(e){}
+
+/* Add a visible history/rewards utility where possible */
+window.openSkillSagaHistory=window.showQuizHistory;
+window.openSkillSagaRewards=window.showSkillSagaRewards;
+
+})();
+})();
+
+/* ===== CHALLENGE SYSTEM UPGRADE ===== */
+function challengeProgress(){
+  let u=user();
+  return {
+    dailyDone:!!(u.dailyChallengeDate===new Date().toISOString().slice(0,10)),
+    weekly:Number(u.weeklyChallengeCount||0),
+    weeklyGoal:5
+  };
+}
+
+function challengeDailyDone(){
+  let u=user();
+  return u.dailyChallengeDate===new Date().toISOString().slice(0,10);
+}
+
+async function completeDailyChallenge(){
+  let u=user();
+  u.dailyChallengeDate=new Date().toISOString().slice(0,10);
+  u.dailyChallengeCompleted=true;
+  u.coins=Number(u.coins||0)+25;
+  if(!Array.isArray(u.badges))u.badges=[];
+  if(!u.badges.includes('Daily Challenger'))u.badges.push('Daily Challenger');
+  await persistUser(u);
+}
+
+function weeklyChallengeScreen(){
+  let u=user();
+  let count=Number(u.weeklyChallengeCount||0);
+  let goal=5;
+  let pct=Math.min(100,Math.round(count/goal*100));
+  shell(`<div class="row"><button class="back" onclick="go('compete')">‹</button><h1>Weekly Challenge</h1><span></span></div>
+  <div class="hero"><small>WEEKLY SKILL CHALLENGE</small><h2>🎯 ${count}/${goal}</h2><p>Complete ${goal} challenges this week.</p>
+  <div class="bar"><i style="width:${pct}%"></i></div></div>
+  <div class="card">
+    <h3>🏆 Weekly Champion</h3>
+    <p class="muted">Complete 5 challenges to earn bonus Skill Saga Coins and an achievement.</p>
+    <p>Progress: <b>${pct}%</b></p>
+    ${count>=goal}
+      ? '<span class="badge">✓ Completed</span>'
+      : '<button class="btn gold block" onclick="go(\\'play\\')">Continue Challenges</button>'}
+  </div>
+  <div class="notice">Weekly progress is saved automatically as you complete challenges.</div>`);
+}
+
+function settingsScreen(){
+  let u=user();
+  shell(`<div class="row"><button class="back" onclick="go('profile')">‹</button><h1>Settings</h1><span></span></div>
+  <div class="section"><b>Account</b></div>
+  <div class="card">
+    <p><b>${esc(u.name||'Learner')}</b></p>
+    <p class="muted">${esc(u.email||'')}</p>
+  </div>
+  <div class="section"><b>Learning</b></div>
+  <div class="card">
+    <div class="row"><span>🔔 Notifications</span><span class="badge">Enabled</span></div>
+    <div class="row" style="margin-top:14px"><span>🎯 Daily Challenge</span><span class="badge">Daily</span></div>
+    <div class="row" style="margin-top:14px"><span>🔥 Streak Tracking</span><span class="badge">Active</span></div>
+  </div>
+  <div class="section"><b>Privacy & Account</b></div>
+  <div class="card">
+    <button class="btn light block" onclick="notificationCenter()">Notification Center</button>
+    <button class="btn danger block" style="margin-top:8px" onclick="deleteAccount()">Delete Account</button>
+  </div>
+  <div class="notice">Skill Saga stores your learning progress, quiz history and rewards to provide your personalized experience.</div>`);
+}
+</script>
+</body></html>
