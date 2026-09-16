@@ -19,10 +19,27 @@ jobs:
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '9.7.0'
+      - name: Remove disposable integration seed from release build
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html')
+          s=p.read_text(encoding='utf-8')
+          s=s.replace('<script src="admin-test-seed.js"></script>','')
+          p.write_text(s,encoding='utf-8')
+          PY
       - name: Build debug APK and release AAB
-        run: gradle assembleDebug bundleRelease --no-daemon
+        run: gradle clean assembleDebug bundleRelease --no-daemon
       - name: Verify outputs
         run: |
           test -f app/build/outputs/apk/debug/app-debug.apk
           test -f app/build/outputs/bundle/release/app-release.aab
-          echo 'Android build outputs verified.'
+          echo 'Android debug APK and release AAB build successfully.'
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: skill-saga-release-candidate-${{ github.sha }}
+          path: |
+            app/build/outputs/apk/debug/app-debug.apk
+            app/build/outputs/bundle/release/app-release.aab
+          if-no-files-found: error
