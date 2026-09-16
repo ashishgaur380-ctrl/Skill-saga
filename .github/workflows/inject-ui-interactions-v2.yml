@@ -1,0 +1,44 @@
+name: Inject Skill Saga UI interactions v2
+
+on:
+  push:
+    branches: [final-integration]
+
+permissions:
+  contents: write
+
+jobs:
+  inject:
+    if: "!contains(github.event.head_commit.message, '[skip ui v2]')"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: final-integration
+          fetch-depth: 0
+      - name: Inject interaction script
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html')
+          s=p.read_text(encoding='utf-8')
+          tag='<script src="final-ui-interactions-v2.js"></script>'
+          if tag not in s:
+              marker='</body>'
+              if marker not in s:
+                  raise SystemExit('No </body> marker found; aborting safely')
+              s=s.replace(marker,tag+'\n'+marker,1)
+              p.write_text(s,encoding='utf-8')
+          print('UI interaction v2 injection checked')
+          PY
+      - name: Commit injection
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/index.html
+          if git diff --cached --quiet; then
+            echo "No change needed"
+          else
+            git commit -m "Inject finalized UI interactions v2 [skip ui v2]"
+            git push origin final-integration
+          fi
