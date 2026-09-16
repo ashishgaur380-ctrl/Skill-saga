@@ -1,0 +1,35 @@
+name: Inject Skill Saga final layers
+on:
+  push:
+    branches: [final-integration]
+permissions:
+  contents: write
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inject all safe layers
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p=Path('app/src/main/assets/index.html'); s=p.read_text(); marker='</body>'
+          tags=[
+            'final-learn-actions-v1.js',
+            'final-compete-actions-v1.js',
+            'final-account-notifications-v1.js',
+            'final-skills-actions-v1.js'
+          ]
+          i=s.rfind(marker)
+          if i<0: raise SystemExit('No </body> found')
+          additions=''.join('\n<script src="'+x+'"></script>' for x in tags if '<script src="'+x+'"></script>' not in s)
+          if additions:
+              s=s[:i]+additions+'\n'+s[i:]; p.write_text(s)
+          PY
+      - name: Commit injected index
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add app/src/main/assets/index.html
+          git diff --cached --quiet || git commit -m 'Inject consolidated final layers [skip final layers]'
+          git push
