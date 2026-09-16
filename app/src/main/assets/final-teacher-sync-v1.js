@@ -1,0 +1,9 @@
+/* Skill Saga — teacher dashboard live summary repair */
+(function(){'use strict';
+function db(){return window.firebase&&firebase.firestore?firebase.firestore():null}
+function u(){try{return typeof window.user==='function'?window.user():null}catch(e){return null}}
+function text(e){return((e&&e.textContent)||'').replace(/\s+/g,' ').trim()}
+async function refresh(){var me=u(),d=db();if(!me||me.role!=='teacher'||!d)return;try{var snap=await d.collection('relationships').where('teacherUid','==',me.uid).where('status','==','active').get();var rows=snap.docs.map(function(x){return x.data()||{}});if(!rows.length)return;var xp=rows.reduce(function(a,x){return a+Number(x.studentXp||0)},0),q=rows.reduce(function(a,x){return a+Number(x.studentQuizzes||0)},0),acc=Math.round(rows.reduce(function(a,x){return a+Number(x.studentAccuracy||0)},0)/rows.length);var tiles=Array.prototype.slice.call(document.querySelectorAll('.tile'));tiles.forEach(function(t){var s=text(t).toLowerCase();if(s.indexOf('total xp')>=0){var b=t.querySelector('b');if(b)b.textContent=xp}if(s.indexOf('avg accuracy')>=0){var b=t.querySelector('b');if(b)b.textContent=acc+'%'}if(s.indexOf('quizzes')>=0){var b=t.querySelector('b');if(b)b.textContent=q}if(s.indexOf('students')>=0){var b=t.querySelector('b');if(b)b.textContent=rows.length}});try{me.linkedStudents=rows.map(function(x){return Object.assign({uid:x.studentUid},x)});window.local.user=me;window.writeLocal&&window.writeLocal(me)}catch(e){}}catch(e){console.warn('Teacher live summary failed',e)}}
+function install(){if(window.__SS_TEACHER_SYNC_V1)return;window.__SS_TEACHER_SYNC_V1=true;var mo=new MutationObserver(function(){var h=document.querySelector('h1');if(h&&/teacher dashboard/i.test(text(h)))setTimeout(refresh,200)});mo.observe(document.body,{childList:true,subtree:true});setTimeout(refresh,1000)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
