@@ -34,6 +34,14 @@ function playMode(raw){
   var low=s.toLowerCase();
   var mode=low.indexOf('daily quiz')>=0?'daily':low.indexOf('quick practice')>=0?'quick':low.indexOf('topic practice')>=0?'topic':low.indexOf('mixed quiz')>=0?'mixed':'';
   window.SKILL_SAGA_PLAY_MODE=mode;
+
+  /* Content integration v3 owns Admin → Play launch. Use it first so
+     published Admin quizzes become real Play experiences rather than toast-only actions. */
+  if(mode && typeof window.ssPlayAction==='function'){
+    window.ssPlayAction(mode);
+    return;
+  }
+
   if(mode==='daily' && typeof window.startDailyChallenge==='function'){window.startDailyChallenge();return;}
   if(mode==='daily' && typeof window.startQuiz==='function'){
     try{window.startQuiz('daily');return;}catch(e){}
@@ -80,7 +88,6 @@ function install(){
   document.addEventListener('click',function(e){
     var t=e.target;
     if(!t||!t.closest)return;
-    /* Bottom navigation is always the finalized order, including quiz/result screens. */
     if(t.closest('.nav button'))return;
 
     var cls=t.closest('.ss-class');
