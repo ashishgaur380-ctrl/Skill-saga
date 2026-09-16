@@ -1,0 +1,6 @@
+/* Skill Saga — Play unlock bridge v2 */
+(function(){'use strict';
+function txt(e){return((e&&e.textContent)||'').replace(/\s+/g,' ').trim()}
+function install(){if(window.__SS_PLAY_UNLOCK_V2)return;window.__SS_PLAY_UNLOCK_V2=true;document.body.addEventListener('click',function(e){var t=e.target&&e.target.closest?t.target.closest('.ss-lock'):null;if(!t||!window.SKILL_SAGA_PLAY_UNLOCK)return;var m=txt(t).match(/\b(\d{1,2})\b/);if(!m)return;var target=Number(m[1]);var c=window.SKILL_SAGA_PLAY_UNLOCK.canUnlock(target);if(c.ok){e.preventDefault();e.stopImmediatePropagation();if(typeof window.ssUnlockClass==='function')window.ssUnlockClass(target);return}if(c.reason==='xp'||c.reason==='coins'||c.reason==='unsupported'){e.preventDefault();e.stopImmediatePropagation();if(typeof window.toast==='function'){if(c.reason==='xp')toast('You need '+c.requiredXp+' XP to unlock Class '+target+'.');else if(c.reason==='coins')toast('You need '+c.requiredCoins+' Coins to unlock Class '+target+'.');else toast('Only classes within 3 levels of your current class can be unlocked.')} }},true)}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+})();
