@@ -30,6 +30,11 @@ class MainActivity : AppCompatActivity() {
         webView.settings.setSupportMultipleWindows(false)
 
         webView.webViewClient = object : WebViewClient() {
+            override fun onPageFinished(view: WebView?, url: String?) {
+                super.onPageFinished(view, url)
+                injectAccessConfiguration()
+            }
+
             override fun onReceivedError(
                 view: WebView?,
                 request: WebResourceRequest?,
@@ -58,6 +63,15 @@ class MainActivity : AppCompatActivity() {
         setContentView(webView)
 
         webView.loadUrl("file:///android_asset/index.html")
+    }
+
+    private fun injectAccessConfiguration() {
+        try {
+            val config = assets.open("quiz-access-config.js").bufferedReader().use { it.readText() }
+            webView.evaluateJavascript(config, null)
+        } catch (e: Exception) {
+            android.util.Log.e("SkillSagaWeb", "Unable to load quiz access configuration", e)
+        }
     }
 
     @Deprecated("Deprecated in Android API 33")
