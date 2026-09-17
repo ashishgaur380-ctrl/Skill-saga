@@ -35,4 +35,23 @@ async function loadResults(competitionId){
 window.SkillSagaCompetitionBackend={register:register,findCompetition:findCompetition,loadResults:loadResults};
 function install(){if(window.__SS_COMPETITION_BACKEND_V1)return;window.__SS_COMPETITION_BACKEND_V1=true;document.addEventListener('click',function(e){var b=e.target&&e.target.closest?e.target.closest('.ss-event button'):null;if(b&&/register/i.test(b.textContent||'')){e.preventDefault();e.stopImmediatePropagation();register(b.closest('.ss-event'));}},true)}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',install);else install();
+
+/* Admin console must be loaded after index.html's legacy global admin()
+ * and all learner feature scripts. This prevents the old admin renderer from
+ * overwriting the consolidated Admin Console v3 entry point. */
+(function loadAdminConsoleLast(){
+  function activate(){
+    if(window.ssAdminV3) window.admin=window.ssAdminV3;
+  }
+  if(document.getElementById('ss-admin-console-v3-last')){
+    activate();
+    return;
+  }
+  var s=document.createElement('script');
+  s.id='ss-admin-console-v3-last';
+  s.src='admin-console-v3.js';
+  s.onload=activate;
+  s.onerror=function(){console.warn('Admin Console v3 failed to load');};
+  (document.head||document.documentElement).appendChild(s);
+})();
 })();
