@@ -1,0 +1,44 @@
+name: Inject teacher performance dashboard v2
+on:
+  push:
+    branches: [final-integration]
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  inject:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: final-integration
+          fetch-depth: 0
+      - name: Inject dashboard performance scripts
+        shell: bash
+        run: |
+          set -euo pipefail
+          file="app/src/main/assets/index.html"
+          for script in teacher-performance-sync-v1.js teacher-performance-dashboard-v2.js; do
+            marker="<script src=\"$script\"></script>"
+            grep -q "$script" "$file" || python - "$file" "$marker" <<'PY'
+import sys
+from pathlib import Path
+p=Path(sys.argv[1]); marker=sys.argv[2]
+s=p.read_text(encoding='utf-8')
+if marker not in s:
+    pos=s.rfind('</body>')
+    if pos < 0: raise SystemExit('No </body> found; refusing unsafe injection')
+    s=s[:pos]+marker+'\n'+s[pos:]
+    p.write_text(s,encoding='utf-8')
+PY
+          done
+      - name: Commit injection
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/index.html
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Inject teacher performance dashboard v2 [skip hardening]"
+          git push origin HEAD:final-integration
