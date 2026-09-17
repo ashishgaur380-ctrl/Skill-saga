@@ -10,10 +10,18 @@ var QUIZZES=[
 {id:'ss-test-other-published',title:'TEST — General Knowledge',type:'practice',category:'Other',classLevel:'All',skill:'General Knowledge',subject:'General Knowledge',topic:'India',difficulty:'Foundation',date:'2026-09-17',xp:80,coins:8,published:true,status:'published',accessMode:'free',questionsJson:'[{"question":"What is the capital of India?","options":["Mumbai","New Delhi","Kolkata","Chennai"],"correctIndex":1},{"question":"How many colours are commonly shown in the Indian national flag?","options":["2","3","4","5"],"correctIndex":1}]'}
 ];
 var COMPETITIONS=[{id:'ss-test-comp-weekly',title:'TEST — Weekly Championship',type:'WEEKLY_CHAMPIONSHIP',category:'Academic',classLevel:'8',subject:'Mathematics',status:'upcoming',startAt:'2026-09-18T10:00:00',endAt:'2026-09-18T10:30:00',questionCount:20,durationMinutes:30,entryCoins:0},{id:'ss-test-comp-subject',title:'TEST — Science Challenge',type:'SUBJECT_CHALLENGE',category:'Academic',classLevel:'6-8',subject:'Science',status:'upcoming',startAt:'2026-09-20T10:00:00',endAt:'2026-09-20T10:30:00',questionCount:25,durationMinutes:30,entryCoins:0}];
-function toast(m){if(typeof window.toast==='function')window.toast(m)}
+function toast(m){if(typeof window.toast==='function')toast(m)}
 function db(){return window.firebase&&firebase.firestore?firebase.firestore():null}
 function admin(){var u=window.firebase&&firebase.auth?firebase.auth().currentUser:null;return !!(u&&u.uid===ADMIN_UID&&db())}
 async function seed(){if(!admin())return toast('Admin account required.');try{var d=db(),b=d.batch();QUIZZES.forEach(function(q){var data=Object.assign({},q,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),questions:firebase.firestore.FieldValue.delete()});delete data.questions;data.questions=firebase.firestore.FieldValue.delete();b.set(d.collection('quizzes').doc(q.id),data,{merge:true})});COMPETITIONS.forEach(function(c){b.set(d.collection('competitions').doc(c.id),Object.assign({},c,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true})});await b.commit();if(typeof window.loadCloudContent==='function')await window.loadCloudContent();toast('Test content loaded: 5 quizzes + 2 competitions.');if(typeof window.admin==='function')window.admin()}catch(e){console.error(e);toast('Test content failed: '+(e.message||e))}}
 function add(){if(!admin()||document.getElementById('ss-seed-test-content'))return;var root=document.getElementById('root'),main=root&&root.querySelector('main');if(!root||!main)return;var box=document.createElement('div');box.id='ss-seed-test-content';box.className='card admin';box.innerHTML='<b>🧪 Integration Test Data</b><p class="muted">Creates disposable Draft + Published quizzes and competition records.</p><button class="btn" type="button">Load Test Content</button>';box.querySelector('button').onclick=seed;main.insertBefore(box,main.firstChild)}
 new MutationObserver(function(){setTimeout(add,0)}).observe(document.body,{childList:true,subtree:true});setTimeout(add,300);window.ssSeedTestContent=seed;
+/* The working APK already loads this file. Dynamically load the consolidated
+ * admin console so we can expand admin controls without changing the tested
+ * learner UI or routing stack. */
+(function loadAdminV3(){
+  if(document.getElementById('ss-admin-console-v3-script'))return;
+  var s=document.createElement('script');s.id='ss-admin-console-v3-script';s.src='admin-console-v3.js';
+  (document.head||document.documentElement).appendChild(s);
+})();
 })();
