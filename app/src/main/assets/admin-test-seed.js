@@ -16,12 +16,42 @@ function admin(){var u=window.firebase&&firebase.auth?firebase.auth().currentUse
 async function seed(){if(!admin())return toast('Admin account required.');try{var d=db(),b=d.batch();QUIZZES.forEach(function(q){var data=Object.assign({},q,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp(),questions:firebase.firestore.FieldValue.delete()});delete data.questions;data.questions=firebase.firestore.FieldValue.delete();b.set(d.collection('quizzes').doc(q.id),data,{merge:true})});COMPETITIONS.forEach(function(c){b.set(d.collection('competitions').doc(c.id),Object.assign({},c,{testData:true,updatedAt:firebase.firestore.FieldValue.serverTimestamp()}),{merge:true})});await b.commit();if(typeof window.loadCloudContent==='function')await window.loadCloudContent();toast('Test content loaded: 5 quizzes + 2 competitions.');if(typeof window.admin==='function')window.admin()}catch(e){console.error(e);toast('Test content failed: '+(e.message||e))}}
 function add(){if(!admin()||document.getElementById('ss-seed-test-content'))return;var root=document.getElementById('root'),main=root&&root.querySelector('main');if(!root||!main)return;var box=document.createElement('div');box.id='ss-seed-test-content';box.className='card admin';box.innerHTML='<b>🧪 Integration Test Data</b><p class="muted">Creates disposable Draft + Published quizzes and competition records.</p><button class="btn" type="button">Load Test Content</button>';box.querySelector('button').onclick=seed;main.insertBefore(box,main.firstChild)}
 new MutationObserver(function(){setTimeout(add,0)}).observe(document.body,{childList:true,subtree:true});setTimeout(add,300);window.ssSeedTestContent=seed;
-/* The working APK already loads this file. Dynamically load the consolidated
- * admin console so we can expand admin controls without changing the tested
- * learner UI or routing stack. */
-(function loadAdminV3(){
-  if(document.getElementById('ss-admin-console-v3-script'))return;
-  var s=document.createElement('script');s.id='ss-admin-console-v3-script';s.src='admin-console-v3.js';
-  (document.head||document.documentElement).appendChild(s);
-})();
+
+/* FINAL ADMIN BOOT: the learner page contains an older local admin() function.
+ * Load the consolidated admin modules explicitly and make the v3 console the
+ * final global entry point. This prevents the old quiz-only console from winning
+ * because of script timing or the old function declaration. */
+var adminConsoleReady=(async function(){
+  var files=['admin-console-core.js','admin-console-content.js','admin-console-community.js','admin-console-v3.js'];
+  for(var i=0;i<files.length;i++){
+    var id='ss-admin-final-'+i;
+    if(document.getElementById(id))continue;
+    await new Promise(function(resolve,reject){
+      var s=document.createElement('script');
+      s.id=id;
+      s.src=files[i];
+      s.onload=resolve;
+      s.onerror=reject;
+      (document.head||document.documentElement).appendChild(s);
+    });
+  }
+  if(typeof window.ssAdminV3==='function'){
+    window.admin=window.ssAdminV3;
+  }
+  return true;
+})().catch(function(e){
+  console.error('Skill Saga admin console boot failed',e);
+  return false;
+});
+
+window.skillSagaOpenAdmin=async function(){
+  var ok=await adminConsoleReady;
+  if(!ok||typeof window.ssAdminV3!=='function')return toast('Admin Console failed to load');
+  window.admin=window.ssAdminV3;
+  return window.ssAdminV3();
+};
+
+/* Expose the final entry point immediately so all onclick="admin()" buttons
+ * use the same loader even before the modules finish downloading. */
+window.admin=window.skillSagaOpenAdmin;
 })();
