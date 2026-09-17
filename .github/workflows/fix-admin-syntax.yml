@@ -1,0 +1,66 @@
+name: Repair Admin Syntax
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  repair:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Repair only Admin module syntax
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          changed = []
+
+          p = Path('app/src/main/assets/admin-console-content.js')
+          s = p.read_text(encoding='utf-8')
+          original = s
+          # Fix the missing closing parenthesis in the Learning Materials page.
+          s = s.replace("No learning materials yet.</div>')};", "No learning materials yet.</div>'));};")
+          # Fix the accidental literal newline inside the CSV regex created by the previous edit.
+          s = re.sub(r"split\(/\\r\?\s*\n/\)", "split(String.fromCharCode(10))", s)
+          if s != original:
+              p.write_text(s, encoding='utf-8')
+              changed.append(str(p))
+
+          p = Path('app/src/main/assets/admin-console-quiz.js')
+          s = p.read_text(encoding='utf-8')
+          original = s
+          # Fix the missing closing parenthesis in the Quiz Preview page.
+          s = s.replace("No questions added.</div>')};", "No questions added.</div>'));};")
+          if s != original:
+              p.write_text(s, encoding='utf-8')
+              changed.append(str(p))
+
+          print('Changed:', changed)
+          if changed:
+              Path('/tmp/changed.txt').write_text('\n'.join(changed), encoding='utf-8')
+
+      - name: Validate JavaScript syntax
+        run: |
+          node --check app/src/main/assets/admin-console-content.js
+          node --check app/src/main/assets/admin-console-quiz.js
+
+      - name: Commit Admin-only repair
+        run: |
+          if git diff --quiet -- app/src/main/assets/admin-console-content.js app/src/main/assets/admin-console-quiz.js; then
+            echo "No Admin syntax repair needed"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/assets/admin-console-content.js app/src/main/assets/admin-console-quiz.js
+          git commit -m "Fix Admin content and quiz syntax"
+          git push
