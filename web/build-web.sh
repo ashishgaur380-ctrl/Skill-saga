@@ -25,12 +25,13 @@ cp "$ROOT/web/learner-notifications-flow.js" "$PUBLIC/learner-notifications-flow
 cp "$ROOT/web/learner-profile-flow.js" "$PUBLIC/learner-profile-flow.js"
 cp "$ROOT/web/nav-order-force.js" "$PUBLIC/nav-order-force.js"
 cp "$ROOT/web/learner-ui-polish.js" "$PUBLIC/learner-ui-polish.js"
+cp "$ROOT/web/learner-navigation-force.js" "$PUBLIC/learner-navigation-force.js"
 if [ -f "$ROOT/app/src/main/assets/logo.png" ]; then cp "$ROOT/app/src/main/assets/logo.png" "$PUBLIC/logo.png"; fi
 python3 - "$PUBLIC/index.html" <<'PY'
 from pathlib import Path
 p=Path(__import__('sys').argv[1])
 s=p.read_text(encoding='utf-8')
-tags=['<script src="final-ui.js"></script>','<script src="final-ui-links.js"></script>','<script src="teacher-data-sync.js"></script>','<script src="learner-home-fix.js"></script>','<script src="learner-home-ui-refresh.js"></script>','<script src="learner-home-force.js"></script>','<script src="learn-flow.js"></script>','<script src="learner-learn-ui.js"></script>','<script src="learner-learn-force.js"></script>','<script src="learner-learn-class-swipe.js"></script>','<script src="learner-play-flow.js"></script>','<script src="learner-play-ui-refresh.js"></script>','<script src="learner-compete-flow.js"></script>','<script src="learner-compete-ui-force.js"></script>','<script src="learner-rewards-flow.js"></script>','<script src="learner-progress-flow.js"></script>','<script src="learner-quiz-history-flow.js"></script>','<script src="learner-notifications-flow.js"></script>','<script src="learner-profile-flow.js"></script>','<script src="nav-order-force.js"></script>','<script src="learner-ui-polish.js?v=2"></script>']
+tags=['<script src="final-ui.js"></script>','<script src="final-ui-links.js"></script>','<script src="teacher-data-sync.js"></script>','<script src="learner-home-fix.js"></script>','<script src="learner-home-ui-refresh.js"></script>','<script src="learner-home-force.js"></script>','<script src="learn-flow.js"></script>','<script src="learner-learn-ui.js"></script>','<script src="learner-learn-force.js"></script>','<script src="learner-learn-class-swipe.js"></script>','<script src="learner-play-flow.js"></script>','<script src="learner-play-ui-refresh.js"></script>','<script src="learner-compete-flow.js"></script>','<script src="learner-compete-ui-force.js"></script>','<script src="learner-rewards-flow.js"></script>','<script src="learner-progress-flow.js"></script>','<script src="learner-quiz-history-flow.js"></script>','<script src="learner-notifications-flow.js"></script>','<script src="learner-profile-flow.js"></script>','<script src="nav-order-force.js"></script>','<script src="learner-ui-polish.js?v=2"></script>','<script src="learner-navigation-force.js"></script>']
 for tag in tags:
     if tag not in s:
         s=s.replace('</head>',tag+'\n</head>',1)
