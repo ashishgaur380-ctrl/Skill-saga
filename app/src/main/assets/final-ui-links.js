@@ -4,6 +4,9 @@
 function install(){
   document.addEventListener('click',function(e){
     var target=e.target;
+    /* Modern learner screens own their own navigation. Do not let this
+       legacy compatibility bridge intercept their View all / subject taps. */
+    if(target.closest('.hf3,.hr-top,.hr-hero,.hr-mission,.hr-path,.hr-actions,.lrn,#ss-play-live,.cu,#ss-rewards-live,#ss-progress-live,#ss-history-live,#ss-notifications-live')) return;
     var span=target.closest('.ss-section span');
     if(span){
       var t=(span.textContent||'').trim().toLowerCase();
