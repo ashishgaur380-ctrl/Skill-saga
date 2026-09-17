@@ -8,6 +8,7 @@ service cloud.firestore {
     function currentRole() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
     function isAdmin() { return signedIn() && (request.auth.uid == '4Jme1MoSmHbjzwVjkvxeNSwPp0U2' || (currentUser() && currentRole() == 'admin')); }
     function validSignupRole() { return request.resource.data.role in ['learner', 'parent', 'teacher']; }
+    function published(data) { return data.published == true || data.status == 'published'; }
 
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
@@ -32,10 +33,24 @@ service cloud.firestore {
       allow update: if signedIn() && (isAdmin() || (resource.data.studentUid == request.auth.uid && request.resource.data.parentUid == resource.data.parentUid && request.resource.data.teacherUid == resource.data.teacherUid && request.resource.data.studentUid == resource.data.studentUid && request.resource.data.status == resource.data.status));
       allow delete: if signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.teacherUid == request.auth.uid || resource.data.studentUid == request.auth.uid || isAdmin());
     }
+
+    // Learner content: learners can read published content; only admins can write.
     match /quizzes/{quizId} {
-      allow read: if signedIn() && (resource.data.published == true || isAdmin());
+      allow read: if signedIn() && (published(resource.data) || isAdmin());
       allow create, update, delete: if isAdmin();
     }
+    match /curriculum/{id} {
+      allow read: if signedIn() && (published(resource.data) || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+    match /learningMaterials/{id} {
+      allow read: if signedIn() && (published(resource.data) || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+    match /questionBank/{id} {
+      allow read, create, update, delete: if isAdmin();
+    }
+
     match /quizAttempts/{attemptId} {
       allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.quizId is string && request.resource.data.score is number && request.resource.data.total is number && request.resource.data.percentage is number;
       allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin() || exists(/databases/$(database)/documents/relationships/$(request.auth.uid + '_' + resource.data.uid)));
@@ -48,7 +63,11 @@ service cloud.firestore {
       allow delete: if signedIn() && (resource.data.teacherUid == request.auth.uid || isAdmin());
     }
 
-    // Competition registration: one document per learner per competition.
+    // Competition management/results are admin-controlled.
+    match /competitions/{competitionId} {
+      allow read: if signedIn() && (published(resource.data) || resource.data.status in ['upcoming','live','completed'] || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
     match /competitionRegistrations/{registrationId} {
       allow create: if signedIn()
         && registrationId == request.resource.data.competitionId + '_' + request.auth.uid
@@ -59,10 +78,44 @@ service cloud.firestore {
       allow update: if signedIn() && isAdmin();
       allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
     }
-
-    // Competition results are published/admin-controlled; learners never write scores.
     match /competitionResults/{resultId} {
       allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+    match /leaderboards/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Discussion forum: learners can submit pending posts; admins moderate publication.
+    match /forumPosts/{postId} {
+      allow read: if signedIn() && (isAdmin() || resource.data.status == 'published' || resource.data.authorUid == request.auth.uid);
+      allow create: if signedIn() && request.resource.data.authorUid == request.auth.uid && request.resource.data.status == 'pending';
+      allow update: if isAdmin() || (signedIn() && resource.data.authorUid == request.auth.uid && resource.data.status == 'pending' && request.resource.data.authorUid == resource.data.authorUid && request.resource.data.status == 'pending');
+      allow delete: if isAdmin() || (signedIn() && resource.data.authorUid == request.auth.uid && resource.data.status == 'pending');
+    }
+    match /forumReports/{reportId} {
+      allow create: if signedIn() && request.resource.data.reporterUid == request.auth.uid;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Admin announcements; learners/teachers/parents read matching audience.
+    match /notifications/{notificationId} {
+      allow read: if signedIn() && (isAdmin() || resource.data.audience == 'all' || resource.data.audience == currentRole());
+      allow create, update, delete: if isAdmin();
+    }
+    match /appSettings/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
+    // Reward catalogue and badges shown to learners after publication.
+    match /rewards/{id} {
+      allow read: if signedIn() && (published(resource.data) || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+    match /badges/{id} {
+      allow read: if signedIn() && (published(resource.data) || isAdmin());
       allow create, update, delete: if isAdmin();
     }
   }
