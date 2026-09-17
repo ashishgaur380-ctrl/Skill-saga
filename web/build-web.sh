@@ -12,12 +12,14 @@ cp "$ROOT/web/learner-play-flow.js" "$PUBLIC/learner-play-flow.js"
 cp "$ROOT/web/learner-compete-flow.js" "$PUBLIC/learner-compete-flow.js"
 cp "$ROOT/web/learner-rewards-flow.js" "$PUBLIC/learner-rewards-flow.js"
 cp "$ROOT/web/learner-progress-flow.js" "$PUBLIC/learner-progress-flow.js"
+cp "$ROOT/web/learner-quiz-history-flow.js" "$PUBLIC/learner-quiz-history-flow.js"
+cp "$ROOT/web/learner-notifications-flow.js" "$PUBLIC/learner-notifications-flow.js"
 if [ -f "$ROOT/app/src/main/assets/logo.png" ]; then cp "$ROOT/app/src/main/assets/logo.png" "$PUBLIC/logo.png"; fi
 python3 - "$PUBLIC/index.html" <<'PY'
 from pathlib import Path
 p=Path(__import__('sys').argv[1])
 s=p.read_text(encoding='utf-8')
-for tag in ['<script src="final-ui.js"></script>','<script src="final-ui-links.js"></script>','<script src="teacher-data-sync.js"></script>','<script src="learner-home-fix.js"></script>','<script src="learner-play-flow.js"></script>','<script src="learner-compete-flow.js"></script>','<script src="learner-rewards-flow.js"></script>','<script src="learner-progress-flow.js"></script>']:
+for tag in ['<script src="final-ui.js"></script>','<script src="final-ui-links.js"></script>','<script src="teacher-data-sync.js"></script>','<script src="learner-home-fix.js"></script>','<script src="learner-play-flow.js"></script>','<script src="learner-compete-flow.js"></script>','<script src="learner-rewards-flow.js"></script>','<script src="learner-progress-flow.js"></script>','<script src="learner-quiz-history-flow.js"></script>','<script src="learner-notifications-flow.js"></script>']:
     if tag not in s:
         s=s.replace('</head>',tag+'\n</head>',1)
 p.write_text(s,encoding='utf-8')
