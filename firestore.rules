@@ -3,30 +3,11 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function signedIn() {
-      return request.auth != null;
-    }
-
-    function currentUser() {
-      return signedIn()
-        && exists(/databases/$(database)/documents/users/$(request.auth.uid));
-    }
-
-    function currentRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
-    function isAdmin() {
-      return signedIn()
-        && (
-          request.auth.uid == '4Jme1MoSmHbjzwVjkvxeNSwPp0U2'
-          || (currentUser() && currentRole() == 'admin')
-        );
-    }
-
-    function validSignupRole() {
-      return request.resource.data.role in ['learner', 'parent', 'teacher'];
-    }
+    function signedIn() { return request.auth != null; }
+    function currentUser() { return signedIn() && exists(/databases/$(database)/documents/users/$(request.auth.uid)); }
+    function currentRole() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isAdmin() { return signedIn() && (request.auth.uid == '4Jme1MoSmHbjzwVjkvxeNSwPp0U2' || (currentUser() && currentRole() == 'admin')); }
+    function validSignupRole() { return request.resource.data.role in ['learner', 'parent', 'teacher']; }
 
     match /users/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
@@ -34,123 +15,55 @@ service cloud.firestore {
       allow update: if signedIn() && ((request.auth.uid == uid && request.resource.data.role == resource.data.role) || isAdmin());
       allow delete: if signedIn() && (request.auth.uid == uid || isAdmin());
     }
-
     match /studentDirectory/{linkCode} {
       allow read: if signedIn();
-      allow create, update: if signedIn()
-        && request.resource.data.studentUid == request.auth.uid
-        && request.resource.data.role == 'learner';
+      allow create, update: if signedIn() && request.resource.data.studentUid == request.auth.uid && request.resource.data.role == 'learner';
       allow delete: if signedIn() && resource.data.studentUid == request.auth.uid;
     }
-
     match /linkRequests/{requestId} {
-      allow create: if signedIn()
-        && request.resource.data.fromUid == request.auth.uid
-        && request.resource.data.fromRole in ['parent', 'teacher']
-        && request.resource.data.toUid is string
-        && request.resource.data.status == 'pending';
-      allow read: if signedIn() && (
-        resource.data.fromUid == request.auth.uid
-        || resource.data.toUid == request.auth.uid
-        || requestId.matches(request.auth.uid + '_.*')
-        || isAdmin()
-      );
-      allow update: if signedIn()
-        && resource.data.toUid == request.auth.uid
-        && resource.data.status == 'pending'
-        && request.resource.data.status in ['accepted', 'rejected'];
-      allow delete: if signedIn() && (
-        resource.data.fromUid == request.auth.uid
-        || resource.data.toUid == request.auth.uid
-        || isAdmin()
-      );
+      allow create: if signedIn() && request.resource.data.fromUid == request.auth.uid && request.resource.data.fromRole in ['parent','teacher'] && request.resource.data.toUid is string && request.resource.data.status == 'pending';
+      allow read: if signedIn() && (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid || requestId.matches(request.auth.uid + '_.*') || isAdmin());
+      allow update: if signedIn() && resource.data.toUid == request.auth.uid && resource.data.status == 'pending' && request.resource.data.status in ['accepted','rejected'];
+      allow delete: if signedIn() && (resource.data.fromUid == request.auth.uid || resource.data.toUid == request.auth.uid || isAdmin());
     }
-
     match /relationships/{relationshipId} {
-      allow create: if signedIn()
-        && (
-          request.resource.data.parentUid == request.auth.uid
-          || request.resource.data.teacherUid == request.auth.uid
-          || request.resource.data.studentUid == request.auth.uid
-        )
-        && request.resource.data.status == 'active';
-      allow read: if signedIn() && (
-        resource.data.parentUid == request.auth.uid
-        || resource.data.teacherUid == request.auth.uid
-        || resource.data.studentUid == request.auth.uid
-        || isAdmin()
-      );
-      allow update: if signedIn() && (
-        isAdmin()
-        || (
-          resource.data.studentUid == request.auth.uid
-          && request.resource.data.parentUid == resource.data.parentUid
-          && request.resource.data.teacherUid == resource.data.teacherUid
-          && request.resource.data.studentUid == resource.data.studentUid
-          && request.resource.data.status == resource.data.status
-        )
-      );
-      allow delete: if signedIn() && (
-        resource.data.parentUid == request.auth.uid
-        || resource.data.teacherUid == request.auth.uid
-        || resource.data.studentUid == request.auth.uid
-        || isAdmin()
-      );
+      allow create: if signedIn() && (request.resource.data.parentUid == request.auth.uid || request.resource.data.teacherUid == request.auth.uid || request.resource.data.studentUid == request.auth.uid) && request.resource.data.status == 'active';
+      allow read: if signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.teacherUid == request.auth.uid || resource.data.studentUid == request.auth.uid || isAdmin());
+      allow update: if signedIn() && (isAdmin() || (resource.data.studentUid == request.auth.uid && request.resource.data.parentUid == resource.data.parentUid && request.resource.data.teacherUid == resource.data.teacherUid && request.resource.data.studentUid == resource.data.studentUid && request.resource.data.status == resource.data.status));
+      allow delete: if signedIn() && (resource.data.parentUid == request.auth.uid || resource.data.teacherUid == request.auth.uid || resource.data.studentUid == request.auth.uid || isAdmin());
     }
-
     match /quizzes/{quizId} {
       allow read: if signedIn() && (resource.data.published == true || isAdmin());
       allow create, update, delete: if isAdmin();
     }
-
     match /quizAttempts/{attemptId} {
-      allow create: if signedIn()
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.quizId is string
-        && request.resource.data.score is number
-        && request.resource.data.total is number
-        && request.resource.data.percentage is number;
-
-      allow read: if signedIn() && (
-        resource.data.uid == request.auth.uid
-        || isAdmin()
-        || exists(/databases/$(database)/documents/relationships/$(request.auth.uid + '_' + resource.data.uid))
-      );
-
+      allow create: if signedIn() && request.resource.data.uid == request.auth.uid && request.resource.data.quizId is string && request.resource.data.score is number && request.resource.data.total is number && request.resource.data.percentage is number;
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin() || exists(/databases/$(database)/documents/relationships/$(request.auth.uid + '_' + resource.data.uid)));
       allow update, delete: if isAdmin();
     }
-
     match /assignments/{assignmentId} {
-      allow create: if signedIn()
-        && currentUser()
-        && request.resource.data.teacherUid == request.auth.uid
-        && currentRole() == 'teacher'
-        && request.resource.data.studentUid is string
-        && request.resource.data.quizId is string
-        && request.resource.data.status == 'assigned';
-      allow read: if signedIn() && (
-        resource.data.teacherUid == request.auth.uid
-        || resource.data.studentUid == request.auth.uid
-        || assignmentId.matches(request.auth.uid + '_.*')
-        || isAdmin()
-      );
-      allow update: if signedIn() && (
-        isAdmin()
-        || (
-          resource.data.teacherUid == request.auth.uid
-          && request.resource.data.teacherUid == resource.data.teacherUid
-          && request.resource.data.studentUid == resource.data.studentUid
-          && request.resource.data.quizId == resource.data.quizId
-        )
-        || (
-          resource.data.studentUid == request.auth.uid
-          && request.resource.data.teacherUid == resource.data.teacherUid
-          && request.resource.data.studentUid == resource.data.studentUid
-          && request.resource.data.quizId == resource.data.quizId
-          && request.resource.data.status in ['assigned','completed']
-        )
-      );
+      allow create: if signedIn() && currentUser() && request.resource.data.teacherUid == request.auth.uid && currentRole() == 'teacher' && request.resource.data.studentUid is string && request.resource.data.quizId is string && request.resource.data.status == 'assigned';
+      allow read: if signedIn() && (resource.data.teacherUid == request.auth.uid || resource.data.studentUid == request.auth.uid || assignmentId.matches(request.auth.uid + '_.*') || isAdmin());
+      allow update: if signedIn() && (isAdmin() || (resource.data.teacherUid == request.auth.uid && request.resource.data.teacherUid == resource.data.teacherUid && request.resource.data.studentUid == resource.data.studentUid && request.resource.data.quizId == resource.data.quizId) || (resource.data.studentUid == request.auth.uid && request.resource.data.teacherUid == resource.data.teacherUid && request.resource.data.studentUid == resource.data.studentUid && request.resource.data.quizId == resource.data.quizId && request.resource.data.status in ['assigned','completed']));
       allow delete: if signedIn() && (resource.data.teacherUid == request.auth.uid || isAdmin());
+    }
+
+    // Competition registration: one document per learner per competition.
+    match /competitionRegistrations/{registrationId} {
+      allow create: if signedIn()
+        && registrationId == request.resource.data.competitionId + '_' + request.auth.uid
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.competitionId is string
+        && request.resource.data.status == 'registered';
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+      allow update: if signedIn() && isAdmin();
+      allow delete: if signedIn() && (resource.data.uid == request.auth.uid || isAdmin());
+    }
+
+    // Competition results are published/admin-controlled; learners never write scores.
+    match /competitionResults/{resultId} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
     }
   }
 }
