@@ -6,16 +6,16 @@ window.ssAdminAuth=function(){return firebase&&firebase.auth?firebase.auth().cur
 window.ssAdminOK=function(){var a=ssAdminAuth(),u=window.user&&window.user();return !!(a&&ssAdminDB()&&(a.uid===BOOT||(u&&u.role==='admin')))};
 window.ssAdminGuard=function(){if(!ssAdminOK()){if(window.toast)toast('Admin access required');return false}return true};
 window.ssAdminStamp=function(){return firebase.firestore.FieldValue.serverTimestamp()};
-window.ssAdminEsc=function(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})};
+window.ssAdminEsc=function(v){return String(v==null?'':v).replace(/[&<>\"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[c]})};
 window.ssAdminDocs=async function(c,n){try{var q=ssAdminDB().collection(c);if(n)q=q.limit(n);var s=await q.get();return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})}catch(e){console.warn(c,e);return[]}};
 function stat(v,t){return '<div class="tile"><b>'+ssAdminEsc(v)+'</b><small>'+ssAdminEsc(t)+'</small></div>'}
 window.ssAdminPage=function(t,s,b){document.getElementById('root').innerHTML='<div class="app"><header class="top"><div class="brand"><img src="logo.png"><b>Skill <span>Saga</span></b></div><button class="iconbtn" onclick="admin()">Back</button></header><main class="main"><div class="row"><div><h1 style="margin:0">'+ssAdminEsc(t)+'</h1><div class="muted">'+ssAdminEsc(s||'')+'</div></div><span>🛠️</span></div>'+b+'</main></div>'};
 /* Encode quotes in dynamic onclick attributes so handlers such as fn("value") remain valid HTML. */
-window.ssAdminButton=function(t,f,k){return '<button class="btn '+(k||'light')+'" onclick="'+String(f).replace(/"/g,'&quot;')+'">'+t+'</button>'};
+window.ssAdminButton=function(t,f,k){return '<button class="btn '+(k||'light')+'" onclick="'+String(f).replace(/\"/g,'&quot;')+'">'+t+'</button>'};
 window.ssAdminSettings=async function(){try{var s=await ssAdminDB().collection('appSettings').doc('general').get();return s.exists?s.data():{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}catch(e){return{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}};
 
-/* Admin module bridge: content cards can be opened even if a lazily-loaded
-   Admin module has not finished loading yet. This is Admin-only code. */
+/* Admin module bridge: preserve already-loaded module handlers and safely
+   open them when modules are loaded in either order. Admin-only code. */
 var __ssAdminModulePromises={};
 function loadAdminModule(src){
   if(__ssAdminModulePromises[src])return __ssAdminModulePromises[src];
@@ -38,18 +38,22 @@ function loadAdminModule(src){
   });
   return __ssAdminModulePromises[src];
 }
-function openAdminModule(fn,src){
-  if(!ssAdminGuard())return;
-  if(typeof window[fn]==='function')return window[fn]();
-  loadAdminModule(src).then(function(){
-    if(typeof window[fn]==='function')return window[fn]();
-    if(window.toast)toast('Admin module is unavailable. Please refresh once.');
-  }).catch(function(e){console.warn(e);if(window.toast)toast('Admin module could not be loaded.');});
+function bridgeAdminHandler(name,src){
+  var already=window[name];
+  window[name]=function(){
+    if(!ssAdminGuard())return;
+    if(already&&already!==window[name])return already.apply(window,arguments);
+    loadAdminModule(src).then(function(){
+      var fn=window[name];
+      if(typeof fn==='function'&&fn!==window[name])return fn.apply(window,arguments);
+      if(window.toast)toast('Admin module is unavailable. Please refresh once.');
+    }).catch(function(e){console.warn(e);if(window.toast)toast('Admin module could not be loaded.');});
+  };
 }
-window.ssAdminQuiz=function(){openAdminModule('adminQuizForm','admin-console-quiz.js')};
-window.ssAdminCurriculum=function(){openAdminModule('ssAdminCurriculum','admin-console-content.js')};
-window.ssAdminMaterials=function(){openAdminModule('ssAdminMaterials','admin-console-content.js')};
-window.ssAdminQuestions=function(){openAdminModule('ssAdminQuestions','admin-console-content.js')};
+bridgeAdminHandler('ssAdminQuiz','admin-console-quiz.js');
+bridgeAdminHandler('ssAdminCurriculum','admin-console-content.js');
+bridgeAdminHandler('ssAdminMaterials','admin-console-content.js');
+bridgeAdminHandler('ssAdminQuestions','admin-console-content.js');
 
 window.admin=async function(){if(!ssAdminGuard())return;var cs=['quizzes','curriculum','learningMaterials','questionBank','competitions','forumPosts','forumReports','users','assignments','leaderboards','rewards','badges','notifications','quizAttempts','competitionResults','relationships'],a=await Promise.all(cs.map(function(c){return ssAdminDocs(c)})),m={};cs.forEach(function(c,i){m[c]=a[i].length});var s=await ssAdminSettings();ssAdminPage('Admin Console','Central control for Skill Saga learning content, learner experience and community.','<div class="notice"><b>Authorized admin area.</b> Firebase Authentication + Firestore rules protect the management collections.</div><div class="grid">'+stat(m.quizzes,'Quizzes')+stat(m.curriculum,'Curriculum')+stat(m.learningMaterials,'Materials')+stat(m.questionBank,'Question Bank')+stat(m.competitions,'Competitions')+stat(m.forumPosts,'Forum Posts')+stat(m.users,'Users')+stat(m.assignments,'Assignments')+'</div><div class="section"><b>Content & Curriculum</b></div><div class="grid"><div class="tile" onclick="ssAdminQuiz()">📝<b>Quiz Manager</b><small>Create, import, preview, publish, schedule</small></div><div class="tile" onclick="ssAdminCurriculum()">🗂️<b>Curriculum</b><small>Board, year, class, subject, book, chapter, topic</small></div><div class="tile" onclick="ssAdminMaterials()">📚<b>Learning Materials</b><small>Lessons and study content</small></div><div class="tile" onclick="ssAdminQuestions()">❓<b>Question Bank</b><small>Production questions and review</small></div><div class="tile" onclick="ssAdminV3Imports()">📥<b>Bulk Import</b><small>CSV / Excel for production data</small></div></div><div class="section"><b>Play & Competition</b></div><div class="grid"><div class="tile" onclick="ssAdminCompetitions()">🏆<b>Competitions</b><small>Schedule, manage and publish</small></div><div class="tile" onclick="ssAdminAssignments()">👩‍🏫<b>Assignments</b><small>Teacher-to-learner audit</small></div><div class="tile" onclick="ssAdminV3Leaderboards()">🥇<b>Leaderboards</b><small>Review published ranking records</small></div><div class="tile" onclick="ssAdminV3Rewards()">🎁<b>Rewards & Badges</b><small>Manage catalogue and definitions</small></div></div><div class="section"><b>Community & Communication</b></div><div class="grid"><div class="tile" onclick="ssAdminForum()">💬<b>Forum & Moderation</b><small>Posts, reports, approve/reject/delete</small></div><div class="tile" onclick="ssAdminNotifications()">🔔<b>Notifications</b><small>Announcements by audience</small></div></div><div class="section"><b>Learners, Parents & Teachers</b></div><div class="grid"><div class="tile" onclick="ssAdminUsers()">👥<b>Users & Roles</b><small>Learner, parent, teacher, admin</small></div><div class="tile" onclick="ssAdminV3Relationships()">🔗<b>Relationships</b><small>Parent/teacher/learner links</small></div><div class="tile" onclick="ssAdminV3Learners()">🧑‍🎓<b>Learner Profiles</b><small>Education identity and progress</small></div></div><div class="section"><b>Insights & Platform Controls</b></div><div class="grid"><div class="tile" onclick="ssAdminAnalytics()">📊<b>Analytics</b><small>Attempts and accuracy</small></div><div class="tile" onclick="ssAdminV3Records()">📈<b>Learning Records</b><small>Quiz history and attempts</small></div><div class="tile" onclick="ssAdminAppSettings()">⚙️<b>App Controls</b><small>Forum, ads, premium</small></div><div class="tile" onclick="ssAdminSecurity()">🛡️<b>Security</b><small>Admin authorization</small></div></div><div class="card admin"><div class="row"><b>Discussion Forum</b><span class="badge">'+(s.forumEnabled!==false?'Enabled':'Disabled')+'</span></div><div class="small muted" style="margin-top:6px">Learner posts should enter moderation before public publication.</div></div>')};
 })();
