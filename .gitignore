@@ -4,3 +4,9 @@
 build/
 app/build/
 local.properties
+
+# Firebase CLI generated cache
+.firebase/
+
+# Local hosted web build output (web is paused; do not commit generated files)
+web/public/
