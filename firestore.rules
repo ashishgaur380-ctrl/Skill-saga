@@ -25,20 +25,13 @@ service cloud.firestore {
     }
 
     match /users/{uid} {
-
-      // Users can read their own profile.
-      // Admins can read user profiles.
       allow read: if signedIn()
         && (request.auth.uid == uid || isAdmin());
 
-      // New accounts may be Learner, Parent, or Teacher.
-      // Admin accounts cannot be created from the client.
       allow create: if signedIn()
         && request.auth.uid == uid
         && validSignupRole();
 
-      // Users may update their own profile, but cannot change their role.
-      // Admins may manage users.
       allow update: if signedIn()
         && (
           (
@@ -106,10 +99,6 @@ service cloud.firestore {
           || isAdmin()
         );
 
-      // Only the linked learner can update progress-summary fields.
-      // Parent/Teacher can update relationship metadata, but cannot
-      // modify the learner's XP, level, accuracy, quizzes, streak,
-      // coins, skills, or mastery.
       allow update: if signedIn()
         && (
           isAdmin()
@@ -132,26 +121,41 @@ service cloud.firestore {
     }
 
     match /quizzes/{quizId} {
-
-      // Published quizzes are available to signed-in users.
       allow read: if signedIn()
         && (resource.data.published == true || isAdmin());
-
-      // Only admins can publish/edit/delete quizzes.
       allow create, update, delete: if isAdmin();
     }
 
-    match /quizAttempts/{attemptId} {
-      // A learner can record only their own completed quiz attempt.
-      allow create: if signedIn()
-        && request.resource.data.uid == request.auth.uid
-        && request.resource.data.quizId is string
-        && request.resource.data.score is number
-        && request.resource.data.total is number
-        && request.resource.data.percentage is number;
+    match /curriculum/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
 
-      // Only admins can view or manage cross-learner analytics.
-      allow read, update, delete: if isAdmin();
+    match /learningMaterials/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /questionBank/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /competitions/{id} {
+      allow read: if signedIn()
+        && (resource.data.published == true || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /competitionResults/{id} {
+      allow read: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid;
+      allow update, delete: if isAdmin()
+        || (signedIn() && resource.data.uid == request.auth.uid);
     }
 
     match /assignments/{assignmentId} {
@@ -196,6 +200,60 @@ service cloud.firestore {
         );
     }
 
+    match /quizAttempts/{attemptId} {
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.quizId is string
+        && request.resource.data.score is number
+        && request.resource.data.total is number
+        && request.resource.data.percentage is number;
+      allow read, update, delete: if isAdmin();
+    }
+
+    match /rewards/{id} {
+      allow read: if signedIn()
+        && (resource.data.published == true || resource.data.status == 'published' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /badges/{id} {
+      allow read: if signedIn()
+        && (resource.data.published == true || resource.data.status == 'published' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /leaderboards/{id} {
+      allow read: if signedIn()
+        && (resource.data.published == true || resource.data.status == 'published' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /notifications/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || isAdmin());
+      allow create, update, delete: if isAdmin();
+    }
+
+    match /forumPosts/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || isAdmin());
+      allow create: if signedIn()
+        && request.resource.data.authorUid == request.auth.uid
+        && request.resource.data.status == 'pending';
+      allow update, delete: if isAdmin()
+        || (signedIn() && resource.data.authorUid == request.auth.uid && resource.data.status == 'pending');
+    }
+
+    match /forumReports/{id} {
+      allow read, update, delete: if isAdmin();
+      allow create: if signedIn()
+        && request.resource.data.reporterUid == request.auth.uid;
+    }
+
+    match /appSettings/{id} {
+      allow read: if signedIn();
+      allow create, update, delete: if isAdmin();
+    }
+
   }
 }
-
