@@ -40,15 +40,17 @@ function loadAdminModule(src){
 }
 function bridgeAdminHandler(name,src){
   var already=window[name];
-  window[name]=function(){
+  var bridge=function(){
     if(!ssAdminGuard())return;
-    if(already&&already!==window[name])return already.apply(window,arguments);
+    if(already)return already.apply(window,arguments);
+    var args=arguments;
     loadAdminModule(src).then(function(){
       var fn=window[name];
-      if(typeof fn==='function'&&fn!==window[name])return fn.apply(window,arguments);
+      if(typeof fn==='function'&&fn!==bridge)return fn.apply(window,args);
       if(window.toast)toast('Admin module is unavailable. Please refresh once.');
     }).catch(function(e){console.warn(e);if(window.toast)toast('Admin module could not be loaded.');});
   };
+  window[name]=bridge;
 }
 bridgeAdminHandler('ssAdminQuiz','admin-console-quiz.js');
 bridgeAdminHandler('ssAdminCurriculum','admin-console-content.js');
