@@ -48,7 +48,7 @@ async function ssReadHomeSettings(){
   var d={enabled:true,showStats:true,showDailyMission:true,showDailyQuiz:true,showWeeklyQuiz:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true};
   try{
     if(window.firebase&&firebase.firestore){
-      var s=await firebase.firestore().collection('appSettings').doc('home').get();
+      var s=window.SkillSagaCommon?await SkillSagaCommon.getDoc('appSettings','home'):await firebase.firestore().collection('appSettings').doc('home').get();
       if(s.exists)d=Object.assign(d,s.data());
     }
   }catch(e){console.warn('Home settings load failed',e)}
