@@ -2057,7 +2057,7 @@ async function leaderboardData(){
 async function rank(){let u=user();let arr=await leaderboardData();return 1+arr.filter(x=>(x.studentXp||x.xp||0)>(u.xp||0)).length}
 function shell(content){var u=user();var adminButton=u&&u.role==='admin'?'<button class="iconbtn" onclick="admin()" title="Admin Console">🛠️</button>':'';document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><div style="display:flex;align-items:center;gap:6px">${adminButton}<button class="iconbtn" onclick="notifications()">🔔</button></div></header><main class="main">${content}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
 async function go(n){screen=n;if(n==='home')return home();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile();if(n==='settings')return settings();if(n==='progress')return progress();if(n==='history')return history();if(n==='rewards')return rewardsScreen()}
-async function home(){
+async async function home(){
   let u=user();
   if(!u)return loginScreen();
 
@@ -2275,7 +2275,25 @@ async function home(){
       </section>
 
 
-      ${continueHtml}
+      \${continueHtml}
+
+      <div class="ss-home-section ss-home-notifications-section">
+        <b>Notifications</b>
+        <span class="ss-home-link" onclick="go('notifications')">View all →</span>
+      </div>
+      <section class="ss-home-notifications">
+        <div class="card">
+          <div class="muted">Stay updated with new quizzes, competitions, rewards and announcements.</div>
+        </div>
+      </section>
+
+      <div class="ss-home-section ss-home-recent-section">
+        <b>Recent Activity</b>
+        <span class="ss-home-link" onclick="go('history')">View history →</span>
+      </div>
+      <section class="ss-home-recent">
+        \${lastHistory?'<div class="card"><b>'+esc(lastHistory.title||'Quiz activity')+'</b><div class="muted" style="margin-top:5px">Latest learning activity • '+esc(lastHistory.score==null?'Completed':String(lastHistory.score)+' score')+'</div></div>':'<div class="card"><div class="muted">Your recent learning activity will appear here.</div></div>'}
+      </section>
 
       <div class="ss-home-bottom-note">
         ✨ Keep learning, build your skills, and grow a little every day.
