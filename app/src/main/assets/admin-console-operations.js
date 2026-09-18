@@ -41,76 +41,125 @@ window.ssAdminAssignmentForm=async function(id){
    var teachers=users.filter(function(u){return u.role==='teacher'}),
        learners=users.filter(function(u){return !u.role||u.role==='learner'});
    function opt(value,label,selected){return '<option value="'+esc(value)+'"'+(String(value||'')===String(selected||'')?' selected':'')+'>'+esc(label)+'</option>'}
+   function uniq(field){var m={};return learners.map(function(u){return String(u[field]||'').trim()}).filter(function(v){if(!v||m[v])return false;m[v]=1;return true}).sort()}
+   var schools=uniq('school'),districts=uniq('district'),classes=uniq('studentClass').concat(uniq('classNumber'));
+   classes=classes.filter(function(v,i,a){return a.indexOf(v)===i}).sort();
+   var targetType=x.targetType|| (x.studentUid?'individual':'individual');
+   var targetValue=x.targetValue||'';
    var th='<label>Teacher</label><select id="asTeacher" class="input">'+
      opt('','Select teacher',x.teacherUid)+
      teachers.map(function(u){return opt(u.uid||u.id,u.name||u.displayName||u.email||'Teacher',x.teacherUid)}).join('')+
      '</select>';
-   var le='<label>Learner</label><select id="asLearner" class="input">'+
-     opt('','Select learner',x.studentUid||x.learnerUid)+
-     learners.map(function(u){return opt(u.uid||u.id,u.name||u.displayName||u.email||'Learner',x.studentUid||x.learnerUid)}).join('')+
-     '</select>';
+   var target='<label>Assignment target</label><select id="asTargetType" class="input">'+
+     opt('individual','Individual learner',targetType)+
+     opt('class','Class level',targetType)+
+     opt('school','Entire school',targetType)+
+     opt('district','Entire district',targetType)+
+     '</select>'+
+     '<label>Target value</label><select id="asTargetValue" class="input">'+
+     opt('',targetType==='individual'?'Select learner':targetType==='class'?'Select class':targetType==='school'?'Select school':'Select district',targetValue)+
+     (targetType==='individual'?learners.map(function(u){return opt(u.uid||u.id,(u.name||u.displayName||u.email||'Learner')+' • '+(u.school||'No school')+' • '+(u.district||'No district')+' • Class '+(u.studentClass||u.classNumber||'—'),targetValue)}).join(''):
+      targetType==='class'?classes.map(function(v){return opt(v,'Class '+v,targetValue)}).join(''):
+      targetType==='school'?schools.map(function(v){return opt(v,v,targetValue)}).join(''):
+      districts.map(function(v){return opt(v,v,targetValue)}).join(''))+
+     '</select>'+
+     '<div id="asScopeHint" class="small muted">Individual: assign to one learner.</div>';
    var q='<label>Quiz</label><select id="asQuiz" class="input">'+
      opt('','Select quiz',x.quizId)+
      quizzes.map(function(v){return opt(v.id,v.title||'Quiz',x.quizId)}).join('')+
      '</select>';
-   var statuses=['active','draft','completed','cancelled'];
+   var statuses=['assigned','draft','completed','cancelled'];
    var st='<label>Status</label><select id="asStatus" class="input">'+
-     statuses.map(function(v){return opt(v,v,x.status||'active')}).join('')+'</select>';
-   page(id?'Edit Assignment':'Create Assignment','Assign existing quiz content to a learner.',
+     statuses.map(function(v){return opt(v,v,x.status||'assigned')}).join('')+'</select>';
+   page(id?'Edit Assignment':'Create Assignment','Assign an existing quiz to an individual learner, class, school or district.',
      '<div class="card">'+
        input('asTitle','Assignment title',x.title||x.assignmentTitle)+
        area('asDesc','Description',x.description)+
-       th+le+q+
+       th+target+q+
        input('asDue','Due date/time',x.dueAt||'')+
        st+
+       '<p class="small muted">For group targets, Skill Saga creates a separate assignment record for each matching learner so the learner app can show it in Assigned Quizzes.</p>'+
        btn('Save Assignment','ssAdminAssignmentSave("'+esc(id||'')+'")','gold')+
      '</div>'
    );
+   var tt=document.getElementById('asTargetType'),tv=document.getElementById('asTargetValue'),hint=document.getElementById('asScopeHint');
+   function refreshTarget(){
+     if(!tt||!tv)return;
+     var typ=tt.value,old=tv.value;
+     var vals=[],labels=[];
+     if(typ==='individual'){vals=learners.map(function(u){return u.uid||u.id});labels=learners.map(function(u){return (u.name||u.displayName||u.email||'Learner')+' • '+(u.school||'No school')+' • '+(u.district||'No district')+' • Class '+(u.studentClass||u.classNumber||'—')})}
+     else if(typ==='class'){vals=classes;labels=classes.map(function(v){return 'Class '+v})}
+     else if(typ==='school'){vals=schools;labels=schools}
+     else{vals=districts;labels=districts}
+     tv.innerHTML=opt('',typ==='individual'?'Select learner':typ==='class'?'Select class':typ==='school'?'Select school':'Select district','')+vals.map(function(v,i){return opt(v,labels[i],old)}).join('');
+     hint.textContent=typ==='individual'?'Individual: assign to one learner.':typ==='class'?'Class: assigns to every learner in the selected class.':' '+(typ==='school'?'School: assigns to every learner in the selected school.':'District: assigns to every learner in the selected district.');
+   }
+   if(tt)tt.addEventListener('change',refreshTarget);
  }catch(e){toastx(e.message||'Could not open assignment form')}
 };
 window.ssAdminAssignmentSave=async function(id){
  if(!ok())return;
- var title=val('asTitle'),teacher=val('asTeacher'),learner=val('asLearner'),quiz=val('asQuiz');
+ var title=val('asTitle'),teacher=val('asTeacher'),quiz=val('asQuiz'),targetType=val('asTargetType'),targetValue=val('asTargetValue');
  if(!title)return toastx('Enter an assignment title.');
  if(!teacher)return toastx('Select a teacher.');
- if(!learner)return toastx('Select a learner.');
+ if(!targetType||!targetValue)return toastx('Select an assignment target.');
  if(!quiz)return toastx('Select a quiz.');
  try{
-   var t=await db().collection('users').doc(teacher).get(),
-       l=await db().collection('users').doc(learner).get(),
-       q=await db().collection('quizzes').doc(quiz).get();
+   var t=await db().collection('users').doc(teacher).get(),q=await db().collection('quizzes').doc(quiz).get();
    if(!t.exists)return toastx('Selected teacher was not found.');
-   if(!l.exists)return toastx('Selected learner was not found.');
    if(!q.exists)return toastx('Selected quiz was not found.');
-   var d={
-     title:title,
-     assignmentTitle:title,
-     description:val('asDesc'),
-     teacherUid:teacher,
-     teacherName:t.data().name||t.data().displayName||t.data().email||'Teacher',
-     studentUid:learner,
-     studentName:l.data().name||l.data().displayName||l.data().email||'Learner',
-     quizId:quiz,
-     quizTitle:q.data().title||'Quiz',
-     dueAt:val('asDue'),
-     status:val('asStatus')||'active',
-     updatedBy:au().uid,
-     updatedAt:ts()
+   var learners=await docs('users'),matches=[];
+   if(targetType==='individual'){
+     matches=learners.filter(function(u){return (u.uid||u.id)===targetValue && (!u.role||u.role==='learner')});
+   }else if(targetType==='class'){
+     matches=learners.filter(function(u){return (!u.role||u.role==='learner') && String(u.studentClass||u.classNumber||'')===String(targetValue)});
+   }else if(targetType==='school'){
+     matches=learners.filter(function(u){return (!u.role||u.role==='learner') && String(u.school||'').trim()===String(targetValue).trim()});
+   }else if(targetType==='district'){
+     matches=learners.filter(function(u){return (!u.role||u.role==='learner') && String(u.district||'').trim()===String(targetValue).trim()});
+   }
+   if(!matches.length)return toastx('No learners match this target.');
+   var status=val('asStatus')||'assigned';
+   var base={
+     title:title,assignmentTitle:title,description:val('asDesc'),
+     teacherUid:teacher,teacherName:t.data().name||t.data().displayName||t.data().email||'Teacher',
+     quizId:quiz,quizTitle:q.data().title||'Quiz',dueAt:val('asDue'),status:status,
+     targetType:targetType,targetValue:targetValue,targetCount:matches.length,
+     updatedBy:au().uid,updatedAt:ts()
    };
-   if(id)await db().collection('assignments').doc(id).set(d,{merge:true});
-   else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('assignments').add(d)}
-   toastx('Assignment saved ✓');
+   if(id){
+     var existing=await db().collection('assignments').doc(id).get();
+     if(existing.exists){
+       var old=existing.data(), existingUid=old.studentUid||old.learnerUid;
+       if(existingUid){
+         var one=matches.find(function(u){return (u.uid||u.id)===existingUid})||matches[0];
+         base.studentUid=existingUid;
+         base.studentName=one.name||one.displayName||one.email||'Learner';
+         await db().collection('assignments').doc(id).set(base,{merge:true});
+       }else{
+         await db().collection('assignments').doc(id).set(Object.assign({},base,{studentUid:matches[0].uid||matches[0].id,studentName:matches[0].name||matches[0].displayName||matches[0].email||'Learner'}),{merge:true});
+       }
+     }
+   }else{
+     for(var i=0;i<matches.length;i++){
+       var u=matches[i];
+       var d=Object.assign({},base,{
+         studentUid:u.uid||u.id,
+         studentName:u.name||u.displayName||u.email||'Learner',
+         createdBy:au().uid,createdAt:ts()
+       });
+       await db().collection('assignments').add(d);
+     }
+   }
+   toastx('Assignment saved ✓ ('+matches.length+' learner'+(matches.length===1?'':'s')+')');
    ssAdminAssignments();
  }catch(e){toastx(e.message||'Could not save assignment')}
 };
 window.ssAdminAssignmentDelete=async function(id){
  if(!ok()||!id)return;
  if(!confirm('Delete this assignment permanently?'))return;
- try{
-   await db().collection('assignments').doc(id).delete();
-   toastx('Assignment deleted ✓');
-   ssAdminAssignments();
- }catch(e){toastx(e.message||'Could not delete assignment')}
+ try{await db().collection('assignments').doc(id).delete();toastx('Assignment deleted ✓');ssAdminAssignments()}
+ catch(e){toastx(e.message||'Could not delete assignment')}
 };
 window.ssAdminV3Leaderboards=async function(){if(!ok())return;var a=await docs('leaderboards');page('Leaderboards','Review leaderboard configuration and published ranking records.','<div class="card admin"><b>Leaderboard records</b><p class="small muted">Leaderboard records are displayed from Firestore. Ranking calculation remains separate from Admin configuration.</p></div>'+(a.length?a.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Leaderboard')+'</b><span class="badge">'+esc(x.status||'published')+'</span></div><div class="small muted">Scope: '+esc(x.scope||x.type||'Overall')+' • Class: '+esc(x.classLevel||'All')+'<br>Period: '+esc(x.period||'—')+'</div></div>'}).join(''):'<div class="card">No leaderboard records yet.</div>'))};
 window.ssAdminV3Rewards=async function(){if(!ok())return;var r=await docs('rewards'),bds=await docs('badges');page('Rewards & Badges','Manage reward and badge definitions used by the learner experience.','<div class="card admin">'+btn('＋ Add Reward','ssAdminV3RewardForm()','gold')+'</div><div class="section"><b>Rewards ('+r.length+')</b></div>'+(r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">Coins: '+esc(x.coins||0)+' • XP: '+esc(x.xp||0)+'<br>'+esc(x.description||'')+'</div></div>'}).join(''):'<div class="card">No rewards yet.</div>')+'<div class="section"><b>Badges ('+bds.length+')</b></div>'+(bds.length?bds.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Badge')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">'+esc(x.description||'')+'</div></div>'}).join(''):'<div class="card">No badges yet.</div>'))};
