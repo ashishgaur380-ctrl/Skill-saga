@@ -28,7 +28,7 @@ window.ssAdminV3Rewards=async function(){
  page('Rewards & Badges','Manage learner rewards and badges.',
  '<div class="card admin">'+btn('＋ Add Reward','ssAdminV3RewardForm("")','gold')+btn('＋ Add Badge','ssAdminV3BadgeForm("")')+'</div>'+
  '<div class="section"><b>Rewards ('+r.length+')</b></div>'+
- (r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">Coins: '+esc(x.coins||0)+' • XP: '+esc(x.xp||0)+'<br>'+esc(x.description||'')+'</div><div class="row" style="margin-top:8px">'+btn('Edit','ssAdminV3RewardForm("'+esc(x.id)+'")')+btn('Delete','ssAdminV3DeleteReward("'+esc(x.id)+'")','light')+'</div></div>'}).join(''):'<div class="card">No rewards yet.</div>')+
+ (r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">Coins: '+esc(x.coins||0)+' • XP: '+esc(x.xp||0)+'<br>'+esc(x.description||'')+'</div><div style="display:flex;gap:8px;margin-top:12px"><button type="button" class="btn gold" onclick="ssAdminV3RewardForm(\''+esc(x.id)+'\')">Edit</button><button type="button" class="btn light" onclick="ssAdminV3DeleteReward(\''+esc(x.id)+'\')">Delete</button></div></div>'}).join(''):'<div class="card">No rewards yet.</div>')+
  '<div class="section"><b>Badges ('+bds.length+')</b></div>'+
  (bds.length?bds.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Badge')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">'+esc(x.description||'')+'</div><div class="row" style="margin-top:8px">'+btn('Edit','ssAdminV3BadgeForm("'+esc(x.id)+'")')+btn('Delete','ssAdminV3DeleteBadge("'+esc(x.id)+'")','light')+'</div></div>'}).join(''):'<div class="card">No badges yet.</div>')
  );
@@ -69,14 +69,14 @@ window.ssAdminV3BadgeForm=async function(id){
  '<textarea id="bdDesc" class="area" rows="3" placeholder="Description">'+esc(x.description||'')+'</textarea>'+
  '<input id="bdXp" class="input" type="number" min="0" placeholder="XP reward (optional)" value="'+esc(x.xp==null?'':x.xp)+'">'+
  '<select id="bdStatus" class="input"><option value="draft"'+((x.status||'draft')==='draft'?' selected':'')+'>Draft</option><option value="published"'+(x.status==='published'?' selected':'')+'>Published</option><option value="archived"'+(x.status==='archived'?' selected':'')+'>Archived</option></select>'+
- btn('Save Badge','ssAdminV3SaveBadge("'+esc(id)+'")','gold')+'</div>');
+ '<button type="button" class="btn gold" onclick="ssAdminV3SaveBadge(\''+esc(id)+'\')">Save Badge</button>'+'</div>');
 };
 window.ssAdminV3SaveBadge=async function(id){
  if(!ok())return;
  var t=document.getElementById('bdTitle').value.trim();
  if(!t)return toastx('Enter a badge title.');
- var d={title:t,name:t,description:document.getElementById('bdDesc').value.trim(),xp:Math.max(0,Number(document.getElementById('bdXp').value)||0),status:document.getElementById('bdStatus').value,published:document.getElementById('bdStatus').value==='published',updatedBy:au().uid,updatedAt:ts()};
- try{if(id)await db().collection('badges').doc(id).set(d,{merge:true});else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('badges').add(d)}toastx('Badge saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save badge')}
+ var d={title:t,name:t,description:document.getElementById('bdDesc').value.trim(),xp:Math.max(0,Number(document.getElementById('bdXp').value)||0),status:document.getElementById('bdStatus').value,published:document.getElementById('bdStatus').value==='published',updatedBy:auth().uid,updatedAt:ssAdminStamp()};
+ try{if(id)await db().collection('badges').doc(id).set(d,{merge:true});else{d.createdBy=auth().uid;d.createdAt=ssAdminStamp();await db().collection('badges').add(d)}toastx('Badge saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save badge')}
 };
 window.ssAdminV3DeleteBadge=async function(id){
  if(!ok()||!id)return;
