@@ -7370,7 +7370,43 @@ async function ssCompeteLeaderboardContent(box){
 
 <script src="final-ui.js"></script>
 <script src="final-ui-links.js"></script>
+<!-- Skill Saga Admin entry v4: this is the single Admin launch point. -->
+<script src="admin-console-v3.js?v=20260918-4"></script>
+<script>
+(function(){
+  'use strict';
+  function launchAdmin(){
+    if(window.ssAdminV3 && window.ssAdminGuard){
+      return window.ssAdminV3();
+    }
+    if(window.__ssAdminLaunchTimer)return;
+    var tries=0;
+    window.__ssAdminLaunchTimer=setInterval(function(){
+      tries++;
+      if(window.ssAdminV3 && window.ssAdminGuard){
+        clearInterval(window.__ssAdminLaunchTimer);
+        window.__ssAdminLaunchTimer=null;
+        window.ssAdminV3();
+      }else if(tries>120){
+        clearInterval(window.__ssAdminLaunchTimer);
+        window.__ssAdminLaunchTimer=null;
+        if(window.toast)toast('Admin Console could not initialize. Please refresh.');
+      }
+    },50);
+  }
+  window.ssAdminLaunch=launchAdmin;
+  try{
+    Object.defineProperty(window,'admin',{
+      configurable:true,
+      get:function(){return launchAdmin;},
+      set:function(v){window.__ssLegacyAdmin=v;}
+    });
+  }catch(e){
+    window.admin=launchAdmin;
+  }
+  window.__SS_ADMIN_ENTRY_V4=true;
+})();
+</script>
 </body></html>
 
-<script src="admin-console-v3.js?v=20260918-2"></script>
 
