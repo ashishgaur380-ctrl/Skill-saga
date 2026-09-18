@@ -101,7 +101,97 @@ async function homeFinal(){
   var note=h.showBottomNote!==false?'<div class="ss-final-note">💡 “Keep learning, keep growing, and unlock a brighter you!”</div>':'';
   return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">Small Steps<br><span style="color:#1769ff">Big Achievements!</span></h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div><div class="ss-quote">“Play • Learn • Win!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+statsBlock+dailyBlock+weeklyBlock+skillsBlock+milestoneBlock+note+'</div>','home');
 }
-function learnFinal(){var u=U()||{};base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Your Class</b><span>Change class</span></div><div class="ss-learn-classes">${[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return '<button class="ss-class '+(n===8?'active':'')+'" onclick="ssClass('+n+')">'+n+'</button>'}).join('')}</div><div class="ss-section"><b>Class 8 Subjects</b><span>View all →</span></div><div class="ss-subjects">${[['📘','English',skillPct(u,'Vocabulary')+'%'],['हिं','Hindi',skillPct(u,'Vocabulary')+'%'],['🔢','Mathematics',skillPct(u,'Numerical')+'%'],['🧪','Science',skillPct(u,'Scientific Thinking')+'%'],['🌍','Social Science',skillPct(u,'Reasoning')+'%'],['💻','Computer',skillPct(u,'Problem Solving')+'%']].map(function(x){return '<div class="ss-subject"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+' completed</small></div>'}).join('')}</div><div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>Mathematics • Linear Equations</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:${skillPct(u,'Numerical')}%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">${[['📐','Geometry'],['🧮','Mental Maths'],['📚','Vocabulary'],['🧠','Logical Reasoning']].map(function(x){return '<div class="ss-topic"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>Practice & learn</small></div>'}).join('')}</div><div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>`,'learn')}
+async function ssLearnCurriculum(cls){
+  var rows=[];
+  try{
+    if(typeof cloudDb!=='undefined'&&cloudDb){
+      var snap=await cloudDb.collection('curriculum').where('classNumber','==',Number(cls)).get();
+      rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+      if(!rows.length){
+        var snap2=await cloudDb.collection('curriculum').where('classLevel','==',String(cls)).get();
+        rows=snap2.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+      }
+    }
+  }catch(e){console.warn('Learn curriculum load failed',e)}
+  return rows;
+}
+function ssLearnUnique(rows,key){
+  var seen={},out=[];
+  (rows||[]).forEach(function(x){
+    var v=String(x[key]||'').trim();
+    if(v&&!seen[v]){seen[v]=1;out.push(v)}
+  });
+  return out;
+}
+function ssLearnSubjectIcon(name){
+  var n=String(name||'').toLowerCase();
+  if(n.indexOf('math')>=0||n.indexOf('numer')>=0)return '🔢';
+  if(n.indexOf('science')>=0)return '🧪';
+  if(n.indexOf('social')>=0||n.indexOf('geograph')>=0||n.indexOf('histor')>=0)return '🌍';
+  if(n.indexOf('computer')>=0||n.indexOf('informat')>=0)return '💻';
+  if(n.indexOf('hindi')>=0)return 'हिं';
+  if(n.indexOf('english')>=0||n.indexOf('language')>=0)return '📘';
+  return '📚';
+}
+async function learnFinal(){
+  var u=U()||{};
+  var selected=Number(window._ssLearnSelectedClass||u.studentClass||8);
+  if(!selected||selected<1||selected>12)selected=8;
+  var rows=await ssLearnCurriculum(selected);
+  var subjects=ssLearnUnique(rows,'subject');
+  if(!subjects.length)subjects=['English','Hindi','Mathematics','Science','Social Science','Computer'];
+  var subjectHtml=subjects.slice(0,12).map(function(s){
+    var icon=ssLearnSubjectIcon(s),score=0,n=String(s).toLowerCase();
+    if(n.indexOf('math')>=0)score=skillPct(u,'Numerical');
+    else if(n.indexOf('science')>=0)score=skillPct(u,'Scientific Thinking');
+    else if(n.indexOf('english')>=0||n.indexOf('hindi')>=0||n.indexOf('language')>=0)score=skillPct(u,'Vocabulary');
+    else score=skillPct(u,'Reasoning');
+    return '<div class="ss-subject" onclick="ssLearnSubject(\\''+esc(s).replace(/'/g,"\\\\'")+ '\\')"><div class="i">'+icon+'</div><b>'+esc(s)+'</b><small>'+score+'% completed</small></div>';
+  }).join('');
+  var topics=ssLearnUnique(rows,'topic');
+  var popular=topics.slice(0,4);
+  if(!popular.length)popular=['Geometry','Mental Maths','Vocabulary','Logical Reasoning'];
+  var popularHtml=popular.map(function(t,i){
+    var icons=['📐','🧮','📚','🧠'];
+    return '<div class="ss-topic" onclick="ssLearnTopic(\\''+esc(t).replace(/'/g,"\\\\'")+ '\\')"><div class="i">'+icons[i%icons.length]+'</div><b>'+esc(t)+'</b><small>Practice & learn</small></div>';
+  }).join('');
+  var continueTopic=topics[0]||'Linear Equations';
+  base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Your Class</b><span>Change class</span></div><div class="ss-learn-classes">${[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return '<button class="ss-class '+(n===selected?'active':'')+'" onclick="ssClass('+n+')">'+n+'</button>'}).join('')}</div><div class="ss-section"><b>Class ${selected} Subjects</b><span>View all →</span></div><div class="ss-subjects">'+subjectHtml+'</div><div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>'+esc(subjects[0]||'Mathematics')+' • '+esc(continueTopic)+'</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:'+skillPct(u,'Numerical')+'%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">'+popularHtml+'</div><div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>','learn');
+}
+async function ssLearnSubject(subject){
+  var cls=Number(window._ssLearnSelectedClass||8);
+  try{
+    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.subject||'')===String(subject)});
+    var topic=match.length&&match[0].topic?match[0].topic:'';
+    if(topic)return ssLearnTopic(topic);
+  }catch(e){}
+  if(typeof toast==='function')toast(subject+' selected. Admin curriculum integration is active.');
+}
+async function ssLearnTopic(topic){
+  var cls=Number(window._ssLearnSelectedClass||8);
+  try{
+    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.topic||'')===String(topic)});
+    if(match.length){
+      var r=match[0],material=r.content||r.lesson||r.learningMaterial||'';
+      if(material){
+        base('<div class="ss-final"><div class="ss-section"><b>'+esc(topic)+'</b><span>Class '+cls+'</span></div><div class="ss-progress-card"><b>'+esc(r.subject||'Learning')+'</b><p class="muted" style="margin-top:8px;white-space:pre-wrap">'+esc(material)+'</p><button class="ss-action" onclick="ssLearnPractice('+JSON.stringify(cls)+','+JSON.stringify(r.subject||'')+','+JSON.stringify(r.chapter||'')+','+JSON.stringify(topic)+')">Practice this topic →</button></div></div>','learn');
+        return;
+      }
+    }
+  }catch(e){}
+  if(typeof toast==='function')toast(topic+' selected. Add/publish its lesson content in Admin → Curriculum / Learning Materials.');
+}
+async function ssLearnPractice(cls,subject,chapter,topic){
+  if(typeof cloudDb==='undefined'||!cloudDb)return;
+  try{
+    var snap=await cloudDb.collection('questionBank').where('classNumber','==',Number(cls)).where('subject','==',subject).where('chapter','==',chapter).where('topic','==',topic).get();
+    var rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published'});
+    if(!rows.length)return toast('Practice questions for this topic are not published yet.');
+    var quiz={id:'learn_'+cls+'_'+subject+'_'+chapter+'_'+topic,title:topic+' Practice',questions:rows.slice(0,10).map(function(x){return [String(x.question||''),String(x.options||'').split('|'),Number(x.correctAnswer||0),String(x.explanation||'')]})};
+    window._ssLearnQuiz=quiz;
+    if(typeof startQuiz==='function')return startQuiz(quiz);
+  }catch(e){toast(e.message||'Could not load practice questions.')}
+}
 function learnSkills(){var u=U()||{};base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">SKILLS</div><h1 class="ss-title">Think Better.<br>Learn Smarter.</h1><div class="ss-sub">Build reasoning, numerical, scientific and language skills alongside school learning.</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">🧠</div></div></section><div class="ss-tabs"><button class="ss-tab"><span class="i">🎓</span><b>Academic</b></button><button class="ss-tab active"><span class="i">🧠</span><b>Skills</b></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b></button></div><div class="ss-section"><b>Core Skills</b><span>Practice regularly</span></div><div class="ss-cards">${[['🔢','Numerical',skillPct(u,'Numerical')+'%','ss-soft'],['🧪','Scientific Thinking',skillPct(u,'Scientific Thinking')+'%','ss-green'],['📖','Vocabulary',skillPct(u,'Vocabulary')+'%','ss-pink'],['🧠','Reasoning',skillPct(u,'Reasoning')+'%','ss-purple'],['🧩','Problem Solving',skillPct(u,'Problem Solving')+'%','ss-yellow'],['💭','Memory',skillPct(u,'Memory')+'%','ss-soft']].map(function(x){return '<div class="ss-card center '+x[3]+'"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+' mastery</small><button class="ss-action" onclick="ssSkillAction(\''+x[1]+'\')">Practice →</button></div>'}).join('')}</div><div class="ss-section"><b>Puzzles</b><span>Sharpen your thinking</span></div><div class="ss-cards">${[['⚙️','Logic Puzzles'],['🧩','Number Puzzles'],['💡','Visual Reasoning'],['🎲','Word Puzzles']].map(function(x){return '<div class="ss-card ss-soft"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>Solve & think</small></div>'}).join('')}</div><div class="ss-section"><b>Locked Classes</b></div><div class="ss-locks">${[['🔒','Class 7','500 XP + 50 Coins'],['🔓','Class 8','Your Class'],['🔒','Class 9','1,000 XP + 100 Coins'],['🔒','Class 10','2,000 XP + 200 Coins']].map(function(x,i){return '<div class="ss-lock '+(i===1?'current':'')+'"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+'</small><button>'+ (i===1?'✓ Unlocked':'Unlock')+'</button></div>'}).join('')}</div><div class="ss-final-note">🎁 Complete quizzes, earn XP and coins, and unlock new classes.</div></div>`,'learn')}
 function ssSkillAction(name){if(typeof toast==='function')toast(name+' practice is ready — content integration remains connected to the existing engine.');}
 function ssClass(n){if(typeof toast==='function')toast('Class '+n+' selected.');}
