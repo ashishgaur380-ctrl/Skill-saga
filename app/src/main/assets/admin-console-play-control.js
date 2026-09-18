@@ -33,10 +33,13 @@ function safeId(v){return String(v||'').replace(/[^a-zA-Z0-9_-]/g,'')}
 
 window.ssAdminPlayControl=async function(){
  if(!ok())return;
- var [acts,prog,set]=await Promise.all([
-   ssAdminDocs('playActivities'),ssAdminDocs('playProgression'),
+ var [actsDoc,progDoc,set]=await Promise.all([
+   db().collection('appSettings').doc('playActivities').get(),
+   db().collection('appSettings').doc('playProgression').get(),
    db().collection('appSettings').doc('play').get().then(function(x){return x.exists?x.data():{playEnabled:true}})
  ]);
+ var acts=actsDoc.exists?(actsDoc.data().activities||[]):[];
+ var prog=progDoc.exists?(progDoc.data().items||[]):[];
  var by={};acts.forEach(function(x){by[x.type]=x});
  var rows=TYPES.map(function(t){
    var a=by[t.id];
@@ -55,8 +58,9 @@ window.ssAdminPlayControl=async function(){
 window.ssAdminPlayActivityForm=function(type){
  if(!ok())return;
  var t=TYPES.find(function(x){return x.id===type})||{id:type,name:type,desc:''};
- db().collection('playActivities').doc(type).get().then(function(s){
-   var d=s.exists?s.data():{enabled:true,accessType:'free',difficulty:'Foundation',questionCount:10,durationMinutes:10};
+ db().collection('appSettings').doc('playActivities').get().then(function(s){
+   var all=s.exists?(s.data().activities||[]):[];var found=all.find(function(x){return x.type===type});
+   var d=found||{enabled:true,accessType:'free',difficulty:'Foundation',questionCount:10,durationMinutes:10};
    page(t.name,'Configure this Play activity.','<div class="card"><input id="pcType" type="hidden" value="'+esc(type)+'">'+
    '<label>Enabled</label><select id="pcEnabled" class="input"><option value="true"'+(d.enabled!==false?' selected':'')+'>Enabled</option><option value="false"'+(d.enabled===false?' selected':'')+'>Disabled</option></select>'+
    '<label>Access</label><select id="pcAccess" class="input"><option value="free"'+(d.accessType==='free'?' selected':'')+'>Free</option><option value="premium"'+(d.accessType==='premium'?' selected':'')+'>Premium</option><option value="admin"'+(d.accessType==='admin'?' selected':'')+'>Admin/Assigned</option></select>'+
@@ -71,14 +75,16 @@ window.ssAdminPlaySaveActivity=async function(){
  if(!ok())return;
  var type=document.getElementById('pcType').value;
  try{
-  await db().collection('playActivities').doc(type).set({
-   type:type,enabled:document.getElementById('pcEnabled').value==='true',
+  var ref=db().collection('appSettings').doc('playActivities');
+  var snap=await ref.get();var all=snap.exists?(snap.data().activities||[]):[];var idx=all.findIndex(function(x){return x.type===type});
+  var item={type:type,enabled:document.getElementById('pcEnabled').value==='true',
    accessType:document.getElementById('pcAccess').value,
    difficulty:document.getElementById('pcDifficulty').value,
    questionCount:Number(document.getElementById('pcQuestions').value)||10,
    durationMinutes:Number(document.getElementById('pcDuration').value)||10,
-   updatedBy:auth().uid,updatedAt:stamp()
-  },{merge:true});
+   updatedBy:auth().uid,updatedAt:stamp()};
+  if(idx>=0)all[idx]=Object.assign({},all[idx],item);else all.push(item);
+  await ref.set({activities:all,updatedBy:auth().uid,updatedAt:stamp()},{merge:true});
   toastx('Play activity saved ✓');ssAdminPlayControl();
  }catch(e){toastx(e.message||'Could not save Play activity')}
 };
