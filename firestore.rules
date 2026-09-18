@@ -26,7 +26,18 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read: if signedIn()
-        && (request.auth.uid == uid || isAdmin());
+        && (
+          request.auth.uid == uid
+          || isAdmin()
+          || (
+            exists(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid))
+            && get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.status == 'active'
+            && (
+              get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.parentUid == request.auth.uid
+              || get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.teacherUid == request.auth.uid
+            )
+          )
+        );
 
       allow create: if isAdmin()
         || (signedIn()
