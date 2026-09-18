@@ -21,8 +21,27 @@ window.ssAdminRewardsControl=async function(){
   var badgeHtml=b.length?b.slice(0,100).map(function(x){
    return '<div class="card"><b>'+esc(x.title||x.name||'Badge')+'</b><div class="small muted">'+esc(x.description||'')+'</div></div>';
   }).join(''):'<div class="card">No badges.</div>';
-  page('Rewards & Badges Control','Manage reward and badge definitions, XP and coin values.','<div class="card admin">'+btn('＋ Add Reward','ssAdminRewardEdit("")','gold')+'</div><div class="section"><b>Rewards</b></div>'+rewardHtml+'<div class="section"><b>Badges ('+b.length+')</b></div>'+badgeHtml);
+  page('Rewards & Badges Control','Manage reward and badge definitions, XP and coin values.','<div class="card admin">'+btn('＋ Add Reward','ssAdminRewardEdit("")','gold')+btn('＋ Add Badge','ssAdminBadgeEdit("")','gold')+'</div><div class="section"><b>Rewards</b></div>'+rewardHtml+'<div class="section"><b>Badges ('+b.length+')</b></div>'+badgeHtml);
  }catch(e){if(window.toast)toast(e.message||'Could not load rewards')}
+};
+window.ssAdminBadgeEdit=async function(id){
+ if(!ok())return;
+ var x={};
+ try{
+  if(id){var s=await db().collection('badges').doc(id).get();if(s.exists)x=s.data()}
+  page(id?'Edit Badge':'Add Badge','Configure an achievement badge.','<div class="card">'+field('bcTitle','Badge title',x.title||x.name)+field('bcDesc','Description',x.description)+field('bcIcon','Icon',x.icon||'🏅')+field('bcRequirement','Requirement',x.requirement||x.condition)+field('bcStatus','Status',x.status||'draft')+btn('Save Badge','ssAdminBadgeSave("'+esc(id||'')+'")','gold')+'</div>');
+ }catch(e){toast(e.message||'Could not open badge')}
+};
+window.ssAdminBadgeSave=async function(id){
+ if(!ok())return;
+ var title=val('bcTitle');
+ if(!title)return toast('Enter a badge title.');
+ var d={title:title,description:val('bcDesc'),icon:val('bcIcon')||'🏅',requirement:val('bcRequirement'),status:val('bcStatus')||'draft',updatedBy:au().uid,updatedAt:new Date()};
+ try{
+  if(id)await db().collection('badges').doc(id).set(d,{merge:true});
+  else{d.createdBy=au().uid;d.createdAt=new Date();await db().collection('badges').add(d)}
+  toast('Badge saved ✓');ssAdminRewardsControl();
+ }catch(e){toast(e.message||'Could not save badge')}
 };
 window.ssAdminRewardEdit=async function(id){
  if(!ok())return;
