@@ -1,4 +1,5 @@
 name: Deploy Skill Saga Web
+# Deployment trigger is enabled for the active feature branch so the preview reaches GitHub Pages.
 
 on:
   push:
