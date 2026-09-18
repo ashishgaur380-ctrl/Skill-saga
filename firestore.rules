@@ -281,15 +281,13 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.authorUid == request.auth.uid
         && request.resource.data.groupId is string
-        && request.resource.data.status == 'pending'
+        && request.resource.data.status == 'published'
         && get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.status == 'published'
-        && exists(/databases/$(database)/documents/forumGroupMembers/$(request.resource.data.groupId + '_' + request.auth.uid));
+        && (
+          get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.ownerUid == request.auth.uid
+          || exists(/databases/$(database)/documents/forumGroupMembers/$(request.resource.data.groupId + '_' + request.auth.uid))
+        );
       allow update: if isAdmin()
-        || (
-          signedIn()
-          && resource.data.authorUid == request.auth.uid
-          && resource.data.status == 'pending'
-        )
         || (
           signedIn()
           && get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid
