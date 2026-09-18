@@ -116,8 +116,8 @@ function playFinal(){
   var weeklyTitle=w&&w.title||'Weekly Challenge';
   function safeId(id){return String(id||'').replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
   function quizButton(id,label,fallback){
-    if(id)return '<button class="ss-action" style="background:#1769ff;color:#fff" onclick="startQuiz(\\''+safeId(id)+'\\')">'+label+' →</button>';
-    return '<button class="ss-action" onclick="toast(\\''+fallback+'\\')">Not available</button>';
+    if(id)return '<button class="ss-action" style="background:#1769ff;color:#fff" onclick="startQuiz(\''+safeId(id)+'\')">'+label+' →</button>';
+    return '<button class="ss-action" onclick="toast(\''+fallback+'\')">Not available</button>';
   }
   var dButton=quizButton(dailyId,doneToday?'Practice Daily':'Start Daily','Daily quiz is not published yet.');
   var wButton=quizButton(weeklyId,'Start Weekly','Weekly quiz is not published yet.');
@@ -130,9 +130,9 @@ function playFinal(){
     '</div>'+
     '<div class="ss-section"><b>Quiz Modes</b><span>More practice</span></div>'+
     '<div class="ss-play-modes">'+
-      '<div class="ss-mode"><div class="i">⚡</div><b>Quick Quiz</b><small>5 questions • Fast practice</small><button class="ss-action" onclick="ssPlayAction(\\'Quick Quiz\\')">Start →</button></div>'+
-      '<div class="ss-mode"><div class="i">📚</div><b>Practice</b><small>Practice by subject & topic</small><button class="ss-action" onclick="ssPlayAction(\\'Practice\\')">Start →</button></div>'+
-      '<div class="ss-mode"><div class="i">🎯</div><b>Skill Quiz</b><small>Focus on core skills</small><button class="ss-action" onclick="ssPlayAction(\\'Skill Quiz\\')">Start →</button></div>'+
+      '<div class="ss-mode"><div class="i">⚡</div><b>Quick Quiz</b><small>5 questions • Fast practice</small><button class="ss-action" onclick="ssPlayAction(\'Quick Quiz\')">Start →</button></div>'+
+      '<div class="ss-mode"><div class="i">📚</div><b>Practice</b><small>Practice by subject & topic</small><button class="ss-action" onclick="ssPlayAction(\'Practice\')">Start →</button></div>'+
+      '<div class="ss-mode"><div class="i">🎯</div><b>Skill Quiz</b><small>Focus on core skills</small><button class="ss-action" onclick="ssPlayAction(\'Skill Quiz\')">Start →</button></div>'+
       '<div class="ss-mode"><div class="i">👩‍🏫</div><b>Assigned</b><small>Quizzes assigned to you</small><button class="ss-action" onclick="showStudentAssignments()">Open →</button></div>'+
     '</div>'+
     '<div class="ss-section"><b>Assigned Quizzes</b><span>View assigned</span></div>'+
