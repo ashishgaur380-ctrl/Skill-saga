@@ -147,7 +147,7 @@ window.ssOpenForumGroup=async function(id){
     }).join('');
     base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">DISCUSSION GROUP</div><h1 class="ss-title">'+esc(g.title||'Discussion Group')+'</h1><div class="ss-sub">'+esc(g.description||'')+'</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">👥</div></div></section>'+
       '<div class="ss-card ss-soft"><div class="row"><b>Class '+esc(g.classLevel||'All')+' • '+esc(g.subject||'General')+'</b><span class="badge">'+esc(g.memberCount||0)+' members</span></div><small>Owner: '+esc(g.ownerName||'Learner')+'</small></div>'+
-      '<div class="ss-card"><b>Start a Discussion</b><input id="fpTitle" class="input" placeholder="Discussion title"><textarea id="fpBody" class="area" rows="4" placeholder="Ask a question or share an idea"></textarea><button class="ss-action" onclick="ssCreateForumPost(\''+esc(id)+'\')">Post for Review →</button></div>'+
+      '<div class="ss-card"><b>Start a Discussion</b><input id="fpTitle" class="input" placeholder="Discussion title"><textarea id="fpBody" class="area" rows="4" placeholder="Ask a question or share an idea"></textarea><button class="ss-action" onclick="ssCreateForumPost(\''+esc(id)+'\')">Post →</button></div>'+
       '<div class="ss-section"><b>Published Discussions</b><span>'+posts.length+'</span></div>'+(body||'<div class="ss-card"><small>No published discussions yet.</small></div>')+
       (isOwner?'<div class="ss-final-note">👑 You are the Group Owner. Admin can override any group decision.</div>':'')+'</div>','compete');
   }catch(e){toast(e.message||'Could not open group.');}
