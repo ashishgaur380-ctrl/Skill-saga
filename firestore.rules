@@ -267,7 +267,8 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.memberUid == request.auth.uid
         && request.resource.data.groupId is string
-        && get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.status == 'published';
+        && (get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.status == 'published'
+            || get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.ownerUid == request.auth.uid);
       allow delete: if isAdmin()
         || (signedIn() && resource.data.memberUid == request.auth.uid)
         || (signedIn() && get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid);
