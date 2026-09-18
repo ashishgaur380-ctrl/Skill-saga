@@ -5365,6 +5365,34 @@ function nextQuizQuestion(){
 }
 
 
+function showEmailVerification(email){
+  var root=document.getElementById('root');
+  if(!root)return;
+  root.innerHTML='<div class="auth" style="min-height:100vh;background:linear-gradient(145deg,#eef4ff 0%,#f7f1ff 48%,#fff 100%);padding:24px 16px;display:flex;align-items:center;justify-content:center;box-sizing:border-box">'+
+    '<div class="authbox" style="width:100%;max-width:430px;background:#fff;border-radius:28px;padding:28px 22px;box-shadow:0 18px 55px rgba(16,32,58,.14);text-align:center">'+
+      '<img class="authlogo" src="'+LOGO+'" style="width:76px;height:76px;object-fit:contain;border-radius:20px">'+
+      '<div style="font-size:44px;margin:8px 0">📧</div>'+
+      '<h2 style="margin:8px 0;color:#10203a">Verify your email</h2>'+
+      '<p class="muted" style="line-height:1.5">We sent a verification link to<br><b style="color:#10203a">'+esc(email||'your email address')+'</b></p>'+
+      '<div class="notice" style="text-align:left">Open the email, click the verification link, then return to Skill Saga and log in.</div>'+
+      '<button class="btn block" onclick="authMode=\'login\';window.skillSagaLoginMethod=\'email\';loginScreen()">I\'VE VERIFIED — LOGIN</button>'+
+      '<button class="btn light block" style="margin-top:8px" onclick="resendVerificationEmail(\''+String(email||'').replace(/'/g,"\\'")+'\')">RESEND VERIFICATION EMAIL</button>'+
+    '</div></div>';
+}
+async function resendVerificationEmail(email){
+  if(!email)return toast('Enter your email address');
+  try{
+    var current=firebase.auth().currentUser;
+    if(current&&current.email===email&&!current.emailVerified){
+      await current.sendEmailVerification();
+    }else{
+      toast('Please log in first to resend the verification email.');
+      return;
+    }
+    toast('Verification email sent again.');
+  }catch(e){toast('Please log in again to resend the verification email.');}
+}
+
 function loginScreen(){
   var root=document.getElementById('root');
   var method=window.skillSagaLoginMethod||'email';
@@ -5429,7 +5457,7 @@ function loginScreen(){
 
           <div style="text-align:center;margin-top:13px">
             <button onclick="mobileOTPLogin()" style="border:0;background:none;color:#2463eb;font-size:13px;font-weight:700">
-              Forgot mobile access?
+              Recover mobile access with OTP
             </button>
           </div>
         `}
@@ -5482,6 +5510,7 @@ function loginScreen(){
             <option value="parent">👨‍👩‍👧 Parent</option>
             <option value="teacher">👩‍🏫 Teacher</option>
           </select>
+          <div class="muted" style="font-size:11px;margin:2px 0 10px">🔒 We'll verify your mobile number with a one-time OTP.</div>
           <button class="btn block" onclick="mobileSignup()" style="border-radius:14px;padding:13px;font-size:16px;font-weight:800">
             📱 SEND OTP & CREATE ACCOUNT
           </button>
@@ -5501,9 +5530,52 @@ function loginScreen(){
     </div>
   </div>`;
 }
+function cleanupPhoneVerifier(){
+  try{if(window.skillSagaRecaptcha)window.skillSagaRecaptcha.clear();}catch(e){}
+  window.skillSagaRecaptcha=null;
+  window.skillSagaRecaptchaSolved=false;
+}
+
+function startOtpCooldown(buttonId,labelId){
+  var button=document.getElementById(buttonId),label=document.getElementById(labelId);
+  if(!button)return;
+  var end=Date.now()+30000;
+  button.disabled=true;
+  button.style.opacity='.55';
+  function tick(){
+    var left=Math.max(0,Math.ceil((end-Date.now())/1000));
+    if(label)label.textContent=left>0?('Resend OTP in '+left+' seconds'):'Resend OTP';
+    if(left<=0){
+      button.disabled=false;
+      button.style.opacity='1';
+      return;
+    }
+    setTimeout(tick,1000);
+  }
+  tick();
+}
+
+async function createInvisiblePhoneVerifier(){
+  cleanupPhoneVerifier();
+  if(!firebaseReady)throw new Error('Firebase is not connected');
+  var holder=document.getElementById('skillSagaRecaptcha');
+  if(!holder){
+    holder=document.createElement('div');
+    holder.id='skillSagaRecaptcha';
+    holder.style.display='none';
+    document.body.appendChild(holder);
+  }
+  window.skillSagaRecaptcha=new firebase.auth.RecaptchaVerifier(
+    holder,
+    {size:'invisible','callback':function(){window.skillSagaRecaptchaSolved=true;},'expired-callback':function(){window.skillSagaRecaptchaSolved=false;}},
+    firebase.auth()
+  );
+  await window.skillSagaRecaptcha.render();
+  return window.skillSagaRecaptcha;
+}
+
 function mobileOTPLogin(){
   if(!firebaseReady)return toast('Firebase is not connected');
-
   var old=document.getElementById('skillSagaOtpModal');
   if(old)old.remove();
 
@@ -5513,267 +5585,153 @@ function mobileOTPLogin(){
 
   var box=document.createElement('div');
   box.style.cssText='background:#fff;border-radius:20px;padding:24px;width:100%;max-width:390px;color:#10203a';
+  box.innerHTML='<h2 style="margin:0 0 8px">📱 Mobile Access</h2>'+
+    '<p class="muted">Enter your mobile number. We will send a one-time OTP by SMS.</p>'+
+    '<div style="display:flex;gap:8px;align-items:center">'+
+      '<span class="input" style="width:58px;text-align:center;background:#f3f4f6">+91</span>'+
+      '<input id="skillSagaPhone" class="input" style="flex:1" type="tel" inputmode="numeric" maxlength="10" placeholder="10-digit mobile number" autocomplete="tel">'+
+    '</div>'+
+    '<div id="skillSagaRecaptcha" style="display:none"></div>'+
+    '<button id="skillSagaSendOtp" class="btn block" style="margin-top:8px">SEND OTP</button>'+
+    '<div id="skillSagaOtpArea" style="display:none">'+
+      '<input id="skillSagaOtp" class="input" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit OTP">'+
+      '<button id="skillSagaVerifyOtp" class="btn gold block" style="margin-top:4px">VERIFY OTP</button>'+
+      '<button id="skillSagaResendOtp" class="btn light block" style="margin-top:8px" disabled>Resend OTP</button>'+
+      '<div id="skillSagaResendLabel" class="muted center" style="margin-top:6px">Resend OTP in 30 seconds</div>'+
+    '</div>'+
+    '<button id="skillSagaCloseOtp" class="btn light block" style="margin-top:10px">Cancel</button>';
+  div.appendChild(box);document.body.appendChild(div);
 
-  var h=document.createElement('h2');
-  h.textContent='📱 Mobile Login';
-  box.appendChild(h);
+  document.getElementById('skillSagaSendOtp').onclick=function(){sendSSOTP(false);};
+  document.getElementById('skillSagaVerifyOtp').onclick=verifySSOTP;
+  document.getElementById('skillSagaResendOtp').onclick=function(){sendSSOTP(true);};
+  document.getElementById('skillSagaCloseOtp').onclick=function(){cleanupPhoneVerifier();div.remove();};
+}
 
-  var info=document.createElement('p');
-  info.className='muted';
-  info.textContent='Enter your mobile number with country code.';
-  box.appendChild(info);
-
-  var phoneWrap=document.createElement('div');
-  phoneWrap.style.cssText='display:flex;gap:8px;align-items:center';
-
-  var country=document.createElement('span');
-  country.className='input';
-  country.style.cssText='width:58px;text-align:center;background:#f3f4f6';
-  country.textContent='+91';
-  phoneWrap.appendChild(country);
-
-  var phone=document.createElement('input');
-  phone.id='skillSagaPhone';
-  phone.className='input';
-  phone.style.flex='1';
-  phone.type='tel';
-  phone.inputMode='numeric';
-  phone.maxLength=10;
-  phone.placeholder='10-digit mobile number';
-  phone.autocomplete='tel';
-  phoneWrap.appendChild(phone);
-  box.appendChild(phoneWrap);
-
-  var rec=document.createElement('div');
-  rec.id='skillSagaRecaptcha';
-  rec.style.margin='10px 0';
-  box.appendChild(rec);
-
-  var send=document.createElement('button');
-  send.className='btn block';
-  send.textContent='Send OTP';
-  send.onclick=function(){sendSSOTP()};
-  box.appendChild(send);
-
-  var otp=document.createElement('input');
-  otp.id='skillSagaOtp';
-  otp.className='input';
-  otp.type='number';
-  otp.inputMode='numeric';
-  otp.placeholder='Enter 6-digit OTP';
-  otp.style.display='none';
-  box.appendChild(otp);
-
-  var verify=document.createElement('button');
-  verify.className='btn gold block';
-  verify.style.marginTop='8px';
-  verify.textContent='Verify OTP';
-  verify.style.display='none';
-  verify.onclick=function(){verifySSOTP()};
-  box.appendChild(verify);
-
-  var close=document.createElement('button');
-  close.className='btn light block';
-  close.style.marginTop='10px';
-  close.textContent='Cancel';
-  close.onclick=function(){div.remove()};
-  box.appendChild(close);
-
-  div.appendChild(box);
-  document.body.appendChild(div);
-
+async function sendSSOTP(isResend){
+  var phone=document.getElementById('skillSagaPhone');
+  var send=document.getElementById('skillSagaSendOtp');
+  if(!phone)return;
+  var digits=phone.value.replace(/\D/g,'');
+  if(digits.length!==10)return toast('Enter a valid 10-digit mobile number');
+  var number='+91'+digits;
   try{
-    window.skillSagaRecaptcha=new firebase.auth.RecaptchaVerifier(
-      'skillSagaRecaptcha',
-      {size:'normal'},
-      firebase.auth()
-    );
-    window.skillSagaRecaptcha.render();
-  }catch(e){
-    toast('Could not start phone verification');
+    if(send)send.disabled=true;
+    var verifier=await createInvisiblePhoneVerifier();
+    window.skillSagaLoginPhone=number;
+    window.skillSagaConfirmation=await firebase.auth().signInWithPhoneNumber(number,verifier);
+    var area=document.getElementById('skillSagaOtpArea');
+    if(area)area.style.display='block';
+    if(send)send.style.display='none';
+    startOtpCooldown('skillSagaResendOtp','skillSagaResendLabel');
+    toast(isResend?'New OTP sent to your mobile':'OTP sent to your mobile');
+  }catch(err){
+    console.error('SKILL SAGA PHONE AUTH ERROR',err);
+    if(send){send.disabled=false;send.style.opacity='1';}
+    toast(err.code==='auth/too-many-requests'?'Too many OTP requests. Please try again later.':(err.message||'Could not send OTP'));
   }
 }
 
-async function sendSSOTP(){
-  var phone=document.getElementById('skillSagaPhone');
-  if(!phone)return;
-
-  var digits=phone.value.replace(/\D/g,'');
-  if(digits.length!==10){
-    return toast('Enter a valid 10-digit mobile number');
-  }
-  var number='+91'+digits;
-
-  if(!window.skillSagaRecaptcha)return toast('Complete the security check first');
-
+async function verifySSOTP(){
+  var otp=document.getElementById('skillSagaOtp'),code=otp?otp.value.trim():'';
+  if(!/^\d{6}$/.test(code))return toast('Enter the 6-digit OTP');
+  if(!window.skillSagaConfirmation)return toast('Send the OTP first');
   try{
-    window.skillSagaConfirmation=await firebase.auth().signInWithPhoneNumber(
-      number,
-      window.skillSagaRecaptcha
-    );
-
-    document.getElementById('skillSagaOtp').style.display='block';
-
-    var buttons=document.querySelectorAll('#skillSagaOtpModal .btn');
-    if(buttons.length>1)buttons[1].style.display='block';
-
-    toast('OTP sent to your mobile');
+    await window.skillSagaConfirmation.confirm(code);
+    window.skillSagaConfirmation=null;
+    cleanupPhoneVerifier();
+    var modal=document.getElementById('skillSagaOtpModal');if(modal)modal.remove();
+    toast('Mobile login successful');
   }catch(err){
-    console.error("SKILL SAGA PHONE AUTH ERROR", err);
-    console.error("code:", err && err.code);
-    console.error("message:", err && err.message);
-    console.error("name:", err && err.name);
-    toast((err && err.code ? err.code + " — " : "") + (err && err.message ? err.message : "Could not send OTP"));
+    toast(err.code==='auth/invalid-verification-code'?'Incorrect OTP':(err.message||'Invalid OTP'));
   }
 }
 
 async function mobileSignup(){
-  var nameEl=document.getElementById('name');
-  var phoneEl=document.getElementById('mobileSignup');
-  var name=nameEl?nameEl.value.trim():'';
-  var phone=phoneEl?phoneEl.value.trim():'';
-
+  var nameEl=document.getElementById('name'),phoneEl=document.getElementById('mobileSignup');
+  var name=nameEl?nameEl.value.trim():'',phone=phoneEl?phoneEl.value.trim():'';
   if(!name)return toast('Enter your name');
   if(!phone)return toast('Enter your mobile number');
-
   var digits=phone.replace(/\D/g,'');
-  if(digits.length===10){
-    var number='+91'+digits;
-  }else if(digits.length===12 && digits.indexOf('91')===0){
-    var number='+'+digits;
-  }else{
-    return toast('Enter a valid 10-digit mobile number');
-  }
-
+  if(digits.length!==10)return toast('Enter a valid 10-digit mobile number');
+  var number='+91'+digits;
   try{
-    if(window.skillSagaRecaptcha){
-      try{ window.skillSagaRecaptcha.clear(); }catch(e){}
-      window.skillSagaRecaptcha=null;
-    }
-
-    var rec=document.getElementById('skillSagaRecaptcha');
-    if(!rec){
-      rec=document.createElement('div');
-      rec.id='skillSagaRecaptcha';
-      document.body.appendChild(rec);
-    }
-
-    window.skillSagaRecaptcha=new firebase.auth.RecaptchaVerifier(
-      'skillSagaRecaptcha',
-      {
-        size:'normal',
-        callback:function(response){
-          console.log('SKILL SAGA RECAPTCHA SUCCESS');
-          window.skillSagaRecaptchaSolved=true;
-        },
-        'expired-callback':function(){
-          console.log('SKILL SAGA RECAPTCHA EXPIRED');
-          window.skillSagaRecaptchaSolved=false;
-        }
-      },
-      firebase.auth()
-    );
-
-    window.skillSagaRecaptchaSolved=false;
-    await window.skillSagaRecaptcha.render();
-    console.log('SKILL SAGA RECAPTCHA RENDERED');
-
+    var verifier=await createInvisiblePhoneVerifier();
     window.skillSagaSignupName=name;
-
-    window.skillSagaSignupConfirmation=
-      await firebase.auth().signInWithPhoneNumber(
-        number,
-        window.skillSagaRecaptcha
-      );
+    window.skillSagaSignupPhone=number;
+    window.skillSagaSignupConfirmation=await firebase.auth().signInWithPhoneNumber(number,verifier);
 
     var modal=document.getElementById('skillSagaOtpModal');
-
-    if(!modal){
-      modal=document.createElement('div');
-      modal.id='skillSagaOtpModal';
-      modal.className='modal';
-      modal.innerHTML=
-        '<div class="modalbox">'+
-        '<h2>📱 Verify Mobile</h2>'+
-        '<p class="muted">Enter the 6-digit OTP sent to your mobile number.</p>'+
-        '<input id="skillSagaOtp" class="input" inputmode="numeric" maxlength="6" placeholder="6-digit OTP">'+
-        '<button class="btn block" onclick="verifyMobileSignupOTP()">Verify & Create Account</button>'+
-        '<button class="btn light block" style="margin-top:8px" onclick="document.getElementById(\'skillSagaOtpModal\').remove()">Cancel</button>'+
-        '</div>';
-
-      document.body.appendChild(modal);
-    }
-
+    if(modal)modal.remove();
+    modal=document.createElement('div');
+    modal.id='skillSagaOtpModal';
+    modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100000;display:flex;align-items:center;justify-content:center;padding:20px';
+    modal.innerHTML='<div style="background:#fff;border-radius:20px;padding:24px;width:100%;max-width:390px;color:#10203a">'+
+      '<h2 style="margin:0 0 8px">📱 Verify Mobile</h2>'+
+      '<p class="muted">Enter the 6-digit OTP sent to '+esc(number)+'</p>'+
+      '<input id="skillSagaOtp" class="input" inputmode="numeric" maxlength="6" placeholder="6-digit OTP">'+
+      '<button id="skillSagaVerifyOtp" class="btn block">VERIFY & CREATE ACCOUNT</button>'+
+      '<button id="skillSagaResendOtp" class="btn light block" style="margin-top:8px" disabled>Resend OTP</button>'+
+      '<div id="skillSagaResendLabel" class="muted center" style="margin-top:6px">Resend OTP in 30 seconds</div>'+
+      '<button id="skillSagaCloseOtp" class="btn light block" style="margin-top:10px">Cancel</button>'+
+      '</div>';
+    document.body.appendChild(modal);
+    document.getElementById('skillSagaVerifyOtp').onclick=verifyMobileSignupOTP;
+    document.getElementById('skillSagaResendOtp').onclick=function(){resendMobileSignupOTP();};
+    document.getElementById('skillSagaCloseOtp').onclick=function(){cleanupPhoneVerifier();modal.remove();};
+    startOtpCooldown('skillSagaResendOtp','skillSagaResendLabel');
     toast('OTP sent to your mobile');
   }catch(err){
-    toast(err.message||'Could not send OTP');
+    cleanupPhoneVerifier();
+    toast(err.code==='auth/too-many-requests'?'Too many OTP requests. Please try again later.':(err.message||'Could not send OTP'));
+  }
+}
+
+async function resendMobileSignupOTP(){
+  var phone=window.skillSagaSignupPhone||'';
+  if(!phone)return toast('Enter your mobile number again');
+  try{
+    var verifier=await createInvisiblePhoneVerifier();
+    window.skillSagaSignupConfirmation=await firebase.auth().signInWithPhoneNumber(phone,verifier);
+    startOtpCooldown('skillSagaResendOtp','skillSagaResendLabel');
+    toast('New OTP sent to your mobile');
+  }catch(err){
+    toast(err.message||'Could not resend OTP');
   }
 }
 
 async function verifyMobileSignupOTP(){
-  var otp=document.getElementById('skillSagaOtp');
-  var code=otp?otp.value.trim():'';
-
+  var otp=document.getElementById('skillSagaOtp'),code=otp?otp.value.trim():'';
   if(!/^\d{6}$/.test(code))return toast('Enter the 6-digit OTP');
   if(!window.skillSagaSignupConfirmation)return toast('Send the OTP first');
-
   try{
     var result=await window.skillSagaSignupConfirmation.confirm(code);
-    var user=result.user;
-
+    var authUser=result.user;
     var name=window.skillSagaSignupName||'Skill Saga Learner';
     var role=(document.getElementById('signupRole')||{}).value||'learner';
     if(!['learner','parent','teacher'].includes(role))role='learner';
 
     var data=freshUser(name,'');
     data.role=role;
-    data.mobile=user.phoneNumber||'';
-    data.uid=user.uid;
-
+    data.mobile=authUser.phoneNumber||window.skillSagaSignupPhone||'';
+    data.uid=authUser.uid;
+    data.phoneVerified=true;
+    data.emailVerified=false;
+    if(role==='learner')data.linkCode=makeLinkCode();
     ensureUserData(data);
-    await saveUserData(user.uid,data);
+    await saveCloudUser(data,authUser);
+    if(role==='learner')await saveStudentDirectory(data);
+    local.user=data;writeLocal(data);
 
-    var modal=document.getElementById('skillSagaOtpModal');
-    if(modal)modal.remove();
-
-    if(window.skillSagaRecaptcha){
-      try{ window.skillSagaRecaptcha.clear(); }catch(e){}
-      window.skillSagaRecaptcha=null;
-    }
-
-    currentUser=data;
+    var modal=document.getElementById('skillSagaOtpModal');if(modal)modal.remove();
+    window.skillSagaSignupConfirmation=null;
+    cleanupPhoneVerifier();
     toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created');
-    setTimeout(function(){home();},500);
   }catch(err){
-    toast(err.message||'Invalid OTP');
+    toast(err.code==='auth/invalid-verification-code'?'Incorrect OTP':(err.message||'Invalid OTP'));
   }
 }
 
-async function verifySSOTP(){
-  var otp=document.getElementById('skillSagaOtp');
-  var code=otp?otp.value.trim():'';
-
-  if(!/^\d{6}$/.test(code))return toast('Enter the 6-digit OTP');
-  if(!window.skillSagaConfirmation)return toast('Send the OTP first');
-
-  try{
-    await window.skillSagaConfirmation.confirm(code);
-
-    var modal=document.getElementById('skillSagaOtpModal');
-    if(modal)modal.remove();
-
-    window.skillSagaConfirmation=null;
-    toast('Mobile login successful');
-  }catch(err){
-    toast(err.message||'Invalid OTP');
-  }
-}
-
-async function login(){let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
-async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u,cred.user);
-if(role==='learner')await saveStudentDirectory(u);
-local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
-async function resetPassword(){let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
 async function logout(){try{if(firebaseReady)await firebase.auth().signOut()}catch(e){ }cloudUser=null;local={content:[],users:{}};loginScreen()}
 async function deleteAccount(){if(!cloudUser)return;if(!confirm('Delete your Skill Saga account? This cannot be undone.'))return;try{await cloudDb.collection('users').doc(cloudUser.uid).delete();await cloudUser.delete();toast('Account deleted');}catch(e){toast('Please sign in again before deleting the account.')}}
 function ensureUserData(u){
