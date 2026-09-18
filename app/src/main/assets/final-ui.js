@@ -113,17 +113,33 @@ window.ssOpenForumGroup=async function(id){
     var gSnap=await cloudDb.collection('forumGroups').doc(id).get();if(!gSnap.exists)return toast('Group not found.');
     var g=Object.assign({id:id},gSnap.data());
     if(g.status!=='published'&&g.ownerUid!==u.uid)return toast('This group is not published yet.');
-    var mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
     var isOwner=g.ownerUid===u.uid;
-    if(isOwner&&!mem.exists&&g.status==='published'){
-      try{
-        await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).set({groupId:id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'owner',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
-        mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
-      }catch(ownerMemberErr){
-        console.warn('Owner membership creation failed',ownerMemberErr);
+    var mem=null;
+    if(isOwner){
+      if(g.status==='published'){
+        try{
+          mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
+          if(!mem.exists){
+            await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).set({
+              groupId:id,
+              memberUid:u.uid,
+              memberName:u.name||u.displayName||'Learner',
+              role:'owner',
+              joinedAt:firebase.firestore.FieldValue.serverTimestamp()
+            });
+            mem={exists:true};
+          }
+        }catch(ownerMemberErr){
+          console.warn('Owner membership sync failed',ownerMemberErr);
+          mem={exists:true};
+        }
+      }else{
+        mem={exists:true};
       }
+    }else{
+      mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
+      if(!mem.exists)return ssJoinForumGroup(id,g);
     }
-    if(!mem.exists&&!isOwner)return ssJoinForumGroup(id,g);
     var ps=await cloudDb.collection('forumPosts').where('groupId','==',id).where('status','==','published').get();
     var posts=ps.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))});
     var body=posts.slice(0,50).map(function(p){
