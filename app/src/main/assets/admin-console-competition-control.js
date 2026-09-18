@@ -14,7 +14,7 @@ window.ssAdminCompetitionControl=async function(){
  var a=await db().collection('competitions').get().then(function(s){return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})});
  var counts={draft:0,scheduled:0,published:0,unpublished:0,archived:0};a.forEach(function(x){if(counts[x.status]!=null)counts[x.status]++});
  var cards=a.slice(0,100).map(function(x){
-   return '<div class="card"><div class="row"><div><b>'+esc(x.title||'Competition')+'</b><div class="small muted">'+esc(x.type||'')+' • '+esc(x.classLevel||'All classes')+' • '+esc(x.subject||'All subjects')+'</div></div><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">'+esc(x.startAt||'')+' → '+esc(x.endAt||'')+' • '+esc(x.questionCount||0)+' questions</div>'+btn('Edit','ssAdminCompetitionEdit("'+esc(x.id)+'")')+'</div>';
+   return '<div class="card"><div class="row"><div><b>'+esc(x.title||'Competition')+'</b><div class="small muted">'+esc(x.type||'')+' • '+esc(x.classLevel||'All classes')+' • '+esc(x.subject||'All subjects')+'</div></div><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">'+esc(x.startAt||'')+' → '+esc(x.endAt||'')+' • '+esc(x.questionCount||0)+' questions</div><div class="row" style="margin-top:8px">'+btn('Edit','ssAdminCompetitionEdit("'+esc(x.id)+'")')+btn('Delete','ssAdminCompetitionDelete("'+esc(x.id)+'")','light')+'</div></div>';
  }).join('');
  page('Competition Control','Create, schedule, publish, unpublish and archive competitions.','<div class="notice"><b>Competition scope:</b> schedule, eligibility, quiz references, access and publication. Learner competition results remain records.</div><div class="grid"><div class="tile"><b>'+a.length+'</b><small>Total</small></div><div class="tile"><b>'+counts.draft+'</b><small>Draft</small></div><div class="tile"><b>'+counts.scheduled+'</b><small>Scheduled</small></div><div class="tile"><b>'+counts.published+'</b><small>Published</small></div></div><div class="card admin">'+btn('＋ Create Competition','ssAdminCompetitionEdit("")','gold')+'</div>'+ (cards||'<div class="card">No competitions yet.</div>'));
 };
@@ -35,3 +35,4 @@ window.ssAdminCompetitionSave=async function(id){
  }catch(e){toast(e.message||'Could not save competition')}
 };
 })();
+window.ssAdminCompetitionDelete=async function(id){if(!ok()||!id)return;if(!confirm('Delete this competition permanently?'))return;try{await db().collection('competitions').doc(id).delete();toast('Competition deleted ✓');ssAdminCompetitionControl()}catch(e){toast(e.message||'Could not delete competition')}};
