@@ -2444,6 +2444,8 @@ async function play(){
 
   ensureUserData(u);
 
+  if(window.ssFoundationPlayConfig){try{var playCfg=await ssFoundationPlayConfig();if(playCfg&&playCfg.playEnabled===false){return shell('<div class="card"><h2>Play is temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>')}}catch(e){}}
+
   var d=daily();
   var w=weekly();
 
