@@ -23,9 +23,108 @@ window.ssAdminV3Relationships=async function(){if(!ok())return;var r=await docs(
 window.ssAdminRelTypeChanged=function(){var type=(document.getElementById('relType')||{}).value||'parent',a=type==='teacher'?(window.__ssRelTeachers||[]):(window.__ssRelParents||[]),el=document.getElementById('relPerson');if(el)el.innerHTML='<option value="">Select '+type+'</option>'+a.map(function(x){return '<option value="'+esc(x.id)+'">'+esc(x.name||x.displayName||x.email||x.id)+'</option>'}).join('')};
 window.ssAdminCreateRelationship=async function(){if(!ok())return;var s=(document.getElementById('relStudent')||{}).value,t=(document.getElementById('relType')||{}).value,p=(document.getElementById('relPerson')||{}).value;if(!s||!p)return toastx('Select learner and '+t+'.');var data={studentUid:s,status:'active',createdBy:au().uid,createdAt:ts(),updatedAt:ts()};data[t==='parent'?'parentUid':'teacherUid']=p;var dup=(await db().collection('relationships').get()).docs.some(function(d){var x=d.data();return x.studentUid===s&&((t==='parent'&&x.parentUid===p)||(t==='teacher'&&x.teacherUid===p))});if(dup)return toastx('This relationship already exists.');try{await db().collection('relationships').add(data);toastx('Relationship created ✓');ssAdminV3Relationships()}catch(e){toastx(e.message||'Could not create relationship')}};
 window.ssAdminDeleteRelationship=async function(id){if(!ok()||!id)return;if(!confirm('Remove this relationship?'))return;try{await db().collection('relationships').doc(id).delete();toastx('Relationship removed ✓');ssAdminV3Relationships()}catch(e){toastx(e.message||'Could not remove relationship')}}
-window.ssAdminV3Learners=async function(){if(!ok())return;var u=await docs('users'),l=u.filter(function(x){return !x.role||x.role==='learner'});window.__ssLearnerProfiles=l;var classes=[...new Set(l.map(function(x){return String(x.studentClass||x.classNumber||'').trim()}).filter(Boolean))].sort(function(a,b){return Number(a)-Number(b)}),boards=[...new Set(l.map(function(x){return String(x.board||'').trim()}).filter(Boolean))].sort();var opts=function(a,all){return '<option value="">'+all+'</option>'+a.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')};page('Learner Profiles','Master learner identity and eligibility data used by quizzes, competitions and assignments.','<div class="card admin"><input id="lpSearch" class="input" placeholder="Search learner name or email" oninput="ssAdminRenderLearnerProfiles()"><div class="row"><select id="lpClass" class="input" onchange="ssAdminRenderLearnerProfiles()">'+opts(classes,'All classes')+'</select><select id="lpBoard" class="input" onchange="ssAdminRenderLearnerProfiles()">'+opts(boards,'All boards')+'</select></div></div><div id="lpList"></div>');ssAdminRenderLearnerProfiles()};
-window.ssAdminRenderLearnerProfiles=function(){var l=window.__ssLearnerProfiles||[],q=((document.getElementById('lpSearch')||{}).value||'').trim().toLowerCase(),cl=(document.getElementById('lpClass')||{}).value||'',bo=(document.getElementById('lpBoard')||{}).value||'';l=l.filter(function(x){var txt=((x.name||x.displayName||'')+' '+(x.email||'')).toLowerCase();return(!q||txt.indexOf(q)!==-1)&&(!cl||String(x.studentClass||x.classNumber||'')===cl)&&(!bo||String(x.board||'')===bo)});var el=document.getElementById('lpList');if(!el)return;el.innerHTML=l.slice(0,100).map(function(x){var complete=!!(x.studentClass||x.classNumber)&&!!x.board&&!!x.school;return '<div class="card"><div class="row"><div><b>'+esc(x.name||x.displayName||'Learner')+'</b><div class="muted">'+esc(x.email||'')+'</div></div><span class="badge">'+(complete?'Profile complete':'Profile incomplete')+'</span></div><div class="small muted">Class: '+esc(x.studentClass||x.classNumber||'—')+' • Board: '+esc(x.board||'—')+'<br>Academic Year: '+esc(x.academicYear||'—')+'<br>State: '+esc(x.state||'—')+' • District: '+esc(x.district||'—')+'<br>School: '+esc(x.school||'—')+'<br>XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+' • Level: '+esc(x.level||1)+'</div><button class="btn light" style="margin-top:10px" onclick="ssAdminLearnerDetail(\''+esc(x.id)+'\')">View Profile</button></div>'}).join('')||'<div class="card">No matching learner profiles.</div>'};
-window.ssAdminLearnerDetail=async function(id){if(!ok()||!id)return;var u=await docs('users'),x=u.find(function(z){return z.id===id});if(!x)return toastx('Learner not found.');var r=(await docs('relationships')).filter(function(z){return z.studentUid===id}),p=r.filter(function(z){return z.parentUid}).map(function(z){return z.parentUid}),t=r.filter(function(z){return z.teacherUid}).map(function(z){return z.teacherUid}),name=function(uid){var z=u.find(function(a){return a.id===uid});return z?(z.name||z.displayName||z.email||uid):uid};page('Learner Profile','Administrative read-only profile and eligibility view.','<div class="card"><div class="row"><b>'+esc(x.name||x.displayName||'Learner')+'</b><span class="badge">'+esc(x.role||'learner')+'</span></div><div class="small muted">'+esc(x.email||'')+'<br>Class: '+esc(x.studentClass||x.classNumber||'—')+' • Board: '+esc(x.board||'—')+'<br>Academic Year: '+esc(x.academicYear||'—')+'<br>School: '+esc(x.school||'—')+'<br>District: '+esc(x.district||'—')+' • State: '+esc(x.state||'—')+'</div></div><div class="card"><b>Learning summary</b><div class="small muted">XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+' • Level: '+esc(x.level||1)+' • Streak: '+esc(x.streak||0)+'</div></div><div class="card"><b>Relationships</b><div class="small muted">Parents: '+esc(p.map(name).join(', ')||'—')+'<br>Teachers: '+esc(t.map(name).join(', ')||'—')+'</div></div><button class="btn light" onclick="ssAdminV3Learners()">← Back to Learners</button>')}
+window.ssAdminV3Learners=async function(){
+ if(!ok())return;
+ var u=await docs('users'),l=u.filter(function(x){return !x.role||x.role==='learner'});
+ window.__ssLearnerProfiles=l;
+ var classes=[...new Set(l.map(function(x){return String(x.studentClass||x.classNumber||'').trim()}).filter(Boolean))].sort(function(a,b){return Number(a)-Number(b)}),
+ boards=[...new Set(l.map(function(x){return String(x.board||'').trim()}).filter(Boolean))].sort();
+ var opts=function(a,all){return '<option value="">'+all+'</option>'+a.map(function(x){return '<option value="'+esc(x)+'">'+esc(x)+'</option>'}).join('')};
+ page('Learner Profiles','Main learner targeting database for quizzes, competitions and assignments. Identity stays protected; academic targeting fields can be maintained here.',
+ '<div class="card admin"><b>Targeting Database</b><p class="small muted">Use these learner records as the source for individual, class, school and district targeting.</p>'+
+ '<input id="lpSearch" class="input" placeholder="Search learner name or email" oninput="ssAdminRenderLearnerProfiles()">'+
+ '<div class="row"><select id="lpClass" class="input" onchange="ssAdminRenderLearnerProfiles()">'+opts(classes,'All classes')+'</select>'+
+ '<select id="lpBoard" class="input" onchange="ssAdminRenderLearnerProfiles()">'+opts(boards,'All boards')+'</select></div></div>'+
+ '<div id="lpList"></div>');
+ ssAdminRenderLearnerProfiles()
+};
+
+window.ssAdminRenderLearnerProfiles=function(){
+ var l=window.__ssLearnerProfiles||[],
+ q=((document.getElementById('lpSearch')||{}).value||'').trim().toLowerCase(),
+ cl=(document.getElementById('lpClass')||{}).value||'',
+ bo=(document.getElementById('lpBoard')||{}).value||'';
+ l=l.filter(function(x){
+   var txt=((x.name||x.displayName||'')+' '+(x.email||'')).toLowerCase();
+   return(!q||txt.indexOf(q)!==-1)&&(!cl||String(x.studentClass||x.classNumber||'')===cl)&&(!bo||String(x.board||'')===bo)
+ });
+ var el=document.getElementById('lpList');if(!el)return;
+ el.innerHTML=l.slice(0,100).map(function(x){
+   var complete=!!(x.studentClass||x.classNumber)&&!!x.board&&!!x.school,
+   location=[x.district,x.state].filter(Boolean).join(', ')||'Location not set';
+   return '<div class="card"><div class="row"><div><b>'+esc(x.name||x.displayName||'Learner')+'</b><div class="muted">'+esc(x.email||'')+'</div></div>'+
+   '<span class="badge">'+(complete?'Profile complete':'Profile incomplete')+'</span></div>'+
+   '<div class="small muted">Class: '+esc(x.studentClass||x.classNumber||'—')+' • Board: '+esc(x.board||'—')+
+   '<br>Academic Year: '+esc(x.academicYear||'—')+'<br>School: '+esc(x.school||'—')+
+   '<br>District/State: '+esc(location)+'<br>XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+' • Level: '+esc(x.level||1)+'</div>'+
+   '<div style="display:flex;gap:8px;margin-top:10px">'+
+   '<button class="btn gold" type="button" onclick="ssAdminLearnerDetail(\\''+esc(x.id)+'\\')">View Profile</button>'+
+   '<button class="btn light" type="button" onclick="ssAdminLearnerEdit(\\''+esc(x.id)+'\\')">Edit Targeting</button></div></div>'
+ }).join('')||'<div class="card">No matching learner profiles.</div>'
+};
+
+window.ssAdminLearnerEdit=async function(id){
+ if(!ok()||!id)return;
+ var u=await docs('users'),x=u.find(function(z){return z.id===id});
+ if(!x)return toastx('Learner not found.');
+ var classOptions='<option value="">Select class</option>'+Array.from({length:12},function(_,i){var n=String(i+1);return '<option value="'+n+'"'+(String(x.studentClass||x.classNumber||'')===n?' selected':'')+'>Class '+n+'</option>'}).join('');
+ page('Edit Learner Targeting','Maintain academic and geographic fields used for eligibility targeting. Learner identity and role are not editable here.',
+ '<div class="card admin"><div class="row"><b>'+esc(x.name||x.displayName||'Learner')+'</b><span class="badge">learner</span></div>'+
+ '<div class="small muted">'+esc(x.email||'')+'</div></div>'+
+ '<div class="card"><b>Academic targeting</b>'+
+ '<select id="leClass" class="input">'+classOptions+'</select>'+
+ '<input id="leBoard" class="input" placeholder="Board (e.g. CBSE)" value="'+esc(x.board||'')+'">'+
+ '<input id="leYear" class="input" placeholder="Academic year (e.g. 2026-27)" value="'+esc(x.academicYear||'')+'">'+
+ '</div>'+
+ '<div class="card"><b>Geographic targeting</b>'+
+ '<input id="leState" class="input" placeholder="State" value="'+esc(x.state||'')+'">'+
+ '<input id="leDistrict" class="input" placeholder="District" value="'+esc(x.district||'')+'">'+
+ '<input id="leSchool" class="input" placeholder="School" value="'+esc(x.school||'')+'">'+
+ '</div>'+
+ '<button class="btn gold block" type="button" onclick="ssAdminSaveLearnerTargeting(\\''+esc(id)+'\\')">Save Targeting Profile</button>'+
+ '<button class="btn light block" type="button" style="margin-top:8px" onclick="ssAdminV3Learners()">Cancel</button>')
+};
+
+window.ssAdminSaveLearnerTargeting=async function(id){
+ if(!ok()||!id)return;
+ var data={
+   studentClass:(document.getElementById('leClass')||{}).value||'',
+   classNumber:(document.getElementById('leClass')||{}).value||'',
+   board:((document.getElementById('leBoard')||{}).value||'').trim(),
+   academicYear:((document.getElementById('leYear')||{}).value||'').trim(),
+   state:((document.getElementById('leState')||{}).value||'').trim(),
+   district:((document.getElementById('leDistrict')||{}).value||'').trim(),
+   school:((document.getElementById('leSchool')||{}).value||'').trim(),
+   updatedBy:auth().uid,
+   updatedAt:ts()
+ };
+ if(!data.studentClass||!data.board||!data.school)return toastx('Class, Board and School are required for targeting.');
+ try{
+   await db().collection('users').doc(id).update(data);
+   toastx('Learner targeting profile saved ✓');
+   ssAdminV3Learners()
+ }catch(e){toastx(e.message||'Could not save learner targeting profile')}
+};
+
+window.ssAdminLearnerDetail=async function(id){
+ if(!ok()||!id)return;
+ var u=await docs('users'),x=u.find(function(z){return z.id===id});
+ if(!x)return toastx('Learner not found.');
+ var r=(await docs('relationships')).filter(function(z){return z.studentUid===id}),
+ p=r.filter(function(z){return z.parentUid}).map(function(z){return z.parentUid}),
+ t=r.filter(function(z){return z.teacherUid}).map(function(z){return z.teacherUid}),
+ name=function(uid){var z=u.find(function(a){return a.id===uid});return z?(z.name||z.displayName||z.email||uid):uid};
+ page('Learner Profile','Administrative profile and eligibility view.',
+ '<div class="card"><div class="row"><b>'+esc(x.name||x.displayName||'Learner')+'</b><span class="badge">'+esc(x.role||'learner')+'</span></div>'+
+ '<div class="small muted">'+esc(x.email||'')+'<br>Class: '+esc(x.studentClass||x.classNumber||'—')+' • Board: '+esc(x.board||'—')+
+ '<br>Academic Year: '+esc(x.academicYear||'—')+'<br>School: '+esc(x.school||'—')+
+ '<br>District: '+esc(x.district||'—')+' • State: '+esc(x.state||'—')+'</div>'+
+ '<button class="btn gold" style="margin-top:10px" type="button" onclick="ssAdminLearnerEdit(\\''+esc(id)+'\\')">Edit Targeting Profile</button></div>'+
+ '<div class="card"><b>Learning summary</b><div class="small muted">XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+' • Level: '+esc(x.level||1)+' • Streak: '+esc(x.streak||0)+'</div></div>'+
+ '<div class="card"><b>Relationships</b><div class="small muted">Parents: '+esc(p.map(name).join(', ')||'—')+'<br>Teachers: '+esc(t.map(name).join(', ')||'—')+'</div></div>'+
+ '<button class="btn light" type="button" onclick="ssAdminV3Learners()">← Back to Learners</button>')
+};
+
 window.ssAdminV3Leaderboards=async function(){if(!ok())return;var r=await docs('leaderboards');page('Leaderboards','Review published leaderboard records.',r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Leaderboard')+'</b><span class="badge">'+esc(x.status||'published')+'</span></div><div class="small muted">Scope: '+esc(x.scope||x.type||'Overall')+' • Class: '+esc(x.classLevel||'All')+'</div></div>'}).join(''):'<div class="card">No leaderboard records yet.</div>')}
 window.ssAdminV3Rewards=async function(){
  if(!ok())return;
