@@ -26,6 +26,7 @@ window.ssFoundationStartupGate=async function(){
   var root=document.getElementById('root');
   if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div><img src="logo.png" style="width:86px;height:86px;border-radius:22px"><h1 style="margin:14px 0 5px">Skill Saga</h1><div class="muted">A smarter way to learn</div><div style="margin-top:18px;color:#1769ff;font-weight:800">Loading your learning space…</div></div></div>';
   var s=await getConfig('startup');
+  await Promise.all([getConfig('authentication'),getConfig('learnerSetup'),getConfig('home')]);
   if(s.enabled===false)return true;
   if(s.maintenanceMode){
     if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div class="authbox"><img src="logo.png" style="width:76px;height:76px;border-radius:20px"><h1>Skill Saga</h1><div class="notice">'+escFoundation(s.maintenanceMessage||defaults.startup.maintenanceMessage)+'</div><div class="muted">Please try again later.</div></div></div>';
@@ -102,6 +103,7 @@ window.ssFoundationVerifyEmail=function(){
 };
 window.ssFoundationSendVerification=async function(){try{if(cloudUser)await cloudUser.sendEmailVerification();toast('Verification email sent ✓')}catch(e){toast(e.message||'Could not send verification email')}};
 window.ssFoundationAuthConfig=async function(){return getConfig('authentication')};
+window.ssFoundationAuthCached=function(){return cache.authentication||defaults.authentication};
 window.ssFoundationHomeConfig=async function(){return getConfig('home')};
 window.ssFoundationApplyHome=function(h){
   if(!h)return;
