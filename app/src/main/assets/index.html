@@ -5007,29 +5007,25 @@ async function notifications(){
       </div>
     </div>  `);
 }
-function startQuiz(id){
-  if(window.skillSagaQuizTimer){
-    clearInterval(window.skillSagaQuizTimer);
-    window.skillSagaQuizTimer=null;
-  }
-
+async function startQuiz(id){
+  if(window.skillSagaQuizTimer){clearInterval(window.skillSagaQuizTimer);window.skillSagaQuizTimer=null;}
   let c=local.content.find(x=>x.id===id)||daily();
-
-  if(!c||!Array.isArray(c.questions)||!c.questions.length){
-    alert('This quiz has no questions available.');
-    return;
+  if(cloudDb&&id){
+    try{var ds=await cloudDb.collection('quizzes').doc(id).get();if(ds.exists)c=Object.assign({id:ds.id},ds.data());}catch(e){}
   }
-
-  quizState={
-    c:c,
-    q:0,
-    score:0,
-    answered:false,
-    completed:false,
-    timedOut:false,
-    responses:[]
-  };
-
+  if(!c||!Array.isArray(c.questions)||!c.questions.length){alert('This quiz has no questions available.');return;}
+  var qs=c.questions.slice();
+  var limit=Number(c.questionCount||0);
+  if(limit>0&&limit<qs.length)qs=qs.slice(0,limit);
+  if(c.randomQuestions)qs.sort(function(){return Math.random()-.5});
+  if(c.randomOptions)qs=qs.map(function(q){
+    var a=Array.isArray(q)?q.slice():Object.assign({},q);
+    if(Array.isArray(a[1])){var pairs=a[1].map(function(o,i){return {o:o,i:i}}).sort(function(){return Math.random()-.5});var ni=pairs.findIndex(function(p){return p.i===(a[2]||0)});a[1]=pairs.map(function(p){return p.o});a[2]=ni;}
+    else if(Array.isArray(a.options)){var ci=Number(a.correctIndex||0),pairs2=a.options.map(function(o,i){return {o:o,i:i}}).sort(function(){return Math.random()-.5});a.options=pairs2.map(function(p){return p.o});a.correctIndex=pairs2.findIndex(function(p){return p.i===ci});}
+    return a;
+  });
+  c.questions=qs;
+  quizState={c:c,q:0,score:0,answered:false,completed:false,timedOut:false,responses:[],earnedMarks:0};
   renderQuiz();
 }
 
@@ -5051,7 +5047,7 @@ function renderQuiz(){
     window.skillSagaQuizTimer=null;
   }
 
-  s.timeLeft=Number(s.c.timePerQuestion||s.c.timeLimit||60);
+  s.timeLeft=Number(s.c.timePerQuestion||s.c.timeLimit||(Number(s.c.durationMinutes||0)*60)||60);
   if(!Number.isFinite(s.timeLeft)||s.timeLeft<5)s.timeLeft=60;
 
   shell(`<div class="row"><button class="back" onclick="go('home')">‹</button><b>${esc(s.c.title)}</b><span id="quizTimer">⏱ ${s.timeLeft}s</span></div><p class="muted">Question ${s.q+1} of ${s.c.questions.length}</p><div class="bar"><i style="width:${(s.q/s.c.questions.length)*100}%"></i></div><div class="card" style="margin-top:18px"><h2>${esc(x[0])}</h2>${x[1].map((o,i)=>`<button class="option" onclick="answer(${i})">${String.fromCharCode(65+i)}. ${esc(o)}</button>`).join('')}</div>`);
@@ -5112,6 +5108,7 @@ function answer(i){
 
   if(correct){
     quizState.score++;
+    quizState.earnedMarks=(quizState.earnedMarks||0)+Number(quizState.c.marksPerQuestion||1);
     if(os[i])os[i].classList.add('ok');
   }else{
     if(os[i])os[i].classList.add('no');
@@ -5186,6 +5183,9 @@ async function finishQuiz(){
   var total=s.c.questions.length||0;
   var score=s.score||0;
   var pct=total?Math.round((score/total)*100):0;
+  var wrong=Math.max(0,(s.responses||[]).filter(function(r){return r.correct===false&&r.selected!==null}).length);
+  var skipped=Math.max(0,(s.responses||[]).filter(function(r){return r.selected===null}).length);
+  var marks=Number(s.earnedMarks||score*Number(s.c.marksPerQuestion||1))-wrong*Number(s.c.negativeMarks||0);
   var previousQuizzes=typeof u.quizzes==='number'?u.quizzes:0;
   var previousAccuracy=typeof u.accuracy==='number'?u.accuracy:0;
 
