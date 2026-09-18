@@ -82,7 +82,7 @@ window.ssAdminPlaySaveActivity=async function(){
    difficulty:document.getElementById('pcDifficulty').value,
    questionCount:Number(document.getElementById('pcQuestions').value)||10,
    durationMinutes:Number(document.getElementById('pcDuration').value)||10,
-   updatedBy:auth().uid,updatedAt:stamp()};
+   updatedBy:auth().uid,updatedAt:new Date()};
   if(idx>=0)all[idx]=Object.assign({},all[idx],item);else all.push(item);
   await ref.set({activities:all,updatedBy:auth().uid,updatedAt:stamp()},{merge:true});
   toastx('Play activity saved ✓');ssAdminPlayControl();
