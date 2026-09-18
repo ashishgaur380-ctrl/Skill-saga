@@ -98,7 +98,11 @@ window.ssCreateForumGroup=async function(){
     var s=await cloudDb.collection('appSettings').doc('general').get(),cfg=s.exists?s.data():{};
     var status=cfg.forumGroupApproval===false?'published':'pending';
     var ref=await cloudDb.collection('forumGroups').add({title:title,description:desc,classLevel:n,subject:sub,ownerUid:u.uid,ownerName:u.name||u.displayName||'Learner',status:status,memberCount:1,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    await cloudDb.collection('forumGroupMembers').doc(ref.id+'_'+u.uid).set({groupId:ref.id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'owner',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    try{
+      await cloudDb.collection('forumGroupMembers').doc(ref.id+'_'+u.uid).set({groupId:ref.id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'owner',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    }catch(memberErr){
+      console.warn('Owner membership will be created when the group is opened after publication.',memberErr);
+    }
     if(typeof toast==='function')toast(status==='published'?'Group created ✓':'Group submitted for Admin approval ✓');
     forum();
   }catch(e){if(typeof toast==='function')toast(e.message||'Could not create group.');}
@@ -111,6 +115,14 @@ window.ssOpenForumGroup=async function(id){
     if(g.status!=='published'&&g.ownerUid!==u.uid)return toast('This group is not published yet.');
     var mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
     var isOwner=g.ownerUid===u.uid;
+    if(isOwner&&!mem.exists&&g.status==='published'){
+      try{
+        await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).set({groupId:id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'owner',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+        mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
+      }catch(ownerMemberErr){
+        console.warn('Owner membership creation failed',ownerMemberErr);
+      }
+    }
     if(!mem.exists&&!isOwner)return ssJoinForumGroup(id,g);
     var ps=await cloudDb.collection('forumPosts').where('groupId','==',id).where('status','==','published').get();
     var posts=ps.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))});
