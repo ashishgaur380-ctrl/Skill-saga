@@ -86,7 +86,7 @@ window.ssFoundationSetupScreen=function(u,o){
     (o.requireClass?'<label>Class</label><select id="ssSetupClass" class="input">'+classes+'</select>':'')+
     (o.requireSubjects?'<label>Your subjects</label><div class="card">'+subjectHtml+'</div>':'')+
     (o.requireLearningGoals?'<label>Learning goals</label><div class="card">'+goalHtml+'</div>':'')+
-    (o.requireLearningProfile?'<label>Learning profile</label><select id="ssSetupProfile" class="input"><option value="balanced" \${selectedProfile==='balanced'?'selected':''}>Balanced</option><option value="exam" \${selectedProfile==='exam'?'selected':''}>Exam Focused</option><option value="practice" \${selectedProfile==='practice'?'selected':''}>Practice Focused</option><option value="skills" \${selectedProfile==='skills'?'selected':''}>Skills Focused</option></select>':'')+
+    (o.requireLearningProfile?'<label>Learning profile</label><select id="ssSetupProfile" class="input"><option value="balanced" '+(selectedProfile==='balanced'?'selected':'')+'>Balanced</option><option value="exam" '+(selectedProfile==='exam'?'selected':'')+'>Exam Focused</option><option value="practice" '+(selectedProfile==='practice'?'selected':'')+'>Practice Focused</option><option value="skills" '+(selectedProfile==='skills'?'selected':'')+'>Skills Focused</option></select>':'')+
     '<button class="btn gold block" onclick="ssFoundationSaveSetup()">Continue to Skill Saga →</button>'+
     '<div class="muted center" style="margin-top:10px">You can update these details later from your profile.</div></div></div>';
   return true;
