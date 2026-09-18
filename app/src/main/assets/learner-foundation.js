@@ -131,9 +131,10 @@ window.ssFoundationApplyHome=function(h){
     var prev=target.previousElementSibling;
     return prev&&prev.classList.contains('ss-home-section')?prev:null;
   }
+  var bottomNote=root.querySelector('.ss-home-bottom-note');
   order.forEach(function(key){
     var section=sectionFor(key),target=blocks[key];
-    if(section&&target){root.appendChild(section);root.appendChild(target)}
+    if(section&&target){root.insertBefore(section,bottomNote||null);root.insertBefore(target,bottomNote||null)}
   });
   var title=root.querySelector('.ss-home-sub');if(title&&h.welcomeTitle)title.textContent=h.welcomeTitle;
   var q=root.querySelector('.ss-home-quote');if(q&&h.welcomeQuote)q.innerHTML=escFoundation(h.welcomeQuote).replace(/\|/g,'<br>');
