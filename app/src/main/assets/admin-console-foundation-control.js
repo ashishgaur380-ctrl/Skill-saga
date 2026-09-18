@@ -22,7 +22,7 @@ async function saveDoc(id,data){
   data.updatedAt=new Date();
   await db().collection('appSettings').doc(id).set(data,{merge:true});
 }
-var DEFAULT_STARTUP={enabled:true,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',forceUpdate:false};
+var DEFAULT_STARTUP={enabled:true,logo:'logo.png',appName:'Skill Saga',tagline:'A smarter way to learn',splashDuration:1200,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',latestVersion:'1.0.0',forceUpdate:false};
 var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false};
 var DEFAULT_SETUP={enabled:true,requireBoard:true,requireClass:true,requireSubjects:true,requireLearningGoals:false,requireLearningProfile:false,boards:['CBSE'],classes:[1,2,3,4,5,6,7,8,9,10,11,12],defaultSubjects:[],goals:['Improve school performance','Practice regularly','Build core skills']};
 var DEFAULT_HOME={enabled:true,showStats:true,showDailyMission:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'};
@@ -52,9 +52,14 @@ window.ssAdminFoundationSection=async function(section){
     return page('Startup / Splash Control','Control the app launch state without changing the learner UI code.',
       '<div class="card">'+
       check('fsEnabled','Startup gate enabled',s.enabled)+
+      field('fsLogo','Logo path / URL',s.logo)+
+      field('fsName','App name',s.appName)+
+      field('fsTagline','Tagline',s.tagline)+
+      field('fsDuration','Splash duration (milliseconds)',s.splashDuration)+
       check('fsMaintenance','Maintenance mode',s.maintenanceMode)+
       field('fsMessage','Maintenance message',s.maintenanceMessage)+
-      field('fsMin','Minimum app/web version',s.minimumVersion)+
+      field('fsMin','Minimum supported app version',s.minimumVersion)+
+      field('fsLatest','Latest app version',s.latestVersion)+
       check('fsForce','Force update when version is below minimum',s.forceUpdate)+
       btn('Save Startup Settings','ssAdminFoundationSave(\'startup\')','gold')+
       '</div><div class="notice">The minimum-version comparison is an app-side gate. A production Android force-update flow will also need Play Store/AAB versioning.</div>');
@@ -115,7 +120,7 @@ window.ssAdminFoundationSave=async function(section){
   try{
     var d={};
     if(section==='startup'){
-      d={enabled:checked('fsEnabled'),maintenanceMode:checked('fsMaintenance'),maintenanceMessage:val('fsMessage')||DEFAULT_STARTUP.maintenanceMessage,minimumVersion:val('fsMin')||DEFAULT_STARTUP.minimumVersion,forceUpdate:checked('fsForce')};
+      d={enabled:checked('fsEnabled'),logo:val('fsLogo')||DEFAULT_STARTUP.logo,appName:val('fsName')||DEFAULT_STARTUP.appName,tagline:val('fsTagline')||DEFAULT_STARTUP.tagline,splashDuration:Math.max(0,Number(val('fsDuration')||DEFAULT_STARTUP.splashDuration)),maintenanceMode:checked('fsMaintenance'),maintenanceMessage:val('fsMessage')||DEFAULT_STARTUP.maintenanceMessage,minimumVersion:val('fsMin')||DEFAULT_STARTUP.minimumVersion,latestVersion:val('fsLatest')||DEFAULT_STARTUP.latestVersion,forceUpdate:checked('fsForce')};
     }else if(section==='authentication'){
       d={emailLoginEnabled:checked('faEmailLogin'),emailSignupEnabled:checked('faEmailSignup'),passwordResetEnabled:checked('faReset'),mobileLoginEnabled:checked('faMobileLogin'),mobileSignupEnabled:checked('faMobileSignup'),learnerSignupEnabled:checked('faLearner'),parentSignupEnabled:checked('faParent'),teacherSignupEnabled:checked('faTeacher'),requireProfileSetup:checked('faSetup'),requireEmailVerification:checked('faVerify')};
     }else if(section==='learnerSetup'){
