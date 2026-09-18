@@ -5530,6 +5530,18 @@ function loginScreen(){
     </div>
   </div>`;
 }
+async function login(){
+  var emailEl=document.getElementById('email'),passwordEl=document.getElementById('password');
+  var email=emailEl?emailEl.value.trim().toLowerCase():'',password=passwordEl?passwordEl.value:'';
+  if(!email||!password)return toast('Enter email and password');
+  if(!firebaseReady)return toast('Firebase is not connected');
+  try{
+    await firebase.auth().signInWithEmailAndPassword(email,password);
+  }catch(err){
+    toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'));
+  }
+}
+
 async function signup(){
   var nameEl=document.getElementById('name'),emailEl=document.getElementById('email'),passwordEl=document.getElementById('password');
   var name=nameEl?nameEl.value.trim():'',email=emailEl?emailEl.value.trim().toLowerCase():'',password=passwordEl?passwordEl.value:'';
