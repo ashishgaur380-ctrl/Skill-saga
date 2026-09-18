@@ -23,7 +23,7 @@ async function saveDoc(id,data){
   await db().collection('appSettings').doc(id).set(data,{merge:true});
 }
 var DEFAULT_STARTUP={enabled:true,logo:'logo.png',appName:'Skill Saga',tagline:'A smarter way to learn',splashDuration:1200,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',latestVersion:'1.0.0',forceUpdate:false};
-var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false};
+var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false,requireTerms:true};
 var DEFAULT_SETUP={enabled:true,requireBoard:true,requireClass:true,requireSubjects:true,requireLearningGoals:false,requireLearningProfile:false,boards:['CBSE'],classes:[1,2,3,4,5,6,7,8,9,10,11,12],defaultSubjects:[],goals:['Improve school performance','Practice regularly','Build core skills']};
 var DEFAULT_HOME={enabled:true,showStats:true,showDailyMission:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'};
 
@@ -78,6 +78,7 @@ window.ssAdminFoundationSection=async function(section){
       check('faTeacher','Teacher signup',a.teacherSignupEnabled)+
       check('faSetup','Require first-time learner setup',a.requireProfileSetup)+
       check('faVerify','Require email verification before learner access',a.requireEmailVerification)+
+      check('faTerms','Require Terms & Privacy acceptance',a.requireTerms!==false)+
       btn('Save Authentication Settings','ssAdminFoundationSave(\'authentication\')','gold')+
       '</div><div class="notice">Provider activation (Email/Password or Phone) is configured in Firebase Authentication; these controls govern Skill Saga app-side availability.</div>');
   }
@@ -122,7 +123,7 @@ window.ssAdminFoundationSave=async function(section){
     if(section==='startup'){
       d={enabled:checked('fsEnabled'),logo:val('fsLogo')||DEFAULT_STARTUP.logo,appName:val('fsName')||DEFAULT_STARTUP.appName,tagline:val('fsTagline')||DEFAULT_STARTUP.tagline,splashDuration:Math.max(0,Number(val('fsDuration')||DEFAULT_STARTUP.splashDuration)),maintenanceMode:checked('fsMaintenance'),maintenanceMessage:val('fsMessage')||DEFAULT_STARTUP.maintenanceMessage,minimumVersion:val('fsMin')||DEFAULT_STARTUP.minimumVersion,latestVersion:val('fsLatest')||DEFAULT_STARTUP.latestVersion,forceUpdate:checked('fsForce')};
     }else if(section==='authentication'){
-      d={emailLoginEnabled:checked('faEmailLogin'),emailSignupEnabled:checked('faEmailSignup'),passwordResetEnabled:checked('faReset'),mobileLoginEnabled:checked('faMobileLogin'),mobileSignupEnabled:checked('faMobileSignup'),learnerSignupEnabled:checked('faLearner'),parentSignupEnabled:checked('faParent'),teacherSignupEnabled:checked('faTeacher'),requireProfileSetup:checked('faSetup'),requireEmailVerification:checked('faVerify')};
+      d={emailLoginEnabled:checked('faEmailLogin'),emailSignupEnabled:checked('faEmailSignup'),passwordResetEnabled:checked('faReset'),mobileLoginEnabled:checked('faMobileLogin'),mobileSignupEnabled:checked('faMobileSignup'),learnerSignupEnabled:checked('faLearner'),parentSignupEnabled:checked('faParent'),teacherSignupEnabled:checked('faTeacher'),requireProfileSetup:checked('faSetup'),requireEmailVerification:checked('faVerify'),requireTerms:checked('faTerms')};
     }else if(section==='learnerSetup'){
       d={enabled:checked('foEnabled'),requireBoard:checked('foBoard'),requireClass:checked('foClass'),requireSubjects:checked('foSubjects'),requireLearningGoals:checked('foGoals'),requireLearningProfile:checked('foProfile'),boards:val('foBoards').split(',').map(function(x){return x.trim()}).filter(Boolean),classes:val('foClasses').split(',').map(function(x){return Number(x.trim())}).filter(function(x){return !isNaN(x)}),defaultSubjects:val('foSubjectsList').split(',').map(function(x){return x.trim()}).filter(Boolean),goals:val('foGoalsList').split(',').map(function(x){return x.trim()}).filter(Boolean)};
     }else if(section==='home'){
