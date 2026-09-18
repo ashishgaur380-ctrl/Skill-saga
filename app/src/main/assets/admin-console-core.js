@@ -13,7 +13,7 @@ window.ssAdminLogout=async function(){try{if(firebase&&firebase.auth){await fire
 window.ssAdminPage=function(t,s,b){document.getElementById('root').innerHTML='<div class="app"><header class="top"><div class="brand"><img src="logo.png"><b>Skill <span>Saga</span></b></div><div style="display:flex;gap:7px"><button class="iconbtn" onclick="admin()">Back</button><button class="iconbtn" onclick="ssAdminLogout()">Logout</button></div></header><main class="main"><div class="row"><div><h1 style="margin:0">'+ssAdminEsc(t)+'</h1><div class="muted">'+ssAdminEsc(s||'')+'</div></div><span>🛠️</span></div>'+b+'</main></div>'};
 /* Encode quotes in dynamic onclick attributes so handlers such as fn("value") remain valid HTML. */
 window.ssAdminButton=function(t,f,k){return '<button class="btn '+(k||'light')+'" onclick="'+String(f).replace(/\"/g,'&quot;')+'">'+t+'</button>'};
-window.ssAdminSettings=async function(){try{var s=await ssAdminDB().collection('appSettings').doc('general').get();return s.exists?s.data():{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}catch(e){return{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}};
+window.ssAdminSettings=async function(){try{var s=window.SkillSagaCommon?await SkillSagaCommon.getDoc('appSettings','general'):await ssAdminDB().collection('appSettings').doc('general').get();return s||{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}catch(e){return{forumEnabled:false,adsEnabled:false,premiumEnabled:false}}};
 
 /* Admin module bridge. Multiple Admin loaders may execute the core script;
    never wrap an existing bridge a second time. */
