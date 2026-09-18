@@ -77,6 +77,7 @@ window.ssFoundationSetupScreen=function(u,o){
   var boards=(o.boards&&o.boards.length?o.boards:['CBSE']).map(function(x){return '<option value="'+escFoundation(x)+'" '+(String(u.board||'')===String(x)?'selected':'')+'>'+escFoundation(x)+'</option>'}).join('');
   var classes=(o.classes&&o.classes.length?o.classes:[1,2,3,4,5,6,7,8,9,10,11,12]).map(function(x){return '<option value="'+escFoundation(x)+'" '+(String(u.studentClass||'')===String(x)?'selected':'')+'>Class '+escFoundation(x)+'</option>'}).join('');
   var subs=o.defaultSubjects&&o.defaultSubjects.length?o.defaultSubjects:['English','Hindi','Mathematics','Science','Social Science'];
+  var selectedProfile=String(u.learningProfile||'balanced');
   var goals=o.goals&&o.goals.length?o.goals:['Improve school performance','Practice regularly','Build core skills'];
   var subjectHtml=subs.map(function(x,i){var on=Array.isArray(u.subjects)&&u.subjects.indexOf(x)>=0;return '<label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input class="ss-setup-subject" type="checkbox" value="'+escFoundation(x)+'" '+(on?'checked':'')+'> '+escFoundation(x)+'</label>'}).join('');
   var goalHtml=goals.map(function(x){var on=Array.isArray(u.learningGoals)&&u.learningGoals.indexOf(x)>=0;return '<label style="display:flex;gap:8px;align-items:center;margin:8px 0"><input class="ss-setup-goal" type="checkbox" value="'+escFoundation(x)+'" '+(on?'checked':'')+'> '+escFoundation(x)+'</label>'}).join('');
@@ -85,7 +86,7 @@ window.ssFoundationSetupScreen=function(u,o){
     (o.requireClass?'<label>Class</label><select id="ssSetupClass" class="input">'+classes+'</select>':'')+
     (o.requireSubjects?'<label>Your subjects</label><div class="card">'+subjectHtml+'</div>':'')+
     (o.requireLearningGoals?'<label>Learning goals</label><div class="card">'+goalHtml+'</div>':'')+
-    (o.requireLearningProfile?'<label>Learning profile</label><select id="ssSetupProfile" class="input"><option value="balanced">Balanced</option><option value="exam">Exam Focused</option><option value="practice">Practice Focused</option><option value="skills">Skills Focused</option></select>':'')+
+    (o.requireLearningProfile?'<label>Learning profile</label><select id="ssSetupProfile" class="input"><option value="balanced" \${selectedProfile==='balanced'?'selected':''}>Balanced</option><option value="exam" \${selectedProfile==='exam'?'selected':''}>Exam Focused</option><option value="practice" \${selectedProfile==='practice'?'selected':''}>Practice Focused</option><option value="skills" \${selectedProfile==='skills'?'selected':''}>Skills Focused</option></select>':'')+
     '<button class="btn gold block" onclick="ssFoundationSaveSetup()">Continue to Skill Saga →</button>'+
     '<div class="muted center" style="margin-top:10px">You can update these details later from your profile.</div></div></div>';
   return true;
