@@ -21,11 +21,11 @@ jobs:
         run: |
           set -e
           FILE="app/src/main/assets/index.html"
-          TAG='<script src="admin-console-v3.js"></script>'
-          if grep -Fq "$TAG" "$FILE"; then
+          if grep -Eq '<script src="admin-console-v3\.js([?"][^>]*)></script>' "$FILE"; then
             echo "Admin Console v3 already loaded."
             exit 0
           fi
+          TAG='<script src="admin-console-v3.js"></script>'
           printf '\n%s\n' "$TAG" >> "$FILE"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
