@@ -20,6 +20,12 @@ service cloud.firestore {
       return currentUser() && currentRole() == 'admin';
     }
 
+    function hasPermission(p) {
+      return currentUser()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions is list
+        && p in get(/databases/$(database)/documents/users/$(request.auth.uid)).data.permissions;
+    }
+
     function validSignupRole() {
       return request.resource.data.role in ['learner', 'parent', 'teacher'];
     }
@@ -33,8 +39,14 @@ service cloud.firestore {
             exists(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid))
             && get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.status == 'active'
             && (
-              get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.parentUid == request.auth.uid
-              || get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.teacherUid == request.auth.uid
+              (
+                get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.parentUid == request.auth.uid
+                && hasPermission('parent.viewProgress')
+              )
+              || (
+                get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.teacherUid == request.auth.uid
+                && hasPermission('teacher.viewLearners')
+              )
             )
           )
         );
@@ -184,6 +196,7 @@ service cloud.firestore {
         && currentUser()
         && request.resource.data.teacherUid == request.auth.uid
         && currentRole() == 'teacher'
+        && hasPermission('teacher.createAssignments')
         && request.resource.data.studentUid is string
         && request.resource.data.quizId is string
         && request.resource.data.status == 'assigned');
