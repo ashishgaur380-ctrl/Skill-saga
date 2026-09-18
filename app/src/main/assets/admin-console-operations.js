@@ -8,18 +8,19 @@ window.ssAdminCompetitions=async function(){if(!ok())return;var a=await docs('co
 window.ssAdminCompetitionForm=async function(id){if(!ok())return;var x={};if(id){var s=await db().collection('competitions').doc(id).get();if(s.exists)x=s.data()}page(id?'Edit Competition':'Create Competition','Configure schedule, eligibility and existing quiz references.','<div class="card">'+input('cpTitle','Competition title',x.title)+input('cpType','Type (Skill Sprint / Weekly Challenge / etc.)',x.type)+input('cpCategory','Category',x.category)+input('cpClass','Class level',x.classLevel)+input('cpSubject','Subject',x.subject)+input('cpStart','Start date/time',x.startAt)+input('cpEnd','End date/time',x.endAt)+input('cpDuration','Duration in minutes',x.durationMinutes)+input('cpCount','Question count',x.questionCount)+input('cpQuizIds','Existing quiz IDs (comma separated)',Array.isArray(x.quizIds)?x.quizIds.join(','):x.quizIds)+input('cpEntry','Entry coins',x.entryCoins)+area('cpDesc','Description',x.description)+btn('Save Competition','ssAdminSaveCompetition('+JSON.stringify(id||'')+')','gold')+'</div>')};
 window.ssAdminSaveCompetition=async function(id){if(!ok())return;var title=val('cpTitle');if(!title)return toastx('Enter a competition title.');var ids=val('cpQuizIds').split(',').map(function(x){return x.trim()}).filter(Boolean);try{if(ids.length){var q=await Promise.all(ids.map(function(x){return db().collection('quizzes').doc(x).get()}));var bad=ids.filter(function(x,i){return !q[i].exists});if(bad.length)return toastx('Unknown quiz ID(s): '+bad.join(', '))}var d={title:title,type:val('cpType'),category:val('cpCategory'),classLevel:val('cpClass'),subject:val('cpSubject'),startAt:val('cpStart'),endAt:val('cpEnd'),durationMinutes:Number(val('cpDuration'))||0,questionCount:Number(val('cpCount'))||0,quizIds:ids,entryCoins:Number(val('cpEntry'))||0,description:val('cpDesc'),status:'draft',published:false,updatedBy:au().uid,updatedAt:ts()};if(id)await db().collection('competitions').doc(id).set(d,{merge:true});else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('competitions').add(d)}toastx('Competition saved ✓');ssAdminCompetitions()}catch(e){toastx(e.message||'Could not save competition')}};
 function assignmentGroupId(){return 'asg_'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,8)}
-function learnerField(u,a,b,c){return String(u[a]||u[b]||u[c]||'').trim()}
+function learnerField(u,a,b,c){u=u||{};return String(u[a]||u[b]||u[c]||'').trim()}
 window.ssAdminAssignments=async function(){
  if(!ok())return;
  try{
    var a=await docs('assignments'), groups={}, order=[];
    a.forEach(function(x){
+     if(!x)return;
      var gid=x.assignmentGroupId||x.id;
      if(!groups[gid]){groups[gid]={id:gid,representative:x,count:0};order.push(gid)}
      groups[gid].count++;
    });
    var cards=order.slice(0,100).map(function(g){
-     var x=g.representative,target=x.targetType||'individual',scope=target==='individual'?(x.studentName||x.studentUid||x.learnerUid||'—'):(target==='class'?'Class '+(x.targetValue||'—'):target==='school'?'School: '+(x.targetValue||'—'):'District: '+(x.targetValue||'—'));
+     var x=(g&&g.representative)||{},target=x.targetType||'individual',scope=target==='individual'?(x.studentName||x.studentUid||x.learnerUid||'—'):(target==='class'?'Class '+(x.targetValue||'—'):target==='school'?'School: '+(x.targetValue||'—'):'District: '+(x.targetValue||'—'));
      return '<div class="card">'+
        '<div class="row"><b>'+esc(x.title||x.assignmentTitle||'Assignment')+'</b><span class="badge">'+esc(x.status||'assigned')+'</span></div>'+
        '<div class="small muted">Teacher: '+esc(x.teacherName||x.teacherUid||x.assignedBy||'—')+
