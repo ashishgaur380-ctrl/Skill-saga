@@ -5369,6 +5369,11 @@ function nextQuizQuestion(){
 function loginScreen(){
   var root=document.getElementById('root');
   var method=window.skillSagaLoginMethod||'email';
+  var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};
+  var emailLogin=ac.emailLoginEnabled!==false, mobileLogin=ac.mobileLoginEnabled===true;
+  var emailSignup=ac.emailSignupEnabled!==false, mobileSignupEnabled=ac.mobileSignupEnabled===true;
+  if(method==='mobile'&&!mobileLogin)method='email';
+  if(method==='email'&&!emailLogin&&mobileLogin)method='mobile';
 
   root.innerHTML=`
   <div class="auth" style="min-height:100vh;background:linear-gradient(145deg,#eef4ff 0%,#f7f1ff 48%,#ffffff 100%);padding:24px 16px;display:flex;align-items:center;justify-content:center;box-sizing:border-box">
@@ -5392,16 +5397,7 @@ function loginScreen(){
         <h2 style="margin:22px 0 4px;color:#10203a;font-size:22px">Welcome back 👋</h2>
         <div class="muted" style="font-size:13px;margin-bottom:16px">Continue your learning journey.</div>
 
-        <div style="display:flex;background:#f1f5ff;border-radius:14px;padding:4px;margin-bottom:16px">
-          <button onclick="window.skillSagaLoginMethod='email';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${method==='email'?'#fff':'transparent'};color:${method==='email'?'#2463eb':'#65758b'};font-weight:700;box-shadow:${method==='email'?'0 2px 8px rgba(0,0,0,.08)':'none'}">
-            📧 Email
-          </button>
-          <button onclick="window.skillSagaLoginMethod='mobile';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${method==='mobile'?'#fff':'transparent'};color:${method==='mobile'?'#2463eb':'#65758b'};font-weight:700;box-shadow:${method==='mobile'?'0 2px 8px rgba(0,0,0,.08)':'none'}">
-            📱 Mobile
-          </button>
-        </div>
+        ${(emailLogin&&mobileLogin)?'<div class="authmethodtabs"><button onclick="window.skillSagaLoginMethod=\'email\';loginScreen()">📧 Email</button><button onclick="window.skillSagaLoginMethod=\'mobile\';loginScreen()">📱 Mobile</button></div>':''}
 
         ${method==='email'?`
           <input id="email" class="input" type="email" autocomplete="email" placeholder="Email address">
@@ -5445,16 +5441,7 @@ function loginScreen(){
         <h2 style="margin:22px 0 4px;color:#10203a;font-size:22px">Create your account 🚀</h2>
         <div class="muted" style="font-size:13px;margin-bottom:16px">Join the Skill Saga learning community.</div>
 
-        <div style="display:flex;background:#f1f5ff;border-radius:14px;padding:4px;margin-bottom:16px">
-          <button onclick="window.skillSagaSignupMethod='email';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${(window.skillSagaSignupMethod||'email')==='email'?'#fff':'transparent'};color:${(window.skillSagaSignupMethod||'email')==='email'?'#2463eb':'#65758b'};font-weight:700">
-            📧 Email
-          </button>
-          <button onclick="window.skillSagaSignupMethod='mobile';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${window.skillSagaSignupMethod==='mobile'?'#fff':'transparent'};color:${window.skillSagaSignupMethod==='mobile'?'#2463eb':'#65758b'};font-weight:700">
-            📱 Mobile
-          </button>
-        </div>
+        ${(emailSignup&&mobileSignupEnabled)?'<div class="authmethodtabs"><button onclick="window.skillSagaSignupMethod=\'email\';loginScreen()">📧 Email</button><button onclick="window.skillSagaSignupMethod=\'mobile\';loginScreen()">📱 Mobile</button></div>':''}
 
         <input id="name" class="input" autocomplete="name" placeholder="Your full name">
 
