@@ -22,8 +22,66 @@ window.ssAdminV3Records=async function(){if(!ok())return;var a=await docs('quizA
 window.ssAdminV3Relationships=async function(){if(!ok())return;var r=await docs('relationships');page('Relationships','Parent, teacher and learner links.',r.length?r.slice(0,100).map(function(x){return '<div class="card"><b>'+esc(x.status||'active')+'</b><div class="small muted">Learner: '+esc(x.studentUid||'')+'<br>Parent: '+esc(x.parentUid||'—')+'<br>Teacher: '+esc(x.teacherUid||'—')+'</div></div>'}).join(''):'<div class="card">No relationships found.</div>')}
 window.ssAdminV3Learners=async function(){if(!ok())return;var u=await docs('users'),l=u.filter(function(x){return !x.role||x.role==='learner'});page('Learner Profiles','Review learner identity fields used across Learn, Play and Compete.',l.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.name||x.displayName||'Learner')+'</b><span class="badge">'+esc(x.role||'learner')+'</span></div><div class="small muted">Class: '+esc(x.studentClass||x.classNumber||'—')+' • Board: '+esc(x.board||'—')+'<br>Academic Year: '+esc(x.academicYear||'—')+'<br>State: '+esc(x.state||'—')+' • District: '+esc(x.district||'—')+'<br>School: '+esc(x.school||'—')+'<br>XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+' • Level: '+esc(x.level||1)+'</div></div>'}).join('')||'<div class="card">No learner profiles found.</div>')}
 window.ssAdminV3Leaderboards=async function(){if(!ok())return;var r=await docs('leaderboards');page('Leaderboards','Review published leaderboard records.',r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Leaderboard')+'</b><span class="badge">'+esc(x.status||'published')+'</span></div><div class="small muted">Scope: '+esc(x.scope||x.type||'Overall')+' • Class: '+esc(x.classLevel||'All')+'</div></div>'}).join(''):'<div class="card">No leaderboard records yet.</div>')}
-window.ssAdminV3Rewards=async function(){if(!ok())return;var r=await docs('rewards'),bds=await docs('badges');page('Rewards & Badges','Manage learner rewards and badges.','<div class="card admin">'+btn('＋ Add Reward','ssAdminV3RewardForm()','gold')+'</div><div class="section"><b>Rewards ('+r.length+')</b></div>'+(r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">Coins: '+esc(x.coins||0)+' • XP: '+esc(x.xp||0)+'</div></div>'}).join(''):'<div class="card">No rewards yet.</div>')+'<div class="section"><b>Badges ('+bds.length+')</b></div>'+(bds.length?bds.slice(0,100).map(function(x){return '<div class="card"><b>'+esc(x.title||x.name||'Badge')+'</b><div class="small muted">'+esc(x.description||'')+'</div></div>'}).join(''):'<div class="card">No badges yet.</div>'))}
-window.ssAdminV3RewardForm=function(){if(!ok())return;page('Add Reward','Create a learner reward.','<div class="card"><input id="rvTitle" class="input" placeholder="Reward title"><input id="rvCoins" class="input" type="number" placeholder="Coins cost"><input id="rvXp" class="input" type="number" placeholder="XP value"><textarea id="rvDesc" class="area" rows="3" placeholder="Description"></textarea>'+btn('Save Reward','ssAdminV3SaveReward()','gold')+'</div>')}
-window.ssAdminV3SaveReward=async function(){if(!ok())return;var t=rvTitle.value.trim();if(!t)return toastx('Enter a reward title.');try{await db().collection('rewards').add({title:t,coins:Number(rvCoins.value)||0,xp:Number(rvXp.value)||0,description:rvDesc.value.trim(),status:'draft',published:false,createdBy:auth().uid,createdAt:ssAdminStamp(),updatedAt:ssAdminStamp()});toastx('Reward saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save reward')}};
+window.ssAdminV3Rewards=async function(){
+ if(!ok())return;
+ var r=await docs('rewards'),bds=await docs('badges');
+ page('Rewards & Badges','Manage learner rewards and badges.',
+ '<div class="card admin">'+btn('＋ Add Reward','ssAdminV3RewardForm("")','gold')+btn('＋ Add Badge','ssAdminV3BadgeForm("")')+'</div>'+
+ '<div class="section"><b>Rewards ('+r.length+')</b></div>'+
+ (r.length?r.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">Coins: '+esc(x.coins||0)+' • XP: '+esc(x.xp||0)+'<br>'+esc(x.description||'')+'</div><div class="row" style="margin-top:8px">'+btn('Edit','ssAdminV3RewardForm("'+esc(x.id)+'")')+btn('Delete','ssAdminV3DeleteReward("'+esc(x.id)+'")','light')+'</div></div>'}).join(''):'<div class="card">No rewards yet.</div>')+
+ '<div class="section"><b>Badges ('+bds.length+')</b></div>'+
+ (bds.length?bds.slice(0,100).map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Badge')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">'+esc(x.description||'')+'</div><div class="row" style="margin-top:8px">'+btn('Edit','ssAdminV3BadgeForm("'+esc(x.id)+'")')+btn('Delete','ssAdminV3DeleteBadge("'+esc(x.id)+'")','light')+'</div></div>'}).join(''):'<div class="card">No badges yet.</div>')
+ );
+};
+window.ssAdminV3RewardForm=function(id){
+ if(!ok())return;
+ var x={};
+ if(id){return db().collection('rewards').doc(id).get().then(function(s){if(s.exists)x=s.data();ssAdminV3RewardFormLoaded(id,x)})}
+ ssAdminV3RewardFormLoaded('',x);
+};
+window.ssAdminV3RewardFormLoaded=function(id,x){
+ page(id?'Edit Reward':'Add Reward','Create or update a learner reward.','<div class="card">'+
+ '<input id="rvTitle" class="input" placeholder="Reward title" value="'+esc(x.title||'')+'">'+
+ '<input id="rvCoins" class="input" type="number" min="0" placeholder="Coins cost" value="'+esc(x.coins==null?'':x.coins)+'">'+
+ '<input id="rvXp" class="input" type="number" min="0" placeholder="XP value" value="'+esc(x.xp==null?'':x.xp)+'">'+
+ '<textarea id="rvDesc" class="area" rows="3" placeholder="Description">'+esc(x.description||'')+'</textarea>'+
+ '<select id="rvStatus" class="input"><option value="draft"'+((x.status||'draft')==='draft'?' selected':'')+'>Draft</option><option value="published"'+(x.status==='published'?' selected':'')+'>Published</option><option value="archived"'+(x.status==='archived'?' selected':'')+'>Archived</option></select>'+
+ btn('Save Reward','ssAdminV3SaveReward("'+esc(id)+'")','gold')+'</div>');
+};
+window.ssAdminV3SaveReward=async function(id){
+ if(!ok())return;
+ var t=document.getElementById('rvTitle').value.trim();
+ if(!t)return toastx('Enter a reward title.');
+ var d={title:t,coins:Math.max(0,Number(document.getElementById('rvCoins').value)||0),xp:Math.max(0,Number(document.getElementById('rvXp').value)||0),description:document.getElementById('rvDesc').value.trim(),status:document.getElementById('rvStatus').value,published:document.getElementById('rvStatus').value==='published',updatedBy:au().uid,updatedAt:ts()};
+ try{if(id)await db().collection('rewards').doc(id).set(d,{merge:true});else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('rewards').add(d)}toastx('Reward saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save reward')}
+};
+window.ssAdminV3DeleteReward=async function(id){
+ if(!ok()||!id)return;
+ if(!confirm('Delete this reward permanently?'))return;
+ try{await db().collection('rewards').doc(id).delete();toastx('Reward deleted ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not delete reward')}
+};
+window.ssAdminV3BadgeForm=async function(id){
+ if(!ok())return;
+ var x={};
+ if(id){var s=await db().collection('badges').doc(id).get();if(s.exists)x=s.data()}
+ page(id?'Edit Badge':'Add Badge','Create or update a learner badge.','<div class="card">'+
+ '<input id="bdTitle" class="input" placeholder="Badge title" value="'+esc(x.title||x.name||'')+'">'+
+ '<textarea id="bdDesc" class="area" rows="3" placeholder="Description">'+esc(x.description||'')+'</textarea>'+
+ '<input id="bdXp" class="input" type="number" min="0" placeholder="XP reward (optional)" value="'+esc(x.xp==null?'':x.xp)+'">'+
+ '<select id="bdStatus" class="input"><option value="draft"'+((x.status||'draft')==='draft'?' selected':'')+'>Draft</option><option value="published"'+(x.status==='published'?' selected':'')+'>Published</option><option value="archived"'+(x.status==='archived'?' selected':'')+'>Archived</option></select>'+
+ btn('Save Badge','ssAdminV3SaveBadge("'+esc(id)+'")','gold')+'</div>');
+};
+window.ssAdminV3SaveBadge=async function(id){
+ if(!ok())return;
+ var t=document.getElementById('bdTitle').value.trim();
+ if(!t)return toastx('Enter a badge title.');
+ var d={title:t,name:t,description:document.getElementById('bdDesc').value.trim(),xp:Math.max(0,Number(document.getElementById('bdXp').value)||0),status:document.getElementById('bdStatus').value,published:document.getElementById('bdStatus').value==='published',updatedBy:au().uid,updatedAt:ts()};
+ try{if(id)await db().collection('badges').doc(id).set(d,{merge:true});else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('badges').add(d)}toastx('Badge saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save badge')}
+};
+window.ssAdminV3DeleteBadge=async function(id){
+ if(!ok()||!id)return;
+ if(!confirm('Delete this badge permanently?'))return;
+ try{await db().collection('badges').doc(id).delete();toastx('Badge deleted ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not delete badge')}
+};
 window.ssAdminBootModules();
 })();
