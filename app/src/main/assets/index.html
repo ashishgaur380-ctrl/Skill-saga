@@ -5530,6 +5530,51 @@ function loginScreen(){
     </div>
   </div>`;
 }
+async function signup(){
+  var nameEl=document.getElementById('name'),emailEl=document.getElementById('email'),passwordEl=document.getElementById('password');
+  var name=nameEl?nameEl.value.trim():'',email=emailEl?emailEl.value.trim().toLowerCase():'',password=passwordEl?passwordEl.value:'';
+  var role=(document.getElementById('signupRole')||{}).value||'learner';
+  if(!name)return toast('Enter your full name');
+  if(!email)return toast('Enter your email address');
+  if(!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email))return toast('Enter a valid email address');
+  if(password.length<6)return toast('Password must be at least 6 characters');
+  if(!['learner','parent','teacher'].includes(role))role='learner';
+  if(!firebaseReady)return toast('Firebase is not connected');
+  try{
+    window.skillSagaEmailSignupInProgress=true;
+    var result=await firebase.auth().createUserWithEmailAndPassword(email,password);
+    var authUser=result.user;
+    cloudUser=authUser;
+    try{await authUser.updateProfile({displayName:name});}catch(profileErr){console.warn('Profile name update failed',profileErr);}
+    var data=freshUser(name,email);
+    data.role=role;
+    data.uid=authUser.uid;
+    data.email=email;
+    data.emailVerified=false;
+    data.phoneVerified=false;
+    if(role==='learner')data.linkCode=makeLinkCode();
+    ensureUserData(data);
+    await saveCloudUser(data,authUser);
+    if(role==='learner')await saveStudentDirectory(data);
+    local.user=data;
+    writeLocal(data);
+    try{await authUser.sendEmailVerification();}catch(verifyErr){console.warn('Verification email send failed',verifyErr);}
+    await firebase.auth().signOut();
+    cloudUser=null;
+    window.skillSagaEmailSignupInProgress=false;
+    showEmailVerification(email);
+    toast('Account created. Please verify your email.');
+  }catch(err){
+    window.skillSagaEmailSignupInProgress=false;
+    cloudUser=null;
+    var msg=err.code==='auth/email-already-in-use'?'An account with this email already exists. Please log in.':
+      err.code==='auth/invalid-email'?'Enter a valid email address.':
+      err.code==='auth/weak-password'?'Password must be at least 6 characters.':
+      (err.message||'Could not create account.');
+    toast(msg);
+  }
+}
+
 function cleanupPhoneVerifier(){
   try{if(window.skillSagaRecaptcha)window.skillSagaRecaptcha.clear();}catch(e){}
   window.skillSagaRecaptcha=null;
@@ -7021,7 +7066,7 @@ function roleDashboard(){
   return home();
 }
 
-function boot(){if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;var isBootstrapAdmin=fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2';var hasPasswordProvider=Array.isArray(fu.providerData)&&fu.providerData.some(function(p){return p&&p.providerId==='password';});if(hasPasswordProvider&&!fu.emailVerified&&!isBootstrapAdmin){await firebase.auth().signOut();showEmailVerification(fu.email||'your email address');return}try{let remote=await cloudUserDoc();if(remote){local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...remote};}else{local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};}if(fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2')local.user.role='admin';if(local.user.accountStatus==='disabled'&&fu.uid!=='4Jme1MoSmHbjzwVjkvxeNSwPp0U2'){await firebase.auth().signOut();toast('Your Skill Saga account is disabled. Please contact an administrator.');return}ensureUserData(local.user);if(!local.user.name)local.user.name=fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner');await persistUser(local.user);await loadCloudContent();roleDashboard()}catch(e){console.warn('User profile load failed',e);local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};ensureUserData(local.user);await loadCloudContent();roleDashboard()}})}
+function boot(){if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;var isBootstrapAdmin=fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2';var hasPasswordProvider=Array.isArray(fu.providerData)&&fu.providerData.some(function(p){return p&&p.providerId==='password';});if(hasPasswordProvider&&!fu.emailVerified&&!isBootstrapAdmin&&!window.skillSagaEmailSignupInProgress){await firebase.auth().signOut();showEmailVerification(fu.email||'your email address');return}try{let remote=await cloudUserDoc();if(remote){local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...remote};}else{local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};}if(fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2')local.user.role='admin';if(local.user.accountStatus==='disabled'&&fu.uid!=='4Jme1MoSmHbjzwVjkvxeNSwPp0U2'){await firebase.auth().signOut();toast('Your Skill Saga account is disabled. Please contact an administrator.');return}ensureUserData(local.user);if(!local.user.name)local.user.name=fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner');await persistUser(local.user);await loadCloudContent();roleDashboard()}catch(e){console.warn('User profile load failed',e);local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};ensureUserData(local.user);await loadCloudContent();roleDashboard()}})}
 boot();
 </script>
 
