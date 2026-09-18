@@ -2005,31 +2005,38 @@ async function loadCloudContent(){
   }
 }
 
-function daily(){
+function challengeByPlacement(module,destination,type){
   var today=new Date().toISOString().slice(0,10);
   var arr=Array.isArray(local.content)?local.content:[];
-  return arr.find(function(x){
-    return x.type==='daily'&&(x.publishDate||x.date)===today;
-  })||arr.find(function(x){
-    return x.type==='daily'&&(x.publishDate||x.date)<=today;
-  })||arr.find(function(x){
-    return x.type==='daily';
-  })||fallbackQuiz;
+  function isLive(x){
+    if(!x||x.published===false)return false;
+    var pd=x.publishDate||x.date||'';
+    return !pd||pd<=today;
+  }
+  function matches(x){
+    if(!isLive(x))return false;
+    var p=x.placement||{};
+    var m=x.primaryModule||p.module||'';
+    var dest=x.primaryDestination||p.destination||'';
+    return m===module&&dest===destination;
+  }
+  var exact=arr.find(matches);
+  if(exact)return exact;
+  if(type){
+    exact=arr.find(function(x){return isLive(x)&&x.type===type&&(x.publishDate||x.date)===today;});
+    if(exact)return exact;
+    exact=arr.find(function(x){return isLive(x)&&x.type===type&&(x.publishDate||x.date)<=today;});
+    if(exact)return exact;
+    exact=arr.find(function(x){return isLive(x)&&x.type===type;});
+    if(exact)return exact;
+  }
+  return null;
 }
-
+function daily(){
+  return challengeByPlacement('Play','Daily Quiz','daily')||fallbackQuiz;
+}
 function weekly(){
-  var today=new Date().toISOString().slice(0,10);
-  var arr=Array.isArray(local.content)?local.content:[];
-
-  return arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)===today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false &&
-      (x.publishDate||x.date)<=today;
-  }) || arr.find(function(x){
-    return x.type==='weekly' && x.published!==false;
-  }) || null;
+  return challengeByPlacement('Compete','Weekly Challenge','weekly');
 }
 
 async function leaderboardData(){
