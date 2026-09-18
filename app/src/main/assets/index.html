@@ -7098,6 +7098,8 @@ function roleDashboard(){
   if(u.role==='parent')return parentDashboard();
   if(u.role==='teacher')return teacherDashboard();
   if(u.role==='admin')return admin();
+  // Learners must enter through the final UI controller so Admin Home settings and the new Home renderer apply.
+  if(typeof window.go==='function')return window.go('home');
   return home();
 }
 
