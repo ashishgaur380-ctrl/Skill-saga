@@ -34,5 +34,5 @@ window.ssAdminCompetitionSave=async function(id){
    toast('Competition saved ✓');ssAdminCompetitionControl();
  }catch(e){toast(e.message||'Could not save competition')}
 };
-})();
 window.ssAdminCompetitionDelete=async function(id){if(!ok()||!id)return;if(!confirm('Delete this competition permanently?'))return;try{await db().collection('competitions').doc(id).delete();toast('Competition deleted ✓');ssAdminCompetitionControl()}catch(e){toast(e.message||'Could not delete competition')}};
+})();
