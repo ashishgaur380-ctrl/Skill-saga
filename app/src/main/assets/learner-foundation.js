@@ -5,7 +5,7 @@
 'use strict';
 var cache={startup:null,authentication:null,learnerSetup:null,home:null};
 var defaults={
- startup:{enabled:true,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',forceUpdate:false},
+ startup:{enabled:true,logo:'logo.png',appName:'Skill Saga',tagline:'A smarter way to learn',splashDuration:1200,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',latestVersion:'1.0.0',forceUpdate:false},
  authentication:{emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false,requireTerms:true},
  learnerSetup:{enabled:true,requireBoard:true,requireClass:true,requireSubjects:true,requireLearningGoals:false,requireLearningProfile:false,boards:['CBSE'],classes:[1,2,3,4,5,6,7,8,9,10,11,12],defaultSubjects:[],goals:['Improve school performance','Practice regularly','Build core skills']},
  home:{enabled:true,showStats:true,showDailyMission:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'}
@@ -24,17 +24,33 @@ async function getConfig(id){
 window.ssFoundationResetConfig=function(){cache={startup:null,authentication:null,learnerSetup:null,home:null}};
 window.ssFoundationStartupGate=async function(){
   var root=document.getElementById('root');
-  if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div><img src="logo.png" style="width:86px;height:86px;border-radius:22px"><h1 style="margin:14px 0 5px">Skill Saga</h1><div class="muted">A smarter way to learn</div><div style="margin-top:18px;color:#1769ff;font-weight:800">Loading your learning space…</div></div></div>';
-  var s=await getConfig('startup');
-  await Promise.all([getConfig('authentication'),getConfig('learnerSetup'),getConfig('home')]);
-  if(s.enabled===false)return true;
-  if(s.maintenanceMode){
-    if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div class="authbox"><img src="logo.png" style="width:76px;height:76px;border-radius:20px"><h1>Skill Saga</h1><div class="notice">'+escFoundation(s.maintenanceMessage||defaults.startup.maintenanceMessage)+'</div><div class="muted">Please try again later.</div></div></div>';
+  var s;
+  try{
+    s=await getConfig('startup');
+  }catch(e){
+    if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div class="authbox"><img src="logo.png" style="width:76px;height:76px;border-radius:20px"><h1>Skill Saga</h1><div class="notice">We could not load startup settings. Please check your connection and try again.</div><button class="btn gold block" onclick="location.reload()">Retry</button></div></div>';
     return false;
   }
-  await new Promise(function(resolve){setTimeout(resolve,350)});
+  s=merge(defaults.startup,s);
+  var logo=escFoundation(s.logo||defaults.startup.logo);
+  var name=escFoundation(s.appName||defaults.startup.appName);
+  var tagline=escFoundation(s.tagline||defaults.startup.tagline);
+  if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center;background:linear-gradient(145deg,#eef4ff,#f7f1ff)"><div><img src="'+logo+'" onerror="this.src=\'logo.png\'" style="width:86px;height:86px;object-fit:contain;border-radius:22px"><h1 style="margin:14px 0 5px">'+name+'</h1><div class="muted">'+tagline+'</div><div style="margin-top:18px;color:#1769ff;font-weight:800">Loading your learning space…</div><div style="margin-top:8px;font-size:11px;color:#8a97a8">Version '+escFoundation(s.latestVersion||defaults.startup.latestVersion)+'</div><div style="margin:12px auto 0;width:120px;height:4px;border-radius:4px;background:#dbe6ff;overflow:hidden"><div style="width:45%;height:100%;background:#2463eb;animation:ssSplashLoad 1s infinite ease-in-out"></div></div></div></div>';
+  if(s.maintenanceMode){
+    if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div class="authbox"><img src="'+logo+'" onerror="this.src=\'logo.png\'" style="width:76px;height:76px;object-fit:contain;border-radius:20px"><h1>'+name+'</h1><div class="notice">'+escFoundation(s.maintenanceMessage||defaults.startup.maintenanceMessage)+'</div><div class="muted">Please try again later.</div></div></div>';
+    return false;
+  }
+  var current=(typeof window.SKILL_SAGA_APP_VERSION==='string'&&window.SKILL_SAGA_APP_VERSION)||'1.0.0';
+  function ver(v){return String(v||'0').split('.').map(function(x){var n=parseInt(x,10);return isNaN(n)?0:n})}
+  function lt(a,b){var x=ver(a),y=ver(b);for(var i=0;i<Math.max(x.length,y.length);i++){if((x[i]||0)<(y[i]||0))return true;if((x[i]||0)>(y[i]||0))return false}return false}
+  if(s.forceUpdate&&s.minimumVersion&&lt(current,s.minimumVersion)){
+    if(root)root.innerHTML='<div class="auth" style="min-height:100vh;justify-content:center;text-align:center"><div class="authbox"><img src="'+logo+'" style="width:76px;height:76px;object-fit:contain;border-radius:20px"><h1>'+name+'</h1><div class="notice"><b>Update required</b><br>Please update Skill Saga to continue.</div><div class="muted">Current: '+escFoundation(current)+' • Minimum: '+escFoundation(s.minimumVersion)+'</div></div></div>';
+    return false;
+  }
+  await new Promise(function(resolve){setTimeout(resolve,Math.max(0,Number(s.splashDuration)||1200))});
   return true;
 };
+if(!document.getElementById('ssFoundationSplashStyle')){var st=document.createElement('style');st.id='ssFoundationSplashStyle';st.textContent='@keyframes ssSplashLoad{0%{transform:translateX(-120%)}50%{transform:translateX(120%)}100%{transform:translateX(260%)}}';document.head.appendChild(st)}
 function escFoundation(v){return String(v==null?'':v).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
 function needSetup(u,o){
   if(!u||u.role!=='learner'||o.enabled===false)return false;
