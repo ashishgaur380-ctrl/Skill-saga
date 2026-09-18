@@ -32,24 +32,7 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read: if signedIn()
-        && (
-          request.auth.uid == uid
-          || isAdmin()
-          || (
-            exists(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid))
-            && get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.status == 'active'
-            && (
-              (
-                get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.parentUid == request.auth.uid
-                && hasPermission('parent.viewProgress')
-              )
-              || (
-                get(/databases/$(database)/documents/relationships/$(request.auth.uid)_$(uid)).data.teacherUid == request.auth.uid
-                && hasPermission('teacher.viewLearners')
-              )
-            )
-          )
-        );
+        && (request.auth.uid == uid || isAdmin());
 
       allow create: if isAdmin()
         || (signedIn()
@@ -119,28 +102,12 @@ service cloud.firestore {
       allow create: if isAdmin()
         || (
           signedIn()
-          && request.resource.data.studentUid == request.auth.uid
-          && request.resource.data.status == 'active'
           && (
-            (
-              request.resource.data.parentUid is string
-              && request.resource.data.parentUid != ''
-              && exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid))
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.toUid == request.auth.uid
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.fromUid == request.resource.data.parentUid
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.fromRole == 'parent'
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.status in ['pending', 'accepted']
-            )
-            || (
-              request.resource.data.teacherUid is string
-              && request.resource.data.teacherUid != ''
-              && exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid))
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.toUid == request.auth.uid
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.fromUid == request.resource.data.teacherUid
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.fromRole == 'teacher'
-              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.status in ['pending', 'accepted']
-            )
+            request.resource.data.parentUid == request.auth.uid
+            || request.resource.data.teacherUid == request.auth.uid
+            || request.resource.data.studentUid == request.auth.uid
           )
+          && request.resource.data.status == 'active'
         );
 
       allow read: if signedIn()
