@@ -121,6 +121,16 @@ service cloud.firestore {
           signedIn()
           && request.resource.data.studentUid == request.auth.uid
           && request.resource.data.status == 'active'
+          && request.resource.data.parentUid is string
+          && request.resource.data.teacherUid is string
+          && (
+            (
+              exists(/databases/$(database)/documents/linkRequests/$(request.auth.uid)_$(request.resource.data.parentUid))
+              && false
+            )
+            || exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid))
+            || exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid))
+          )
         );
 
       allow read: if signedIn()
