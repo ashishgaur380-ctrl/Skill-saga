@@ -19,6 +19,11 @@ function css(){if(document.getElementById('ss-final-ui-css'))return;var s=docume
 function U(){
   try{var x=typeof user==='function'?user():null;if(x&&x.uid)return x}catch(e){}
   try{
+    if(typeof cloudUser!=='undefined'&&cloudUser&&cloudUser.uid){
+      return {uid:cloudUser.uid,name:cloudUser.displayName||cloudUser.email||'Learner',displayName:cloudUser.displayName||'',email:cloudUser.email||''};
+    }
+  }catch(e){}
+  try{
     if(window.firebase&&firebase.auth){
       var a=firebase.auth().currentUser;
       if(a&&a.uid)return {uid:a.uid,name:a.displayName||a.email||'Learner',displayName:a.displayName||'',email:a.email||''};
