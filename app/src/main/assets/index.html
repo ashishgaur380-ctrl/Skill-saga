@@ -2032,7 +2032,7 @@ function weekly(){
   }) || null;
 }
 
-async async function leaderboardConfig(){
+async function leaderboardConfig(){
   var cfg={enabled:true,scope:'overall',period:'allTime',limit:20};
   if(cloudDb){try{var s=await cloudDb.collection('appSettings').doc('leaderboards').get();if(s.exists)cfg=Object.assign(cfg,s.data())}catch(e){}}
   return cfg;
@@ -2053,8 +2053,8 @@ async function leaderboardData(){
 }
 async function rank(){let u=user();let arr=await leaderboardData();return 1+arr.filter(x=>(x.studentXp||x.xp||0)>(u.xp||0)).length}
 function shell(content){var u=user();var adminButton=u&&u.role==='admin'?'<button class="iconbtn" onclick="admin()" title="Admin Console">🛠️</button>':'';document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><div style="display:flex;align-items:center;gap:6px">${adminButton}<button class="iconbtn" onclick="notifications()">🔔</button></div></header><main class="main">${content}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="learn">📚<span>Learn</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
-async function go(n){screen=n;if(n==='home')return home();if(n==='learn')return learn();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile();if(n==='settings')return settings();if(n==='progress')return progress();if(n==='history')return history();if(n==='rewards')return rewardsScreen()}
-async async function home(){
+async function go(n){screen=n;if(n==='home')return home();if(n==='learn')return learn();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile();if(n==='settings')return settings();if(n==='progress')return progress();if(n==='history')return history();if(n==='rewards')return rewardsScreen();if(n==='challenges')return challengesScreen();if(n==='notifications')return notifications()}
+async function home(){
   let u=user();
   if(!u)return loginScreen();
 
@@ -4926,7 +4926,7 @@ async function respondLinkRequest(requestId,action){
   }
 }
 
-async async function loadPublishedNotifications(){
+async function loadPublishedNotifications(){
   if(!cloudDb)return [];
   try{
     var s=await cloudDb.collection('notifications').where('status','==','published').get();
@@ -4940,7 +4940,7 @@ async async function loadPublishedNotifications(){
     }).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))}).slice(0,20);
   }catch(e){return []}
 }
-function notifications(){
+async function notifications(){
   var u=user();
   var requests=await loadLinkRequests();
   var published=await loadPublishedNotifications();
