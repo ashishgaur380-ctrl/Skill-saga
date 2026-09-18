@@ -38,6 +38,8 @@ function competitionStats(u){var x=u&&u.competitionStats&&typeof u.competitionSt
 function base(content,active){
   if(typeof legacyShell==='function')legacyShell(content);else if(typeof shell==='function')shell(content);
   var nav=document.querySelector('.nav');if(!nav)return;
+  notificationCss();
+  ssRefreshNotificationBell();
   nav.innerHTML='<button data-s="home">⌂<span>Home</span></button><button data-s="learn">▣<span>Learn</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="profile">●<span>Profile</span></button>';
   nav.querySelectorAll('button').forEach(function(b){b.classList.toggle('active',b.dataset.s===active);b.onclick=function(){window.go(b.dataset.s)}});
 }
@@ -190,9 +192,65 @@ window.ssReportForumPost=async function(postId){
   var reason=prompt('Why are you reporting this discussion?','Inappropriate or unrelated content');if(!reason)return;
   try{await cloudDb.collection('forumReports').add({postId:postId,reporterUid:u.uid,reason:reason.trim(),status:'open',createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Report submitted ✓');}catch(e){toast(e.message||'Could not submit report.');}
 };
-function bind(){css();if(!document.querySelector('.nav'))return;document.querySelectorAll('.nav button').forEach(function(b){if(b.dataset.s==='skills'){b.dataset.s='learn';b.innerHTML='▣<span>Learn</span>'}})}
+function notificationCss(){if(document.getElementById('ss-notification-css'))return;var s=document.createElement('style');s.id='ss-notification-css';s.textContent=".ss-notification-bell{position:relative!important}.ss-notification-badge{position:absolute;right:3px;top:2px;min-width:15px;height:15px;padding:0 4px;border-radius:9px;background:#ef3f4f;color:#fff;font-size:9px;font-weight:1000;line-height:15px;text-align:center;border:2px solid #07152f;box-sizing:border-box}.ss-notification-new{display:inline-block;padding:3px 6px;border-radius:7px;background:#fff0f1;color:#d62f40;font-size:8px;font-weight:1000;margin-left:5px}.ss-notification-card{position:relative}.ss-notification-card.unread{border:1px solid #d7e4ff;box-shadow:0 7px 22px rgba(23,105,255,.10)}.ss-notification-card .ss-notification-time{display:block;margin-top:5px;font-size:9px;color:#8793a8}";document.head.appendChild(s)}
+function ssNotificationSeenKey(){var u=U()||{};return 'skillSagaSeenNotifications_'+String(u.uid||'guest');}
+function ssNotificationSeen(){try{var a=JSON.parse(localStorage.getItem(ssNotificationSeenKey())||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function ssNotificationMarkSeen(ids){try{localStorage.setItem(ssNotificationSeenKey(),JSON.stringify(ids.slice(-200)))}catch(e){}}
+async function ssPublishedNotifications(){
+  var u=U()||{},role=String(u.role||'learner').toLowerCase(),arr=[];
+  try{
+    if(typeof cloudDb==='undefined'||!cloudDb)return [];
+    var snap=await cloudDb.collection('notifications').where('status','==','published').get();
+    arr=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){
+      var a=String(x.audience||'all').toLowerCase();
+      return a==='all'||a===role;
+    });
+    arr.sort(function(a,b){
+      var at=a.createdAt&&typeof a.createdAt.toMillis==='function'?a.createdAt.toMillis():(a.createdAt&&a.createdAt.seconds?Number(a.createdAt.seconds)*1000:0);
+      var bt=b.createdAt&&typeof b.createdAt.toMillis==='function'?b.createdAt.toMillis():(b.createdAt&&b.createdAt.seconds?Number(b.createdAt.seconds)*1000:0);
+      return bt-at;
+    });
+  }catch(e){console.warn('Published notifications load failed',e)}
+  return arr.slice(0,50);
+}
+async function ssRefreshNotificationBell(){
+  notificationCss();
+  var buttons=document.querySelectorAll('.top .iconbtn');
+  if(!buttons.length)return;
+  var bell=buttons[buttons.length-1];
+  bell.classList.add('ss-notification-bell');
+  var old=bell.querySelector('.ss-notification-badge');if(old)old.remove();
+  var arr=await ssPublishedNotifications(),seen=ssNotificationSeen();
+  var unread=arr.filter(function(x){return seen.indexOf(x.id)===-1}).length;
+  if(unread){
+    var b=document.createElement('span');b.className='ss-notification-badge';b.textContent=unread>99?'99+':String(unread);bell.appendChild(b);
+  }
+}
+async function ssLiveNotifications(){
+  var u=U();if(!u)return loginScreen();
+  var requests=typeof loadLinkRequests==='function'?await loadLinkRequests():[];
+  var requestHtml=requests.length?
+    '<div class="section"><b>Pending Link Requests</b></div>'+
+    requests.map(function(r){
+      var role=r.fromRole==='teacher'?'👩‍🏫':'👨‍👩‍👧',roleText=r.fromRole==='teacher'?'Teacher':'Parent';
+      return '<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">'+role+'</div><div style="flex:1"><b>'+esc(r.fromName||roleText)+'</b><div class="muted">'+esc(roleText)+' wants to connect with your Skill Saga learning profile.</div><div style="display:flex;gap:8px;margin-top:10px"><button class="btn" onclick="respondLinkRequest(\''+r.id+'\',\'accepted\')">Accept</button><button class="btn light" onclick="respondLinkRequest(\''+r.id+'\',\'rejected\')">Reject</button></div></div></div></div>';
+    }).join(''):'';
+  var arr=await ssPublishedNotifications(),seen=ssNotificationSeen();
+  var notificationHtml=arr.length?
+    '<div class="section"><b>Admin Updates</b><span class="muted">'+arr.length+' published</span></div>'+
+    arr.map(function(n){
+      var unread=seen.indexOf(n.id)===-1;
+      var dt=n.createdAt&&typeof n.createdAt.toDate==='function'?n.createdAt.toDate():null;
+      var when=dt?dt.toLocaleString():'';
+      return '<div class="card ss-notification-card '+(unread?'unread':'')+'" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🔔</div><div style="flex:1"><b>'+esc(n.title||'Notification')+(unread?'<span class="ss-notification-new">NEW</span>':'')+'</b><div class="muted" style="margin-top:4px">'+esc(n.body||'')+'</div>'+(when?'<span class="ss-notification-time">'+esc(when)+'</span>':'')+'</div></div></div>';
+    }).join('')
+    :'<div class="section"><b>Admin Updates</b></div><div class="card"><div class="muted">No admin announcements yet.</div></div>';
+  shell('<div class="row" style="margin-bottom:14px"><div><h1 style="margin:0">Notifications</h1><div class="muted">Stay updated with your Skill Saga journey.</div></div></div>'+requestHtml+notificationHtml+'<div class="section"><b>For You</b><span class="muted">Your latest learning updates</span></div><div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🎯</div><div style="flex:1"><b>Daily Challenge is Ready</b><div class="muted" style="margin-top:4px">Complete today\'s challenge and keep building your streak.</div><button class="btn gold block" style="margin-top:10px" onclick="startQuiz(\''+daily().id+'\')">Start Challenge</button></div></div></div>'+ (u.streak>0?'<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🔥</div><div style="flex:1"><b>'+u.streak+' day streak!</b><div class="muted" style="margin-top:4px">Keep practicing today to protect your learning streak.</div></div></div></div>':'<div class="card" style="margin-bottom:10px"><div class="row"><div style="font-size:28px">🌱</div><div style="flex:1"><b>Start Your Learning Streak</b><div class="muted" style="margin-top:4px">Complete a quiz today and begin building your streak.</div></div></div></div>'));
+  ssNotificationMarkSeen(arr.map(function(x){return x.id}).concat(seen).filter(function(x,i,a){return a.indexOf(x)===i}));
+}
+function bind(){css();notificationCss();if(!document.querySelector('.nav'))return;document.querySelectorAll('.nav button').forEach(function(b){if(b.dataset.s==='skills'){b.dataset.s='learn';b.innerHTML='▣<span>Learn</span>'}})}
 window.shell=function(content){legacyShell(content);bind()};
 window.go=function(n){window.screen=n;if(n==='home')return homeFinal();if(n==='learn'||n==='skills')return learnFinal();if(n==='play')return playFinal();if(n==='compete')return competeFinal();if(n==='profile')return legacyProfile();return legacyGo(n)};
-window.home=homeFinal;window.play=playFinal;window.compete=competeFinal;window.skills=learnSkills;window.ssLearnSkills=learnSkills;window.ssClass=ssClass;window.ssPlayAction=ssPlayAction;window.ssForum=forum;
+window.home=homeFinal;window.play=playFinal;window.compete=competeFinal;window.notifications=ssLiveNotifications;window.skills=learnSkills;window.ssLearnSkills=learnSkills;window.ssClass=ssClass;window.ssPlayAction=ssPlayAction;window.ssForum=forum;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
