@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - admin-console-production-pass-20260918
+      - main
   workflow_dispatch:
 
 permissions:
