@@ -44,8 +44,10 @@ async function forum(){
       base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">COMMUNITY</div><h1 class="ss-title">Discussion Forum</h1><div class="ss-sub">The forum is temporarily disabled by Skill Saga Admin.</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">💬</div></div></section><div class="ss-final-note">Please check again later.</div></div>','compete');
       return;
     }
-    var gs=await cloudDb.collection('forumGroups').get();
-    var groups=gs.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+    var pubSnap=await cloudDb.collection('forumGroups').where('status','==','published').get();
+    var ownSnap=await cloudDb.collection('forumGroups').where('ownerUid','==',u.uid).get();
+    var seen={};
+    var groups=pubSnap.docs.concat(ownSnap.docs).filter(function(d){if(seen[d.id])return false;seen[d.id]=true;return true}).map(function(d){return Object.assign({id:d.id},d.data())});
     var mine=groups.filter(function(g){return g.ownerUid===u.uid});
     var visible=groups.filter(function(g){return g.status==='published'||g.ownerUid===u.uid});
     var approval=settings.forumGroupApproval!==false;
@@ -96,8 +98,8 @@ window.ssOpenForumGroup=async function(id){
     var mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
     var isOwner=g.ownerUid===u.uid;
     if(!mem.exists&&!isOwner)return ssJoinForumGroup(id,g);
-    var ps=await cloudDb.collection('forumPosts').get();
-    var posts=ps.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(p){return p.groupId===id&&p.status==='published'}).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))});
+    var ps=await cloudDb.collection('forumPosts').where('groupId','==',id).where('status','==','published').get();
+    var posts=ps.docs.map(function(d){return Object.assign({id:d.id},d.data())}).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))});
     var body=posts.slice(0,50).map(function(p){
       return '<div class="ss-card"><div class="row"><b>'+esc(p.title||'Discussion')+'</b><span class="badge">'+esc(p.authorName||'Learner')+'</span></div><small>'+esc(String(p.body||''))+'</small><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button class="ss-action" onclick="ssReplyForumPost(\''+esc(p.id)+'\')">Reply</button><button class="ss-action" style="background:#fff;color:#1769ff;border:1px solid #dfe6f2" onclick="ssReportForumPost(\''+esc(p.id)+'\')">Report</button></div><div id="reply_'+esc(p.id)+'"></div></div>';
     }).join('');
