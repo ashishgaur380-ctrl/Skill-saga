@@ -119,8 +119,9 @@ async function competeFinal(){
   var d=await ssData(),u=d.u||{},n=ssClassNumber(u),now=Date.now();
   var comps=d.competitions.filter(function(c){return ssPublished(c)&&(!c.classLevel||Number(c.classLevel)===n||String(c.classLevel).toLowerCase()==='all');});
   var mine=d.results.filter(function(r){return r.uid===u.uid;});
+  var cs=u.competitionStats&&typeof u.competitionStats==='object'?u.competitionStats:{joined:0,points:0,top3:0};
   var upcoming=comps.filter(function(c){var t=Date.parse(c.startAt||c.startDate||'');return !t||t>=now;});
-  var joined=mine.length,points=mine.reduce(function(a,r){return a+Number(r.points||r.competitionPoints||r.score||0)},0),top3=mine.filter(function(r){return Number(r.rank||99)<=3}).length;
+  var joined=mine.length||Number(cs.joined||0),points=mine.length?mine.reduce(function(a,r){return a+Number(r.points||r.competitionPoints||r.score||0)},0):Number(cs.points||0),top3=mine.length?mine.filter(function(r){return Number(r.rank||99)<=3}).length:Number(cs.top3||0);
   var compHtml=comps.slice(0,8).map(function(c){var qs=Array.isArray(c.quizIds)?c.quizIds.length:Number(c.questionCount||0);return '<div class="ss-event"><div class="ss-date">'+esc(String(c.startAt||c.startDate||'').slice(0,10)||'—')+'</div><div class="ss-event-main"><b>'+esc(c.title||'Competition')+'</b><small>'+esc(c.subject||c.category||'General')+' • '+qs+' Questions • '+esc(c.durationMinutes||30)+' Minutes</small></div><button onclick="ssOpenCompetition(''+esc(c.id)+'')">Explore</button></div>'}).join('');
   if(!compHtml)compHtml='<div class="ss-card"><small>No published competitions for your class yet.</small></div>';
   var forumLink='<div class="ss-forum"><b>💬 Learn. Discuss. Grow.</b><p>Ask questions, share ideas and discuss subjects, skills and competitions with the Skill Saga community.</p><button onclick="window.ssForum()">Open Discussion Forum →</button></div>';
