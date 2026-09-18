@@ -121,15 +121,25 @@ service cloud.firestore {
           signedIn()
           && request.resource.data.studentUid == request.auth.uid
           && request.resource.data.status == 'active'
-          && request.resource.data.parentUid is string
-          && request.resource.data.teacherUid is string
           && (
             (
-              exists(/databases/$(database)/documents/linkRequests/$(request.auth.uid)_$(request.resource.data.parentUid))
-              && false
+              request.resource.data.parentUid is string
+              && request.resource.data.parentUid != ''
+              && exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid))
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.toUid == request.auth.uid
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.fromUid == request.resource.data.parentUid
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.fromRole == 'parent'
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid)).data.status in ['pending', 'accepted']
             )
-            || exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.parentUid)_$(request.auth.uid))
-            || exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid))
+            || (
+              request.resource.data.teacherUid is string
+              && request.resource.data.teacherUid != ''
+              && exists(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid))
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.toUid == request.auth.uid
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.fromUid == request.resource.data.teacherUid
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.fromRole == 'teacher'
+              && get(/databases/$(database)/documents/linkRequests/$(request.resource.data.teacherUid)_$(request.auth.uid)).data.status in ['pending', 'accepted']
+            )
           )
         );
 
