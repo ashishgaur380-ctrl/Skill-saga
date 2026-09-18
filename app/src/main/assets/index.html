@@ -2039,6 +2039,7 @@ async function leaderboardConfig(){
   return cfg;
 }
 async function leaderboardData(){
+  if(!(await ssCentralFeatureEnabled('leaderboardEnabled')))return [];
   let me=user(),cfg=await leaderboardConfig();
   if(cfg.enabled===false)return [];
   let arr=[];
