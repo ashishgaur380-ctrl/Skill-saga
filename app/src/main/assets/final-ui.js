@@ -76,7 +76,7 @@ async function forum(){
       '</div>';
     }).join('');
     base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">COMMUNITY</div><h1 class="ss-title">Learn. Discuss. Grow.</h1><div class="ss-sub">Create learning groups, ask questions, share ideas and learn together.</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">💬</div></div></section>'+
-      '<div class="ss-card ss-soft" style="margin-bottom:10px"><b>Create a Discussion Group</b><small>Choose a class and subject. '+(approval?'New groups are reviewed by Admin before public publication.':'New groups are published immediately and remain under Admin moderation.')+'</small>'+
+      '<div class="ss-card ss-soft" style="margin-bottom:10px"><b>Create a Discussion Group</b><small>Choose a class and subject. '+(approval?'New groups are reviewed by Admin before publication.':'New groups are published immediately and remain under Admin moderation.')+'</small>'+
       '<input id="fgTitle" class="input" placeholder="Group title">'+
       '<textarea id="fgDesc" class="area" rows="3" placeholder="What will learners discuss?"></textarea>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="fgClass" class="input" type="number" min="1" max="12" placeholder="Class (1–12)"><input id="fgSubject" class="input" placeholder="Subject"></div>'+
@@ -165,8 +165,8 @@ window.ssCreateForumPost=async function(groupId){
   var t=(document.getElementById('fpTitle')||{}).value||'',b=(document.getElementById('fpBody')||{}).value||'';t=t.trim();b=b.trim();
   if(!t||!b)return toast('Enter a discussion title and message.');
   try{
-    await cloudDb.collection('forumPosts').add({groupId:groupId,title:t,body:b,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'pending',type:'post',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    toast('Discussion submitted for Admin review ✓');ssOpenForumGroup(groupId);
+    await cloudDb.collection('forumPosts').add({groupId:groupId,title:t,body:b,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'published',type:'post',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Discussion posted ✓');ssOpenForumGroup(groupId);
   }catch(e){toast(e.message||'Could not submit discussion.');}
 };
 window.ssReplyForumPost=function(postId){
@@ -179,8 +179,8 @@ window.ssSubmitForumReply=async function(postId){
   try{
     var p=await cloudDb.collection('forumPosts').doc(postId).get();if(!p.exists)return toast('Discussion not found.');
     var d=p.data();
-    await cloudDb.collection('forumPosts').add({groupId:d.groupId,parentId:postId,title:'Reply',body:body,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'pending',type:'reply',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    toast('Reply submitted for Admin review ✓');ssOpenForumGroup(d.groupId);
+    await cloudDb.collection('forumPosts').add({groupId:d.groupId,parentId:postId,title:'Reply',body:body,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'published',type:'reply',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Reply posted ✓');ssOpenForumGroup(d.groupId);
   }catch(e){toast(e.message||'Could not submit reply.');}
 };
 window.ssReportForumPost=async function(postId){
