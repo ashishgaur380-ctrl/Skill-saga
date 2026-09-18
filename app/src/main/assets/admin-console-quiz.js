@@ -18,8 +18,31 @@ window.saveAdminQuiz=async function(id){if(!ok())return;try{var d=quizDataFromFo
 window.previewAdminQuizById=async function(id){if(!ok())return;var s=await db().collection('quizzes').doc(id).get();if(!s.exists)return toastx('Quiz not found.');var x=s.data(),qs=Array.isArray(x.questions)?x.questions:[],p=x.placement||{};ssAdminPage('Quiz Preview','Admin preview only.','<div class="card admin"><b>'+esc(x.title||'Quiz')+'</b><div class="muted">'+esc(x.category||'')+' • '+esc(x.skill||'')+' • Class '+esc(x.classLevel||'All')+'</div><div class="small muted" style="margin-top:7px">Placement: '+esc(p.module||x.primaryModule||'')+' → '+esc(p.destination||x.primaryDestination||'')+' → '+esc(p.segment||x.segment||'')+' → '+esc(p.skill||x.skill||'')+'</div></div>'+(qs.length?qs.map(function(q,i){var opts=Array.isArray(q.options)?q.options:(q.options?String(q.options).split('|'):[]);return '<div class="card"><b>Q'+(i+1)+'. '+esc(q.question||q.text||'')+'</b>'+(opts.length?'<div class="small muted" style="margin-top:7px">'+opts.map(function(o){return '<div style="padding:6px 0">• '+esc(o)+'</div>'}).join('')+'</div>':'')+'<div class="small muted">Answer: '+esc(q.correctAnswer||q.answer||'—')+'</div><div class="small muted">Explanation: '+esc(q.explanation||'—')+'</div></div>'}).join(''):'<div class="card">No questions added.</div>'));};
 window.adminQuizPerformance=async function(id){if(!ok())return;var a=await ssAdminDocs('quizAttempts'),r=a.filter(function(x){return x.quizId===id}),avg=r.length?Math.round(r.reduce(function(s,x){return s+Number(x.percentage||0)},0)/r.length):0;ssAdminPage('Quiz Performance','Attempts and accuracy for this quiz.','<div class="grid"><div class="tile"><b>'+r.length+'</b><small>Attempts</small></div><div class="tile"><b>'+avg+'%</b><small>Average Accuracy</small></div></div>')};
 window.adminToggleQuiz=async function(id,publish){if(!ok())return;try{await db().collection('quizzes').doc(id).update({published:!!publish,status:publish?'published':'draft',updatedBy:au().uid,updatedAt:ts()});toastx(publish?'Quiz published ✓':'Quiz unpublished ✓');ssAdminQuiz()}catch(e){toastx(e.message||'Could not update quiz')}};
-/* Dashboard compatibility: the dashboard calls ssAdminQuiz(), while this module's primary entry point is adminQuizForm(). */
-window.ssAdminQuiz=function(id){return window.adminQuizForm(id)};
+/* Quiz Manager list: dashboard opens the list; create/edit remain separate actions. */
+window.ssAdminQuiz=async function(){
+  if(!ok())return;
+  try{
+    var a=await ssAdminDocs('quizzes');
+    var body=b('＋ Create New Quiz','adminQuizForm()','gold');
+    body+='<div class="small muted" style="margin-top:10px">'+a.length+' quiz'+(a.length===1?'':'zes')+' found.</div>';
+    body+=a.length?a.map(function(x){
+      var p=x.placement||{};
+      var placement=[p.module||x.primaryModule,p.destination||x.primaryDestination,p.segment||x.segment,p.skill||x.skill].filter(Boolean).join(' → ');
+      return '<div class="card admin" style="margin-top:10px"><div class="row"><b>'+esc(x.title||'Untitled Quiz')+'</b><span class="badge">'+esc(x.published===true?'Published':'Draft')+'</span></div>'+
+        '<div class="small muted">Class: '+esc(x.classLevel||'All')+' • Board: '+esc(x.board||'All')+' • Questions: '+(Array.isArray(x.questions)?x.questions.length:0)+'</div>'+
+        (placement?'<div class="small muted" style="margin-top:5px">Placement: '+esc(placement)+'</div>':'')+
+        '<div class="row" style="margin-top:8px">'+
+        b('Edit','adminQuizForm('+JSON.stringify(x.id)+')','light')+
+        b('Preview','previewAdminQuizById('+JSON.stringify(x.id)+')','light')+
+        b('Performance','adminQuizPerformance('+JSON.stringify(x.id)+')','light')+
+        b(x.published===true?'Unpublish':'Publish','adminToggleQuiz('+JSON.stringify(x.id)+','+(x.published===true?'false':'true')+')','gold')+
+        '</div></div>';
+    }).join(''):'<div class="card" style="margin-top:10px">No quizzes found.</div>';
+    ssAdminPage('Quiz Manager','Create, edit, preview, import, publish and schedule quizzes.',body);
+  }catch(e){
+    toastx(e.message||'Could not load quizzes');
+  }
+};
 function loadScript(src){return new Promise(function(resolve,reject){if(document.querySelector('script[src="'+src+'"]'))return resolve();var s=document.createElement('script');s.src=src;s.onload=resolve;s.onerror=function(){reject(Error('Required upload library could not be loaded.'))};document.head.appendChild(s)})}
 async function ensureZip(){if(window.JSZip)return;await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js')}
 function sheetRows(w,name){var n=name&&w.Sheets[name]?name:w.SheetNames[0];return n&&w.Sheets[n]?XLSX.utils.sheet_to_json(w.Sheets[n],{defval:''}):[]}
