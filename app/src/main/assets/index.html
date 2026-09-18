@@ -3819,9 +3819,8 @@ function skills(){
     </div>
   `);
 }
-function rewardsScreen(){
+async function rewardsScreen(){
   var u=ensureUserData(user());
-
   var rewardList=[
     {name:'First Challenge',cost:0,icon:'🎯',text:'Complete your first quiz'},
     {name:'Quick Learner',cost:50,icon:'⚡',text:'Claim for 50 Skill Saga Coins'},
@@ -3829,48 +3828,18 @@ function rewardsScreen(){
     {name:'Skill Master',cost:250,icon:'🏆',text:'Claim for 250 Skill Saga Coins'},
     {name:'Consistency Star',cost:500,icon:'⭐',text:'Claim for 500 Skill Saga Coins'}
   ];
-
+  if(cloudDb){
+    try{
+      var rs=await cloudDb.collection('rewards').where('status','==','published').get();
+      if(!rs.empty)rewardList=rs.docs.map(function(d){var x=d.data();return {name:x.title||x.name||'Reward',cost:Number(x.coins||0),xp:Number(x.xp||0),icon:x.icon||'🎁',text:x.description||'Skill Saga reward',id:d.id}});
+    }catch(e){}
+  }
   var html=rewardList.map(function(r){
     var unlocked=u.badges.includes(r.name);
-    return '<div class="card" style="margin:10px 0">'+
-      '<div class="row">'+
-        '<div>'+
-          '<b>'+r.icon+' '+esc(r.name)+'</b>'+
-          '<div class="muted">'+esc(r.text)+'</div>'+
-        '</div>'+
-        '<button class="btn '+(unlocked?'':'gold')+'" onclick="claimReward(\''+r.name+'\','+r.cost+')">'+
-          (unlocked?'Unlocked':r.cost+' 🪙')+
-        '</button>'+
-      '</div>'+
-    '</div>';
+    return '<div class="card" style="margin:10px 0"><div class="row"><div><b>'+r.icon+' '+esc(r.name)+'</b><div class="muted">'+esc(r.text)+'</div></div><button class="btn '+(unlocked?'':'gold')+'" onclick="claimReward('+JSON.stringify(r.name)+','+Number(r.cost||0)+')">'+(unlocked?'Unlocked':Number(r.cost||0)+' 🪙')+'</button></div></div>';
   }).join('');
-
-  shell(
-    '<div class="row">'+
-      '<button class="back" onclick="go(\'profile\')">‹</button>'+
-      '<h1>Rewards</h1>'+
-      '<span>🏅</span>'+
-    '</div>'+
-    '<div class="hero">'+
-      '<small>SKILL SAGA COINS</small>'+
-      '<h2>🪙 '+(u.coins||0)+'</h2>'+
-      '<p>Earn coins by learning, practicing and completing challenges.</p>'+
-    '</div>'+
-    '<div class="section"><b>🏅 Your Achievements</b></div>'+
-    (Array.isArray(u.badges)&&u.badges.length?
-      '<div class="card"><div style="display:flex;flex-wrap:wrap;gap:8px">'+
-      u.badges.map(function(b){return '<span class="badge">'+esc(b)+'</span>';}).join('')+
-      '</div></div>':
-      '<div class="card"><div class="muted">No badges earned yet. Complete quizzes and challenges to unlock achievements.</div></div>')+
-    '<div class="section"><b>Achievement Rewards</b></div>'+
-    html+
-    '<div class="card" style="margin-top:15px">'+
-      '<b>How to earn coins</b>'+
-      '<p class="muted">Complete quizzes and maintain your learning streak. Skill Saga Coins are virtual in-app rewards and have no cash value.</p>'+
-    '</div>'
-  );
+  shell('<div class="row"><button class="back" onclick="go(\'profile\')">‹</button><h1>Rewards</h1><span>🏅</span></div><div class="hero"><small>SKILL SAGA COINS</small><h2>🪙 '+(u.coins||0)+'</h2><p>Earn coins by learning, practicing and completing challenges.</p></div><div class="section"><b>🏅 Your Achievements</b></div>'+(Array.isArray(u.badges)&&u.badges.length?'<div class="card"><div style="display:flex;flex-wrap:wrap;gap:8px">'+u.badges.map(function(b){return '<span class="badge">'+esc(b)+'</span>';}).join('')+'</div></div>':'<div class="card"><div class="muted">No badges earned yet.</div></div>')+'<div class="section"><b>Achievement Rewards</b></div>'+html+'<div class="card" style="margin-top:15px"><b>How to earn coins</b><p class="muted">Complete quizzes and maintain your learning streak. Skill Saga Coins are virtual in-app rewards and have no cash value.</p></div>');
 }
-
 
 async function claimReward(name,cost){
   var u=ensureUserData(user());
