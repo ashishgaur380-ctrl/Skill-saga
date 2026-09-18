@@ -2032,6 +2032,7 @@ function weekly(){
   }) || null;
 }
 
+async function ssCentralFeatureEnabled(key){try{if(!cloudDb)return true;var s=await cloudDb.collection('appSettings').doc('general').get();if(!s.exists)return true;var v=s.data()[key];return v!==false}catch(e){return true}}
 async function leaderboardConfig(){
   var cfg={enabled:true,scope:'overall',period:'allTime',limit:20};
   if(cloudDb){try{var s=await cloudDb.collection('appSettings').doc('leaderboards').get();if(s.exists)cfg=Object.assign(cfg,s.data())}catch(e){}}
@@ -2446,7 +2447,7 @@ async function loadLearnMaterials(filters){
       if(filters){if(filters.subject&&String(x.subject||'')!==String(filters.subject))return false;if(filters.chapter&&String(x.chapter||'')!==String(filters.chapter))return false;if(filters.topic&&String(x.topic||'')!==String(filters.topic))return false;}return true;
     }).sort(function(a,b){return Number(a.displayOrder||0)-Number(b.displayOrder||0);});}catch(e){console.warn('Learn materials load failed',e);return [];}
 }
-async function learn(){var u=user();if(!u)return loginScreen();var items=await loadLearnMaterials();var subjects=[...new Set(items.map(function(x){return x.subject||'General';}))];
+async function learn(){var u=user();if(!u)return loginScreen();if(!(await ssCentralFeatureEnabled('learnEnabled')))return shell('<div class="card"><h2>Learn is temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>');var items=await loadLearnMaterials();var subjects=[...new Set(items.map(function(x){return x.subject||'General';}))];
  shell('<div class="row"><div><h1 style="margin:0">Learn</h1><div class="muted">Learn concepts step by step with your class content.</div></div></div><div class="card"><b>📚 Choose a Subject</b><div class="grid" style="margin-top:12px">'+(subjects.length?subjects.map(function(s){return '<div class="tile" onclick="learnSubject(\''+String(s).replace(/'/g,"\\'")+ '\')"><span class="ico">📘</span><b>'+esc(s)+'</b><small>View chapters</small></div>';}).join(''):'<div class="muted">No published learning material is available for your profile yet.</div>')+'</div></div>');}
 async function learnSubject(subject){var items=await loadLearnMaterials({subject:subject});var chapters=[...new Set(items.map(function(x){return x.chapter||'General';}))];
  shell('<div class="row"><button class="back" onclick="learn()">‹</button><div><h1 style="margin:0">'+esc(subject)+'</h1><div class="muted">Choose a chapter</div></div></div><div class="grid" style="margin-top:18px">'+chapters.map(function(ch){return '<div class="tile" onclick="learnChapter(\''+String(subject).replace(/'/g,"\\'")+ '\',\''+String(ch).replace(/'/g,"\\'")+ '\')"><span class="ico">📖</span><b>'+esc(ch)+'</b><small>Chapter</small></div>';}).join('')+'</div>');}
@@ -2998,6 +2999,7 @@ async function ssCompetitionList(){var a=await ssLoadCompetitions();shell('<div 
 async function ssStartCompetition(id){var d=await cloudDb.collection('competitions').doc(id).get();if(!d.exists)return toast('Competition unavailable.');var x=d.data();if(x.entryCoins>0){var u=user()||{};if(Number(u.coins||0)<Number(x.entryCoins))return toast('Not enough coins for this competition.')}if(!x.quizIds||!x.quizIds.length)return toast('Competition quiz is not configured yet.');return startQuiz(x.quizIds[0]);}
 async function compete(){
   var u=user();
+  if(!(await ssCentralFeatureEnabled('competeEnabled')))return shell('<div class="card"><h2>Competitions are temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>');
   if(!u)return loginScreen();
 
   ensureUserData(u);
@@ -3819,6 +3821,7 @@ function skills(){
   `);
 }
 async function rewardsScreen(){
+  if(!(await ssCentralFeatureEnabled('rewardsEnabled')))return shell('<div class="card"><h2>Rewards are temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>');
   var u=ensureUserData(user());
   var rewardList=[
     {name:'First Challenge',cost:0,icon:'🎯',text:'Complete your first quiz'},
@@ -4935,7 +4938,7 @@ async function loadPublishedNotifications(){
     var now=new Date();
     return s.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){
       var u=user()||{},aud=String(x.audience||'all').toLowerCase();
-      if(aud!=='all'&&aud!=='learner'&&aud!=='students')return false;
+      if(aud==='all'){}else if(aud==='learner'||aud==='students'){if(u.role!=='learner')return false;}else if(aud==='teacher'||aud==='parent'){if(u.role!==aud)return false;}else if(aud==='class'){if(u.role!=='learner'||String(x.target||'')!==String(u.studentClass||u.classNumber||u.classLevel||''))return false;}else if(aud==='segment'){if(String(x.target||'')!==String(u.segment||u.learningSegment||''))return false;}else return false;
       if(x.startAt){var st=new Date(x.startAt);if(!isNaN(st)&&st>now)return false;}
       if(x.endAt){var en=new Date(x.endAt);if(!isNaN(en)&&en<now)return false;}
       return true;
@@ -4944,6 +4947,7 @@ async function loadPublishedNotifications(){
 }
 async function notifications(){
   var u=user();
+  if(!(await ssCentralFeatureEnabled('notificationsEnabled')))return shell('<div class="card"><h2>Notifications are temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>');
   var requests=await loadLinkRequests();
   var published=await loadPublishedNotifications();
   var publishedHtml=published.length?'<div class="section"><b>📢 Announcements</b></div>'+published.map(function(n){return '<div class="card" style="margin-bottom:10px"><b>'+esc(n.title||'Announcement')+'</b><p class="muted">'+esc(n.body||'')+'</p></div>';}).join(''):'';
