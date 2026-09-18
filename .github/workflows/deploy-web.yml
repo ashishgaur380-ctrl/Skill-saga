@@ -39,7 +39,7 @@ jobs:
 
   deploy:
     environment:
-      name: skillsaga-preview
+      name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
