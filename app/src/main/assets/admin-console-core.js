@@ -26,4 +26,5 @@ bridgeAdminHandler('ssAdminAssignmentsControl','admin-console-assignments-contro
 bridgeAdminHandler('ssAdminRewardsControl','admin-console-rewards-control.js');
 bridgeAdminHandler('ssAdminUsersControl','admin-console-users-control.js');
 bridgeAdminHandler('ssAdminNotificationsControl','admin-console-notifications-control.js');
+bridgeAdminHandler('ssAdminFoundationControl','admin-console-foundation-control.js');
 })();
