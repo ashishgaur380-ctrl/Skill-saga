@@ -234,20 +234,73 @@ service cloud.firestore {
       allow create, update, delete: if isAdmin();
     }
 
+    match /forumGroups/{id} {
+      allow read: if signedIn()
+        && (resource.data.status == 'published' || resource.data.ownerUid == request.auth.uid || isAdmin());
+      allow create: if signedIn()
+        && request.resource.data.ownerUid == request.auth.uid
+        && request.resource.data.title is string
+        && request.resource.data.description is string
+        && request.resource.data.classLevel is number
+        && request.resource.data.classLevel >= 1
+        && request.resource.data.classLevel <= 12
+        && request.resource.data.subject is string
+        && request.resource.data.status in ['pending','published'];
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.ownerUid == request.auth.uid
+          && request.resource.data.ownerUid == resource.data.ownerUid
+          && request.resource.data.memberCount is number
+        );
+      allow delete: if isAdmin() || (signedIn() && resource.data.ownerUid == request.auth.uid);
+    }
+
+    match /forumGroupMembers/{id} {
+      allow read: if signedIn()
+        && (
+          resource.data.memberUid == request.auth.uid
+          || isAdmin()
+          || get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid
+        );
+      allow create: if signedIn()
+        && request.resource.data.memberUid == request.auth.uid
+        && request.resource.data.groupId is string
+        && get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.status == 'published';
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.memberUid == request.auth.uid)
+        || (signedIn() && get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid);
+    }
+
     match /forumPosts/{id} {
       allow read: if signedIn()
-        && (resource.data.status == 'published' || isAdmin());
+        && (resource.data.status == 'published' || isAdmin()
+          || resource.data.authorUid == request.auth.uid);
       allow create: if signedIn()
         && request.resource.data.authorUid == request.auth.uid
-        && request.resource.data.status == 'pending';
-      allow update, delete: if isAdmin()
-        || (signedIn() && resource.data.authorUid == request.auth.uid && resource.data.status == 'pending');
+        && request.resource.data.groupId is string
+        && request.resource.data.status == 'pending'
+        && get(/databases/$(database)/documents/forumGroups/$(request.resource.data.groupId)).data.status == 'published';
+      allow update: if isAdmin()
+        || (
+          signedIn()
+          && resource.data.authorUid == request.auth.uid
+          && resource.data.status == 'pending'
+        )
+        || (
+          signedIn()
+          && get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid
+        );
+      allow delete: if isAdmin()
+        || (signedIn() && resource.data.authorUid == request.auth.uid)
+        || (signedIn() && get(/databases/$(database)/documents/forumGroups/$(resource.data.groupId)).data.ownerUid == request.auth.uid);
     }
 
     match /forumReports/{id} {
       allow read, update, delete: if isAdmin();
       allow create: if signedIn()
-        && request.resource.data.reporterUid == request.auth.uid;
+        && request.resource.data.reporterUid == request.auth.uid
+        && request.resource.data.postId is string;
     }
 
     match /appSettings/{id} {
