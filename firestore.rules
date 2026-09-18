@@ -42,6 +42,7 @@ service cloud.firestore {
           || (
             isAdmin()
             && request.auth.uid != uid
+            && uid != '4Jme1MoSmHbjzwVjkvxeNSwPp0U2'
           )
         );
 
