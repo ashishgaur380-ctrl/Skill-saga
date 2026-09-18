@@ -20,4 +20,5 @@ bridgeAdminHandler('ssAdminCurriculum','admin-console-content.js');
 bridgeAdminHandler('ssAdminMaterials','admin-console-content.js');
 bridgeAdminHandler('ssAdminQuestions','admin-console-content.js');
 bridgeAdminHandler('ssAdminLearnControl','admin-console-learn-control.js');
+bridgeAdminHandler('ssAdminPlayControl','admin-console-play-control.js');
 })();
