@@ -5556,7 +5556,7 @@ function startOtpCooldown(buttonId,labelId){
 }
 
 async function createInvisiblePhoneVerifier(container){
-  cleanupPhoneVerifier();
+  if(window.skillSagaRecaptcha)return window.skillSagaRecaptcha;
   if(!firebaseReady)throw new Error('Firebase is not connected');
 
   var holder=container||document.getElementById('skillSagaRecaptcha');
@@ -5579,7 +5579,6 @@ async function createInvisiblePhoneVerifier(container){
     }
   );
 
-  await window.skillSagaRecaptcha.render();
   return window.skillSagaRecaptcha;
 }
 
