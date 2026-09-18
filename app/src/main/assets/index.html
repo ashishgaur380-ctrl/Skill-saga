@@ -2032,27 +2032,24 @@ function weekly(){
   }) || null;
 }
 
+async async function leaderboardConfig(){
+  var cfg={enabled:true,scope:'overall',period:'allTime',limit:20};
+  if(cloudDb){try{var s=await cloudDb.collection('appSettings').doc('leaderboards').get();if(s.exists)cfg=Object.assign(cfg,s.data())}catch(e){}}
+  return cfg;
+}
 async function leaderboardData(){
-  let me=user();
+  let me=user(),cfg=await leaderboardConfig();
+  if(cfg.enabled===false)return [];
   let arr=[];
   if(cloudDb){
     try{
-      let s=await cloudDb.collection('users').orderBy('xp','desc').limit(20).get();
-      arr=s.docs.map(d=>d.data());
-    }catch(e){
-      arr=Object.values(local.users||{});
-    }
-  }else{
-    arr=Object.values(local.users||{});
-  }
-
-  if(me){
-    let uid=cloudUser&&cloudUser.uid;
-    let exists=arr.some(x=>(uid&&x.uid===uid)||(x.email&&me.email&&x.email===me.email));
-    if(!exists)arr.push({...me,uid:uid||me.uid||''});
-  }
-
-  return arr.sort((a,b)=>(b.xp||0)-(a.xp||0)).slice(0,20);
+      let s=await cloudDb.collection('users').orderBy('xp','desc').limit(Number(cfg.limit||20)).get();
+      arr=s.docs.map(d=>d.data()).filter(function(x){return x.role==='learner'||!x.role});
+    }catch(e){arr=Object.values(local.users||{});}
+  }else arr=Object.values(local.users||{});
+  if(cfg.scope==='class'&&me)arr=arr.filter(function(x){return String(x.studentClass||x.classLevel||'')===String(me.studentClass||me.classLevel||'');});
+  if(me&&!arr.some(x=>(cloudUser&&x.uid===cloudUser.uid)||(x.email&&me.email&&x.email===me.email)))arr.push(Object.assign({},me,{uid:cloudUser&&cloudUser.uid||me.uid||''}));
+  return arr.sort(function(a,b){return Number(b.xp||0)-Number(a.xp||0)}).slice(0,Number(cfg.limit||20));
 }
 async function rank(){let u=user();let arr=await leaderboardData();return 1+arr.filter(x=>(x.studentXp||x.xp||0)>(u.xp||0)).length}
 function shell(content){var u=user();var adminButton=u&&u.role==='admin'?'<button class="iconbtn" onclick="admin()" title="Admin Console">🛠️</button>':'';document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><div style="display:flex;align-items:center;gap:6px">${adminButton}<button class="iconbtn" onclick="notifications()">🔔</button></div></header><main class="main">${content}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="learn">📚<span>Learn</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
