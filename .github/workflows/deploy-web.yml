@@ -4,6 +4,12 @@ on:
   push:
     branches: [main, final-integration]
   workflow_dispatch:
+    inputs:
+      source_branch:
+        description: "Branch to deploy for testing (leave blank to use main)"
+        required: false
+        default: "main"
+        type: string
 
 permissions:
   contents: read
@@ -18,8 +24,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout selected source
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.source_branch || github.ref }}
 
       - name: Prepare web site
         run: |
