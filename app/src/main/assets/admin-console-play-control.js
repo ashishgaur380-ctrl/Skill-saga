@@ -60,13 +60,24 @@ window.ssAdminPlayActivityForm=function(type){
  var t=TYPES.find(function(x){return x.id===type})||{id:type,name:type,desc:''};
  db().collection('appSettings').doc('playActivities').get().then(function(s){
    var all=s.exists?(s.data().activities||[]):[];var found=all.find(function(x){return x.type===type});
-   var d=found||{enabled:true,accessType:'free',difficulty:'Foundation',questionCount:10,durationMinutes:10};
+   var d=found||{enabled:true,accessType:'free',classNumber:'',subject:'',topic:'',difficulty:'Foundation',questionCount:10,durationMinutes:10,xp:50,coins:5,maxAttempts:1,dailyLimit:0,startAt:'',endAt:'',unlockType:'none',unlockValue:''};
    page(t.name,'Configure this Play activity.','<div class="card"><input id="pcType" type="hidden" value="'+esc(type)+'">'+
    '<label>Enabled</label><select id="pcEnabled" class="input"><option value="true"'+(d.enabled!==false?' selected':'')+'>Enabled</option><option value="false"'+(d.enabled===false?' selected':'')+'>Disabled</option></select>'+
    '<label>Access</label><select id="pcAccess" class="input"><option value="free"'+(d.accessType==='free'?' selected':'')+'>Free</option><option value="premium"'+(d.accessType==='premium'?' selected':'')+'>Premium</option><option value="admin"'+(d.accessType==='admin'?' selected':'')+'>Admin/Assigned</option></select>'+
+   '<label>Class</label><input id="pcClass" class="input" value="'+esc(d.classNumber||'')+'" placeholder="Class (e.g. 5)">'+
+   '<label>Subject</label><input id="pcSubject" class="input" value="'+esc(d.subject||'')+'" placeholder="Subject">'+
+   '<label>Topic</label><input id="pcTopic" class="input" value="'+esc(d.topic||'')+'" placeholder="Topic / chapter">'+
    '<label>Default difficulty</label><select id="pcDifficulty" class="input">'+['Foundation','Basic','Intermediate','Advanced'].map(function(x){return '<option'+(d.difficulty===x?' selected':'')+'>'+x+'</option>'}).join('')+'</select>'+
-   '<input id="pcQuestions" class="input" type="number" min="1" max="100" value="'+esc(d.questionCount||10)+'" placeholder="Question count">'+
-   '<input id="pcDuration" class="input" type="number" min="1" max="180" value="'+esc(d.durationMinutes||10)+'" placeholder="Duration minutes">'+
+   '<label>Question count</label><input id="pcQuestions" class="input" type="number" min="1" max="100" value="'+esc(d.questionCount||10)+'">'+
+   '<label>Timer (minutes)</label><input id="pcDuration" class="input" type="number" min="0" max="180" value="'+esc(d.durationMinutes||10)+'">'+
+   '<label>XP per completion</label><input id="pcXp" class="input" type="number" min="0" value="'+esc(d.xp||0)+'">'+
+   '<label>Coins per completion</label><input id="pcCoins" class="input" type="number" min="0" value="'+esc(d.coins||0)+'">'+
+   '<label>Maximum attempts</label><input id="pcAttempts" class="input" type="number" min="0" value="'+esc(d.maxAttempts||0)+'" placeholder="0 = unlimited">'+
+   '<label>Daily limit</label><input id="pcDaily" class="input" type="number" min="0" value="'+esc(d.dailyLimit||0)+'" placeholder="0 = unlimited">'+
+   '<label>Start date/time (optional)</label><input id="pcStart" class="input" type="datetime-local" value="'+esc(d.startAt||'')+'">'+
+   '<label>End date/time (optional)</label><input id="pcEnd" class="input" type="datetime-local" value="'+esc(d.endAt||'')+'">'+
+   '<label>Unlock rule</label><select id="pcUnlock" class="input"><option value="none"'+(d.unlockType==='none'?' selected':'')+'>None</option><option value="xp"'+(d.unlockType==='xp'?' selected':'')+'>XP threshold</option><option value="level"'+(d.unlockType==='level'?' selected':'')+'>Level threshold</option><option value="coins"'+(d.unlockType==='coins'?' selected':'')+'>Coins threshold</option></select>'+
+   '<label>Unlock value</label><input id="pcUnlockValue" class="input" type="number" min="0" value="'+esc(d.unlockValue||0)+'">'+
    btn('Save Activity','ssAdminPlaySaveActivity()','gold')+'</div>');
  });
 };
@@ -79,9 +90,20 @@ window.ssAdminPlaySaveActivity=async function(){
   var snap=await ref.get();var all=snap.exists?(snap.data().activities||[]):[];var idx=all.findIndex(function(x){return x.type===type});
   var item={type:type,enabled:document.getElementById('pcEnabled').value==='true',
    accessType:document.getElementById('pcAccess').value,
+   classNumber:document.getElementById('pcClass').value.trim(),
+   subject:document.getElementById('pcSubject').value.trim(),
+   topic:document.getElementById('pcTopic').value.trim(),
    difficulty:document.getElementById('pcDifficulty').value,
    questionCount:Number(document.getElementById('pcQuestions').value)||10,
-   durationMinutes:Number(document.getElementById('pcDuration').value)||10,
+   durationMinutes:Number(document.getElementById('pcDuration').value)||0,
+   xp:Number(document.getElementById('pcXp').value)||0,
+   coins:Number(document.getElementById('pcCoins').value)||0,
+   maxAttempts:Number(document.getElementById('pcAttempts').value)||0,
+   dailyLimit:Number(document.getElementById('pcDaily').value)||0,
+   startAt:document.getElementById('pcStart').value,
+   endAt:document.getElementById('pcEnd').value,
+   unlockType:document.getElementById('pcUnlock').value,
+   unlockValue:Number(document.getElementById('pcUnlockValue').value)||0,
    updatedBy:auth().uid,updatedAt:new Date()};
   if(idx>=0)all[idx]=Object.assign({},all[idx],item);else all.push(item);
   await ref.set({activities:all,updatedBy:auth().uid,updatedAt:stamp()},{merge:true});
