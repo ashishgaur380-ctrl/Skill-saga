@@ -120,6 +120,11 @@ window.ssFoundationVerifyEmail=function(){
 };
 window.ssFoundationSendVerification=async function(){try{if(cloudUser)await cloudUser.sendEmailVerification();toast('Verification email sent ✓')}catch(e){toast(e.message||'Could not send verification email')}};
 window.ssFoundationAuthConfig=async function(){return getConfig('authentication')};
+window.ssFoundationPlayConfig=async function(){
+  var d=await getConfig('play');
+  if(d&&d.playEnabled===false)return d;
+  try{var s=await cloudDb.collection('appSettings').doc('play').get();return s.exists?s.data():{playEnabled:true}}catch(e){return {playEnabled:true}}
+};
 window.ssFoundationAuthCached=function(){return cache.authentication||defaults.authentication};
 window.ssFoundationPrimeAuth=async function(){return getConfig('authentication')};
 window.ssFoundationHomeConfig=async function(){return getConfig('home')};
