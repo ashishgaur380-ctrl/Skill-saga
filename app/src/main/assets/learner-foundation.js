@@ -116,6 +116,25 @@ window.ssFoundationApplyHome=function(h){
   if(h.showMilestone===false){hide('.ss-home-card');var x3=Array.from(root.querySelectorAll('.ss-home-section')).find(function(e){return e.textContent.indexOf('Next Milestone')>=0});if(x3)x3.style.display='none'}
   if(h.showContinueLearning===false){Array.from(root.querySelectorAll('.ss-home-continue')).forEach(function(e){e.style.display='none'});var x4=Array.from(root.querySelectorAll('.ss-home-section')).find(function(e){return e.textContent.indexOf('Continue Learning')>=0});if(x4)x4.style.display='none'}
   if(h.showBottomNote===false){var n=root.querySelector('.ss-home-bottom-note');if(n)n.style.display='none'}
+  var order=String(h.sectionOrder||'stats,dailyMission,skills,milestone,continueLearning').split(',').map(function(x){return x.trim()}).filter(Boolean);
+  var blocks={
+    stats:root.querySelector('.ss-home-stats'),
+    dailyMission:root.querySelector('.ss-home-mission'),
+    skills:root.querySelector('.ss-home-skills'),
+    milestone:root.querySelector('.ss-home-card'),
+    continueLearning:root.querySelector('.ss-home-continue')
+  };
+  var sections=Array.from(root.querySelectorAll('.ss-home-section'));
+  function sectionFor(key){
+    var target=blocks[key];
+    if(!target)return null;
+    var prev=target.previousElementSibling;
+    return prev&&prev.classList.contains('ss-home-section')?prev:null;
+  }
+  order.forEach(function(key){
+    var section=sectionFor(key),target=blocks[key];
+    if(section&&target){root.appendChild(section);root.appendChild(target)}
+  });
   var title=root.querySelector('.ss-home-sub');if(title&&h.welcomeTitle)title.textContent=h.welcomeTitle;
   var q=root.querySelector('.ss-home-quote');if(q&&h.welcomeQuote)q.innerHTML=escFoundation(h.welcomeQuote).replace(/\|/g,'<br>');
 };
