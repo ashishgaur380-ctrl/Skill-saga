@@ -5511,7 +5511,7 @@ function loginScreen(){
             <option value="teacher">👩‍🏫 Teacher</option>
           </select>
           <div class="muted" style="font-size:11px;margin:2px 0 10px">🔒 We'll verify your mobile number with a one-time OTP.</div>
-          <button class="btn block" onclick="mobileSignup()" style="border-radius:14px;padding:13px;font-size:16px;font-weight:800">
+          <button id="skillSagaSignupSendOtp" class="btn block" onclick="mobileSignup()" style="border-radius:14px;padding:13px;font-size:16px;font-weight:800">
             📱 SEND OTP & CREATE ACCOUNT
           </button>
         `}
@@ -5555,21 +5555,30 @@ function startOtpCooldown(buttonId,labelId){
   tick();
 }
 
-async function createInvisiblePhoneVerifier(){
+async function createInvisiblePhoneVerifier(container){
   cleanupPhoneVerifier();
   if(!firebaseReady)throw new Error('Firebase is not connected');
-  var holder=document.getElementById('skillSagaRecaptcha');
+
+  var holder=container||document.getElementById('skillSagaRecaptcha');
   if(!holder){
     holder=document.createElement('div');
     holder.id='skillSagaRecaptcha';
-    holder.style.display='none';
+    holder.style.position='absolute';
+    holder.style.width='1px';
+    holder.style.height='1px';
+    holder.style.overflow='hidden';
     document.body.appendChild(holder);
   }
+
   window.skillSagaRecaptcha=new firebase.auth.RecaptchaVerifier(
     holder,
-    {size:'invisible','callback':function(){window.skillSagaRecaptchaSolved=true;},'expired-callback':function(){window.skillSagaRecaptchaSolved=false;}},
-    firebase.auth()
+    {
+      size:'invisible',
+      'callback':function(){window.skillSagaRecaptchaSolved=true;},
+      'expired-callback':function(){window.skillSagaRecaptchaSolved=false;}
+    }
   );
+
   await window.skillSagaRecaptcha.render();
   return window.skillSagaRecaptcha;
 }
@@ -5617,7 +5626,7 @@ async function sendSSOTP(isResend){
   var number='+91'+digits;
   try{
     if(send)send.disabled=true;
-    var verifier=await createInvisiblePhoneVerifier();
+    var verifier=await createInvisiblePhoneVerifier(send);
     window.skillSagaLoginPhone=number;
     window.skillSagaConfirmation=await firebase.auth().signInWithPhoneNumber(number,verifier);
     var area=document.getElementById('skillSagaOtpArea');
@@ -5656,7 +5665,7 @@ async function mobileSignup(){
   if(digits.length!==10)return toast('Enter a valid 10-digit mobile number');
   var number='+91'+digits;
   try{
-    var verifier=await createInvisiblePhoneVerifier();
+    var verifier=await createInvisiblePhoneVerifier(document.getElementById('skillSagaSignupSendOtp'));
     window.skillSagaSignupName=name;
     window.skillSagaSignupPhone=number;
     window.skillSagaSignupConfirmation=await firebase.auth().signInWithPhoneNumber(number,verifier);
