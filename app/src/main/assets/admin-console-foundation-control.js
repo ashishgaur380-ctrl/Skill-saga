@@ -25,7 +25,7 @@ async function saveDoc(id,data){
 var DEFAULT_STARTUP={enabled:true,logo:'logo.png',appName:'Skill Saga',tagline:'A smarter way to learn',splashDuration:1200,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',latestVersion:'1.0.0',forceUpdate:false};
 var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false,requireTerms:true,minimumPasswordLength:6};
 var DEFAULT_SETUP={enabled:true,requireBoard:true,requireClass:true,requireSubjects:true,requireLearningGoals:false,requireLearningProfile:false,boards:['CBSE'],classes:[1,2,3,4,5,6,7,8,9,10,11,12],defaultSubjects:[],goals:['Improve school performance','Practice regularly','Build core skills']};
-var DEFAULT_HOME={enabled:true,showStats:true,showDailyMission:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'};
+var DEFAULT_HOME={enabled:true,showStats:true,showDailyMission:true,showDailyQuiz:true,showWeeklyQuiz:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'};
 
 window.ssAdminFoundationControl=async function(){
   if(!ok())return;
@@ -105,6 +105,8 @@ window.ssAdminFoundationSection=async function(section){
       '<div class="card">'+check('fhEnabled','Home enabled',h.enabled)+
       check('fhStats','Show XP / Streak / Rank stats',h.showStats)+
       check('fhDaily','Show Today\'s Mission',h.showDailyMission)+
+      check('fhDailyQuiz','Show Daily Quiz card',h.showDailyQuiz!==false)+
+      check('fhWeeklyQuiz','Show Weekly Quiz card',h.showWeeklyQuiz!==false)+
       check('fhSkills','Show Your Skills',h.showSkills)+
       check('fhMilestone','Show Next Milestone',h.showMilestone)+
       check('fhContinue','Show Continue Learning',h.showContinueLearning)+
@@ -128,7 +130,7 @@ window.ssAdminFoundationSave=async function(section){
     }else if(section==='learnerSetup'){
       d={enabled:checked('foEnabled'),requireBoard:checked('foBoard'),requireClass:checked('foClass'),requireSubjects:checked('foSubjects'),requireLearningGoals:checked('foGoals'),requireLearningProfile:checked('foProfile'),boards:val('foBoards').split(',').map(function(x){return x.trim()}).filter(Boolean),classes:val('foClasses').split(',').map(function(x){return Number(x.trim())}).filter(function(x){return !isNaN(x)}),defaultSubjects:val('foSubjectsList').split(',').map(function(x){return x.trim()}).filter(Boolean),goals:val('foGoalsList').split(',').map(function(x){return x.trim()}).filter(Boolean)};
     }else if(section==='home'){
-      d={enabled:checked('fhEnabled'),showStats:checked('fhStats'),showDailyMission:checked('fhDaily'),showSkills:checked('fhSkills'),showMilestone:checked('fhMilestone'),showContinueLearning:checked('fhContinue'),showBottomNote:checked('fhNote'),showNotifications:checked('fhNotifications'),sectionOrder:val('fhOrder')||DEFAULT_HOME.sectionOrder,welcomeTitle:val('fhTitle')||DEFAULT_HOME.welcomeTitle,welcomeQuote:val('fhQuote')||DEFAULT_HOME.welcomeQuote};
+      d={enabled:checked('fhEnabled'),showStats:checked('fhStats'),showDailyMission:checked('fhDaily'),showDailyQuiz:checked('fhDailyQuiz'),showWeeklyQuiz:checked('fhWeeklyQuiz'),showSkills:checked('fhSkills'),showMilestone:checked('fhMilestone'),showContinueLearning:checked('fhContinue'),showBottomNote:checked('fhNote'),showNotifications:checked('fhNotifications'),sectionOrder:val('fhOrder')||DEFAULT_HOME.sectionOrder,welcomeTitle:val('fhTitle')||DEFAULT_HOME.welcomeTitle,welcomeQuote:val('fhQuote')||DEFAULT_HOME.welcomeQuote};
     }else return;
     await saveDoc(section,d);
     toast('Settings saved ✓');
