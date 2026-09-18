@@ -1,0 +1,44 @@
+name: Admin Console Smoke Test
+
+on:
+  push:
+    branches:
+      - admin-console-production-pass-20260918
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Syntax check Admin modules
+        run: |
+          set -e
+          for f in app/src/main/assets/admin-console-core.js app/src/main/assets/admin-console-v3.js app/src/main/assets/admin-console-community.js app/src/main/assets/admin-console-operations.js app/src/main/assets/admin-console-content.js app/src/main/assets/admin-console-competition-control.js app/src/main/assets/admin-console-quiz.js app/src/main/assets/final-ui.js; do
+            node --check "$f"
+          done
+      - name: Verify Admin handlers
+        run: |
+          set -e
+          grep -q "window.ssAdminV3Rewards" app/src/main/assets/admin-console-v3.js
+          grep -q "ssAdminSetRole" app/src/main/assets/admin-console-community.js
+          grep -q "ssAdminForum" app/src/main/assets/admin-console-community.js
+          grep -q "ssAdminAnalytics" app/src/main/assets/admin-console-community.js
+          grep -q "ssAdminV3Records" app/src/main/assets/admin-console-v3.js
+          grep -q "ssAdminAppSettings" app/src/main/assets/admin-console-community.js
+          grep -q "ssAdminSecurity" app/src/main/assets/admin-console-community.js
+          grep -q "accountStatus==='disabled'" app/src/main/assets/index.html
+          grep -q "status == 'published'" firestore.rules
+      - name: Verify learner forum flow
+        run: |
+          set -e
+          grep -q "status:status" app/src/main/assets/final-ui.js
+          grep -q "status:'published'" app/src/main/assets/final-ui.js
+          grep -q "forumGroupApproval" app/src/main/assets/final-ui.js
