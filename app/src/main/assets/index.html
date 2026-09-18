@@ -7104,7 +7104,7 @@ function roleDashboard(){
 }
 
 function boot(){if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;var isBootstrapAdmin=fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2';var hasPasswordProvider=Array.isArray(fu.providerData)&&fu.providerData.some(function(p){return p&&p.providerId==='password';});if(hasPasswordProvider&&!fu.emailVerified&&!isBootstrapAdmin&&!window.skillSagaEmailSignupInProgress){await firebase.auth().signOut();showEmailVerification(fu.email||'your email address');return}try{let remote=await cloudUserDoc();if(remote){local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...remote};}else{local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};}if(fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2')local.user.role='admin';if(local.user.accountStatus==='disabled'&&fu.uid!=='4Jme1MoSmHbjzwVjkvxeNSwPp0U2'){await firebase.auth().signOut();toast('Your Skill Saga account is disabled. Please contact an administrator.');return}ensureUserData(local.user);if(!local.user.name)local.user.name=fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner');await persistUser(local.user);await loadCloudContent();roleDashboard()}catch(e){console.warn('User profile load failed',e);local.user={...freshUser(fu.displayName||(fu.email?fu.email.split('@')[0]:'Learner'),fu.email),...readLocal()};ensureUserData(local.user);await loadCloudContent();roleDashboard()}})}
-boot();
+setTimeout(boot,0);
 </script>
 
 
@@ -7416,8 +7416,8 @@ async function ssCompeteLeaderboardContent(box){
 
 </script>
 
-<script src="final-ui.js?v=20260918-8"></script>
-<script src="final-ui-links.js?v=20260918-8"></script>
+<script src="final-ui.js?v=20260918-9"></script>
+<script src="final-ui-links.js?v=20260918-9"></script>
 <!-- Skill Saga Admin entry v5: core is loaded first so Admin initialization never races. -->
 <script src="admin-console-core.js?v=20260918-5"></script>
 <script src="admin-console-v3.js?v=20260918-5"></script>
