@@ -1916,7 +1916,7 @@ body:has(.ss-compete) .ss-compete{
 
 </style>
 
-</head><body><div id="root"></div><script>
+</head><body><div id="root"></div><script src="learner-foundation.js"></script><script>
 const LOGO='logo.png';
 const firebaseConfig={apiKey:'AIzaSyAeItjskb7Gv-eyi4daMZYjsU8Cr88MtiQ',authDomain:'skill-saga-cb695.firebaseapp.com',projectId:'skill-saga-cb695',storageBucket:'skill-saga-cb695.firebasestorage.app',messagingSenderId:'354189057486',appId:'1:354189057486:web:ed5425cd8ff0f8d08fdf9f'};
 let firebaseReady=false,cloudUser=null,cloudDb=null,screen='home',quizState=null,authMode='login',local={content:[],users:{}};
@@ -1933,7 +1933,7 @@ function key(){return cloudUser?'ss_'+cloudUser.uid:'ss_guest'}
 function readLocal(){try{return JSON.parse(localStorage.getItem(key()))||{}}catch(e){return {}}}
 function writeLocal(u){localStorage.setItem(key(),JSON.stringify(u))}
 function makeLinkCode(){return 'SS-'+Math.random().toString(36).slice(2,8).toUpperCase()}
-function freshUser(name,email){return{name,email,xp:0,streak:0,level:1,quizzes:0,accuracy:0,skills:[50,50,50,50],badges:[],history:[],coins:0,lastQuizDate:'',role:'learner',studentClass:'',school:'',district:'',state:'',country:'India',photo:'',linkedStudents:[],linkedParents:[],linkedTeachers:[],assignedQuizzes:[],linkCode:'',accountStatus:'active'}}
+function freshUser(name,email){return{name,email,xp:0,streak:0,level:1,quizzes:0,accuracy:0,skills:[50,50,50,50],badges:[],history:[],coins:0,lastQuizDate:'',role:'learner',studentClass:'',school:'',district:'',state:'',country:'India',photo:'',linkedStudents:[],linkedParents:[],linkedTeachers:[],assignedQuizzes:[],linkCode:'',accountStatus:'active',board:'',subjects:[],learningGoals:[],learningProfile:'',onboardingCompleted:false}}
 function user(){if(!cloudUser)return null;let u=local.user||freshUser(cloudUser.displayName||cloudUser.email.split('@')[0],cloudUser.email);ensureUserData(u);if(typeof u.xp!=='number')u.xp=0;if(typeof u.quizzes!=='number')u.quizzes=0;if(typeof u.accuracy!=='number')u.accuracy=0;if(typeof u.streak!=='number')u.streak=0;if(typeof u.level!=='number')u.level=1;return u}
 async function cloudUserDoc(){if(!cloudUser)return null;let s=await cloudDb.collection('users').doc(cloudUser.uid).get();console.log('SKILL SAGA USER DOC',cloudUser.uid,s.exists,s.exists?s.data():null);return s.exists?s.data():null}
 async function saveStudentDirectory(u){
@@ -2055,9 +2055,9 @@ async function leaderboardData(){
   return arr.sort((a,b)=>(b.xp||0)-(a.xp||0)).slice(0,20);
 }
 async function rank(){let u=user();let arr=await leaderboardData();return 1+arr.filter(x=>(x.studentXp||x.xp||0)>(u.xp||0)).length}
-function shell(content){var u=user();var adminButton=u&&u.role==='admin'?'<button class="iconbtn" onclick="admin()" title="Admin Console">🛠️</button>':'';document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><div style="display:flex;align-items:center;gap:6px">${adminButton}<button class="iconbtn" onclick="notifications()">🔔</button></div></header><main class="main">${content}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
-async function go(n){screen=n;if(n==='home')return home();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile();if(n==='settings')return settings();if(n==='progress')return progress();if(n==='history')return history();if(n==='rewards')return rewardsScreen()}
-async function home(){
+function shell(content){var u=user();var adminButton=u&&u.role==='admin'?'<button class="iconbtn" onclick="admin()" title="Admin Console">🛠️</button>':'';document.getElementById('root').innerHTML=`<div class="app"><header class="top"><div class="brand"><img src="${LOGO}"><b>Skill <span>Saga</span></b></div><div style="display:flex;align-items:center;gap:6px">${adminButton}<button class="iconbtn" onclick="notifications()">🔔</button></div></header><main class="main">${content}</main><nav class="nav"><button data-s="home">⌂<span>Home</span></button><button data-s="learn">📚<span>Learn</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="skills">◈<span>Skills</span></button><button data-s="profile">●<span>Profile</span></button></nav></div>`;document.querySelectorAll('.nav button').forEach(b=>{b.classList.toggle('active',b.dataset.s===screen);b.onclick=()=>go(b.dataset.s)})}
+async function go(n){screen=n;if(n==='home')return home();if(n==='learn')return learn();if(n==='play')return play();if(n==='compete')return compete();if(n==='skills')return skills();if(n==='profile')return profile();if(n==='settings')return settings();if(n==='progress')return progress();if(n==='history')return history();if(n==='rewards')return rewardsScreen()}
+async async function home(){
   let u=user();
   if(!u)return loginScreen();
 
@@ -2275,7 +2275,25 @@ async function home(){
       </section>
 
 
-      ${continueHtml}
+      \${continueHtml}
+
+      <div class="ss-home-section ss-home-notifications-section">
+        <b>Notifications</b>
+        <span class="ss-home-link" onclick="go('notifications')">View all →</span>
+      </div>
+      <section class="ss-home-notifications">
+        <div class="card">
+          <div class="muted">Stay updated with new quizzes, competitions, rewards and announcements.</div>
+        </div>
+      </section>
+
+      <div class="ss-home-section ss-home-recent-section">
+        <b>Recent Activity</b>
+        <span class="ss-home-link" onclick="go('history')">View history →</span>
+      </div>
+      <section class="ss-home-recent">
+        \${lastHistory?'<div class="card"><b>'+esc(lastHistory.title||'Quiz activity')+'</b><div class="muted" style="margin-top:5px">Latest learning activity • '+esc(lastHistory.score==null?'Completed':String(lastHistory.score)+' score')+'</div></div>':'<div class="card"><div class="muted">Your recent learning activity will appear here.</div></div>'}
+      </section>
 
       <div class="ss-home-bottom-note">
         ✨ Keep learning, build your skills, and grow a little every day.
@@ -2283,6 +2301,7 @@ async function home(){
 
     </div>
   `);
+  if(window.ssFoundationHomeConfig){ssFoundationHomeConfig().then(ssFoundationApplyHome).catch(function(){})}
 }
 function challengeDateKey(){
   return new Date().toISOString().slice(0,10);
@@ -2419,11 +2438,31 @@ async function startAssignedQuiz(quizId,assignmentId){
   renderQuiz();
 }
 
+async function loadLearnMaterials(filters){
+  if(!cloudDb||!cloudUser)return [];
+  try{var snap=await cloudDb.collection('learningMaterials').where('status','==','published').get();var now=new Date(),u=user()||{},cls=String(u.studentClass||u.classLevel||'All'),board=String(u.board||'All');
+    return snap.docs.map(function(d){return {id:d.id,...d.data()};}).filter(function(x){
+      if(x.published===false)return false;if(x.board&&x.board!=='All'&&board!=='All'&&String(x.board)!==board)return false;if(x.classLevel&&x.classLevel!=='All'&&cls!=='All'&&String(x.classLevel)!==cls)return false;if(x.accessType==='premium'&&!u.premium&&!u.isPremium)return false;
+      if(x.scheduleStart){var s=new Date(x.scheduleStart);if(!isNaN(s)&&now<s)return false;}if(x.scheduleEnd){var e=new Date(x.scheduleEnd);if(!isNaN(e)&&now>e)return false;}
+      if(filters){if(filters.subject&&String(x.subject||'')!==String(filters.subject))return false;if(filters.chapter&&String(x.chapter||'')!==String(filters.chapter))return false;if(filters.topic&&String(x.topic||'')!==String(filters.topic))return false;}return true;
+    }).sort(function(a,b){return Number(a.displayOrder||0)-Number(b.displayOrder||0);});}catch(e){console.warn('Learn materials load failed',e);return [];}
+}
+async function learn(){var u=user();if(!u)return loginScreen();var items=await loadLearnMaterials();var subjects=[...new Set(items.map(function(x){return x.subject||'General';}))];
+ shell('<div class="row"><div><h1 style="margin:0">Learn</h1><div class="muted">Learn concepts step by step with your class content.</div></div></div><div class="card"><b>📚 Choose a Subject</b><div class="grid" style="margin-top:12px">'+(subjects.length?subjects.map(function(s){return '<div class="tile" onclick="learnSubject(\''+String(s).replace(/'/g,"\\'")+ '\')"><span class="ico">📘</span><b>'+esc(s)+'</b><small>View chapters</small></div>';}).join(''):'<div class="muted">No published learning material is available for your profile yet.</div>')+'</div></div>');}
+async function learnSubject(subject){var items=await loadLearnMaterials({subject:subject});var chapters=[...new Set(items.map(function(x){return x.chapter||'General';}))];
+ shell('<div class="row"><button class="back" onclick="learn()">‹</button><div><h1 style="margin:0">'+esc(subject)+'</h1><div class="muted">Choose a chapter</div></div></div><div class="grid" style="margin-top:18px">'+chapters.map(function(ch){return '<div class="tile" onclick="learnChapter(\''+String(subject).replace(/'/g,"\\'")+ '\',\''+String(ch).replace(/'/g,"\\'")+ '\')"><span class="ico">📖</span><b>'+esc(ch)+'</b><small>Chapter</small></div>';}).join('')+'</div>');}
+async function learnChapter(subject,chapter){var items=await loadLearnMaterials({subject:subject,chapter:chapter});var topics=[...new Set(items.map(function(x){return x.topic||'General';}))];
+ shell('<div class="row"><button class="back" onclick="learnSubject(\''+String(subject).replace(/'/g,"\\'")+ '\')">‹</button><div><h1 style="margin:0">'+esc(chapter)+'</h1><div class="muted">Choose a topic</div></div></div><div class="grid" style="margin-top:18px">'+topics.map(function(t){return '<div class="tile" onclick="learnTopic(\''+String(subject).replace(/'/g,"\\'")+ '\',\''+String(chapter).replace(/'/g,"\\'")+ '\',\''+String(t).replace(/'/g,"\\'")+ '\')"><span class="ico">🎯</span><b>'+esc(t)+'</b><small>Topic</small></div>';}).join('')+'</div>');}
+async function learnTopic(subject,chapter,topic){var items=await loadLearnMaterials({subject:subject,chapter:chapter,topic:topic});
+ shell('<div class="row"><button class="back" onclick="learnChapter(\''+String(subject).replace(/'/g,"\\'")+ '\',\''+String(chapter).replace(/'/g,"\\'")+ '\')">‹</button><div><h1 style="margin:0">'+esc(topic)+'</h1><div class="muted">'+esc(subject)+' • '+esc(chapter)+'</div></div></div>'+items.map(function(x){return '<div class="card" style="margin-top:12px"><div class="row"><div><b>'+esc(x.title||'Learning Material')+'</b><div class="small muted">'+esc(x.contentType||'text')+' • '+esc(x.difficulty||'')+(x.accessType==='premium'?' • Premium':'')+'</div></div><span class="badge">v'+esc(x.contentVersion||'1.0')+'</span></div><p style="white-space:pre-wrap;line-height:1.65">'+esc(x.content||'Content available in this lesson.')+'</p><button class="btn light" onclick="learnPractice(\''+String(subject).replace(/'/g,"\\'")+ '\',\''+String(topic).replace(/'/g,"\\'")+ '\')">Practice / Quiz →</button></div>';}).join('')+(items.length?'':'<div class="card muted">No published material is available for this topic.</div>'));}
+async function learnPractice(subject,topic){var list=Array.isArray(local.content)?local.content:[];var q=list.filter(function(x){return x.published!==false&&String(x.subject||'')===String(subject)&&String(x.topic||'')===String(topic);})[0];if(!q&&cloudDb)try{var s=await cloudDb.collection('quizzes').where('published','==',true).get();q=s.docs.map(function(d){return {id:d.id,...d.data()};}).filter(function(x){return String(x.subject||'')===String(subject)&&String(x.topic||'')===String(topic);})[0];}catch(e){}if(q)return startQuiz(q.id);toast('No practice quiz is available for this topic yet.');}
 async function play(){
   var u=user();
   if(!u)return loginScreen();
 
   ensureUserData(u);
+
+  if(window.ssFoundationPlayConfig){try{var playCfg=await ssFoundationPlayConfig();if(playCfg&&playCfg.playEnabled===false){return shell('<div class="card"><h2>Play is temporarily unavailable</h2><p class="muted">Please check back shortly.</p></div>')}}catch(e){}}
 
   var d=daily();
   var w=weekly();
@@ -5368,6 +5407,12 @@ function nextQuizQuestion(){
 function loginScreen(){
   var root=document.getElementById('root');
   var method=window.skillSagaLoginMethod||'email';
+  var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};
+  var emailLogin=ac.emailLoginEnabled!==false, mobileLogin=ac.mobileLoginEnabled===true;
+  var emailSignup=ac.emailSignupEnabled!==false, mobileSignupEnabled=ac.mobileSignupEnabled===true;
+  if(method==='mobile'&&!mobileLogin)method='email';
+  if(method==='email'&&!emailLogin&&mobileLogin)method='mobile';
+  if(!emailLogin&&!mobileLogin)method='none';
 
   root.innerHTML=`
   <div class="auth" style="min-height:100vh;background:linear-gradient(145deg,#eef4ff 0%,#f7f1ff 48%,#ffffff 100%);padding:24px 16px;display:flex;align-items:center;justify-content:center;box-sizing:border-box">
@@ -5391,18 +5436,9 @@ function loginScreen(){
         <h2 style="margin:22px 0 4px;color:#10203a;font-size:22px">Welcome back 👋</h2>
         <div class="muted" style="font-size:13px;margin-bottom:16px">Continue your learning journey.</div>
 
-        <div style="display:flex;background:#f1f5ff;border-radius:14px;padding:4px;margin-bottom:16px">
-          <button onclick="window.skillSagaLoginMethod='email';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${method==='email'?'#fff':'transparent'};color:${method==='email'?'#2463eb':'#65758b'};font-weight:700;box-shadow:${method==='email'?'0 2px 8px rgba(0,0,0,.08)':'none'}">
-            📧 Email
-          </button>
-          <button onclick="window.skillSagaLoginMethod='mobile';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${method==='mobile'?'#fff':'transparent'};color:${method==='mobile'?'#2463eb':'#65758b'};font-weight:700;box-shadow:${method==='mobile'?'0 2px 8px rgba(0,0,0,.08)':'none'}">
-            📱 Mobile
-          </button>
-        </div>
+        ${(emailLogin&&mobileLogin)?'<div class="authmethodtabs"><button onclick="window.skillSagaLoginMethod=\'email\';loginScreen()">📧 Email</button><button onclick="window.skillSagaLoginMethod=\'mobile\';loginScreen()">📱 Mobile</button></div>':''}
 
-        ${method==='email'?`
+        ${method==='none'?`<div class="notice">Login is currently unavailable. Please try again later.</div>`:method==='email'?`
           <input id="email" class="input" type="email" autocomplete="email" placeholder="Email address">
           <div style="position:relative">
             <input id="password" class="input" type="password" autocomplete="current-password" placeholder="Password" style="padding-right:52px">
@@ -5444,16 +5480,7 @@ function loginScreen(){
         <h2 style="margin:22px 0 4px;color:#10203a;font-size:22px">Create your account 🚀</h2>
         <div class="muted" style="font-size:13px;margin-bottom:16px">Join the Skill Saga learning community.</div>
 
-        <div style="display:flex;background:#f1f5ff;border-radius:14px;padding:4px;margin-bottom:16px">
-          <button onclick="window.skillSagaSignupMethod='email';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${(window.skillSagaSignupMethod||'email')==='email'?'#fff':'transparent'};color:${(window.skillSagaSignupMethod||'email')==='email'?'#2463eb':'#65758b'};font-weight:700">
-            📧 Email
-          </button>
-          <button onclick="window.skillSagaSignupMethod='mobile';loginScreen()"
-            style="flex:1;border:0;border-radius:11px;padding:11px;background:${window.skillSagaSignupMethod==='mobile'?'#fff':'transparent'};color:${window.skillSagaSignupMethod==='mobile'?'#2463eb':'#65758b'};font-weight:700">
-            📱 Mobile
-          </button>
-        </div>
+        ${(emailSignup&&mobileSignupEnabled)?'<div class="authmethodtabs"><button onclick="window.skillSagaSignupMethod=\'email\';loginScreen()">📧 Email</button><button onclick="window.skillSagaSignupMethod=\'mobile\';loginScreen()">📱 Mobile</button></div>':''}
 
         <input id="name" class="input" autocomplete="name" placeholder="Your full name">
 
@@ -5469,6 +5496,17 @@ function loginScreen(){
             <option value="parent">👨‍👩‍👧 Parent</option>
             <option value="teacher">👩‍🏫 Teacher</option>
           </select>
+          <div id="learnerSignupFields">
+            <input id="signupBoard" class="input" placeholder="Board (e.g. CBSE)">
+            <select id="signupClass" class="input">
+              <option value="">Select class (optional)</option>
+              <option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option><option value="5">Class 5</option><option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option><option value="11">Class 11</option><option value="12">Class 12</option>
+            </select>
+          </div>
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#65758b;margin:8px 0 14px">
+            <input id="signupTerms" type="checkbox" style="margin-top:2px">
+            <span>I agree to the Skill Saga Terms and Privacy Policy.</span>
+          </label>
           <button class="btn block" onclick="signup()" style="border-radius:14px;padding:13px;font-size:16px;font-weight:800">
             CREATE ACCOUNT
           </button>
@@ -5482,6 +5520,9 @@ function loginScreen(){
             <option value="parent">👨‍👩‍👧 Parent</option>
             <option value="teacher">👩‍🏫 Teacher</option>
           </select>
+          <input id="signupBoard" class="input" placeholder="Board (optional)">
+          <select id="signupClass" class="input"><option value="">Select class (optional)</option><option value="1">Class 1</option><option value="2">Class 2</option><option value="3">Class 3</option><option value="4">Class 4</option><option value="5">Class 5</option><option value="6">Class 6</option><option value="7">Class 7</option><option value="8">Class 8</option><option value="9">Class 9</option><option value="10">Class 10</option><option value="11">Class 11</option><option value="12">Class 12</option></select>
+          <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:#65758b;margin:8px 0 14px"><input id="signupTerms" type="checkbox" style="margin-top:2px"><span>I agree to the Skill Saga Terms and Privacy Policy.</span></label>
           <button class="btn block" onclick="mobileSignup()" style="border-radius:14px;padding:13px;font-size:16px;font-weight:800">
             📱 SEND OTP & CREATE ACCOUNT
           </button>
@@ -5502,6 +5543,7 @@ function loginScreen(){
   </div>`;
 }
 function mobileOTPLogin(){
+  var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};if(ac.mobileLoginEnabled===false)return toast('Mobile login is currently unavailable');
   if(!firebaseReady)return toast('Firebase is not connected');
 
   var old=document.getElementById('skillSagaOtpModal');
@@ -5628,10 +5670,12 @@ async function sendSSOTP(){
 }
 
 async function mobileSignup(){
+  var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};if(ac.mobileSignupEnabled===false)return toast('Mobile signup is currently unavailable');
   var nameEl=document.getElementById('name');
   var phoneEl=document.getElementById('mobileSignup');
   var name=nameEl?nameEl.value.trim():'';
   var phone=phoneEl?phoneEl.value.trim():'';
+  if(ac.requireTerms!==false&&!(document.getElementById('signupTerms')||{}).checked)return toast('Please accept the Terms and Privacy Policy');
 
   if(!name)return toast('Enter your name');
   if(!phone)return toast('Enter your mobile number');
@@ -5729,6 +5773,7 @@ async function verifyMobileSignupOTP(){
     data.role=role;
     data.mobile=user.phoneNumber||'';
     data.uid=user.uid;
+    if(role==='learner'){data.linkCode=makeLinkCode();data.board=(document.getElementById('signupBoard')||{}).value||'';data.studentClass=(document.getElementById('signupClass')||{}).value||'';}
 
     ensureUserData(data);
     await saveUserData(user.uid,data);
@@ -5769,11 +5814,13 @@ async function verifySSOTP(){
   }
 }
 
-async function login(){let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
-async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner';if(!n||!e||p.length<6)return toast('Enter your name, email and a 6+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner')u.linkCode=makeLinkCode();await saveCloudUser(u,cred.user);
+async function login(){var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};if(ac.emailLoginEnabled===false)return toast('Email login is currently unavailable');let e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value;if(!e||!p)return toast('Enter email and password');if(!firebaseReady)return toast('Firebase is not connected');try{await firebase.auth().signInWithEmailAndPassword(e,p)}catch(err){toast(err.code==='auth/invalid-credential'?'Email or password is incorrect':(err.message||'Login failed'))}}
+async function signup(){let n=document.getElementById('name').value.trim(),e=document.getElementById('email').value.trim().toLowerCase(),p=document.getElementById('password').value,role=(document.getElementById('signupRole')||{}).value||'learner',ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};var minPassword=6; try{var cfg=window.ssFoundationAuthCached?ssFoundationAuthCached():{};minPassword=Math.min(128,Math.max(6,Number(cfg.minimumPasswordLength||6)))}catch(e){}
+ if(!n||!e||p.length<minPassword)return toast('Enter your name, email and a '+minPassword+'+ character password');if(!['learner','parent','teacher'].includes(role))role='learner';if(role==='learner'&&ac.learnerSignupEnabled===false)return toast('Learner signup is currently unavailable');if(role==='parent'&&ac.parentSignupEnabled===false)return toast('Parent signup is currently unavailable');if(role==='teacher'&&ac.teacherSignupEnabled===false)return toast('Teacher signup is currently unavailable');if(ac.requireTerms!==false&&!(document.getElementById('signupTerms')||{}).checked)return toast('Please accept the Terms and Privacy Policy');if(!firebaseReady)return toast('Firebase is not connected');try{let cred=await firebase.auth().createUserWithEmailAndPassword(e,p);await cred.user.updateProfile({displayName:n});let u=freshUser(n,e);u.role=role;if(role==='learner'){u.linkCode=makeLinkCode();u.board=(document.getElementById('signupBoard')||{}).value||'';u.studentClass=(document.getElementById('signupClass')||{}).value||'';}await saveCloudUser(u,cred.user);
 if(role==='learner')await saveStudentDirectory(u);
+  try{var acv=window.ssFoundationAuthCached?ssFoundationAuthCached():{};if(acv.requireEmailVerification===true&&cred.user&&!cred.user.emailVerified)await cred.user.sendEmailVerification()}catch(e){}
 local.user=u;writeLocal(u);toast(role==='parent'?'Parent account created':role==='teacher'?'Teacher account created':'Learner account created')}catch(err){toast(err.code==='auth/email-already-in-use'?'Account already exists':(err.message||'Sign up failed'))}}
-async function resetPassword(){let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
+async function resetPassword(){var ac=window.ssFoundationAuthCached?ssFoundationAuthCached():{};if(ac.passwordResetEnabled===false)return toast('Password reset is currently unavailable');let e=document.getElementById('email').value.trim().toLowerCase();if(!e)return toast('Enter your email first');try{await firebase.auth().sendPasswordResetEmail(e);toast('Password reset email sent')}catch(err){toast(err.message||'Could not send reset email')}}
 async function logout(){try{if(firebaseReady)await firebase.auth().signOut()}catch(e){ }cloudUser=null;local={content:[],users:{}};loginScreen()}
 async function deleteAccount(){if(!cloudUser)return;if(!confirm('Delete your Skill Saga account? This cannot be undone.'))return;try{await cloudDb.collection('users').doc(cloudUser.uid).delete();await cloudUser.delete();toast('Account deleted');}catch(e){toast('Please sign in again before deleting the account.')}}
 function ensureUserData(u){
@@ -7055,7 +7102,7 @@ function roleDashboard(){
   return home();
 }
 
-function boot(){if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;try{let remote=await cloudUserDoc();if(remote){local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...remote};}else{local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal()};}if(fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2')local.user.role='admin';ensureUserData(local.user);if(!local.user.name)local.user.name=fu.displayName||fu.email.split('@')[0];await persistUser(local.user);await loadCloudContent();roleDashboard()}catch(e){console.warn('User profile load failed',e);local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal()};ensureUserData(local.user);await loadCloudContent();roleDashboard()}})}
+async function boot(){if(window.ssFoundationStartupGate){var allowed=await ssFoundationStartupGate();if(!allowed)return}if(window.ssFoundationAuthConfig){try{await ssFoundationAuthConfig()}catch(e){}}if(!firebaseReady){loginScreen();return}firebase.auth().onAuthStateChanged(async fu=>{if(!fu){cloudUser=null;loginScreen();return}cloudUser=fu;try{let remote=await cloudUserDoc();if(remote){local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...remote};}else{local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal()};}if(fu.uid==='4Jme1MoSmHbjzwVjkvxeNSwPp0U2')local.user.role='admin';ensureUserData(local.user);if(local.user.accountStatus==='suspended'||local.user.accountStatus==='blocked'){await firebase.auth().signOut();toast('This account is currently '+local.user.accountStatus+'. Please contact Skill Saga support.');return;}if(!local.user.name)local.user.name=fu.displayName||fu.email.split('@')[0];await persistUser(local.user);await loadCloudContent();if(window.ssFoundationRoute){var intercepted=await ssFoundationRoute(local.user);if(intercepted)return}roleDashboard()}catch(e){console.warn('User profile load failed',e);local.user={...freshUser(fu.displayName||fu.email.split('@')[0],fu.email),...readLocal()};ensureUserData(local.user);await loadCloudContent();if(window.ssFoundationRoute){var intercepted=await ssFoundationRoute(local.user);if(intercepted)return}roleDashboard()}})}
 boot();
 </script>
 

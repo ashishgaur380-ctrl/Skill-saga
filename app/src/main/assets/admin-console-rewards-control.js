@@ -1,0 +1,46 @@
+(function(){'use strict';
+function ok(){return ssAdminGuard()}
+function db(){return ssAdminDB()}
+function au(){return ssAdminAuth()}
+function ts(){return ssAdminStamp()}
+function esc(v){return ssAdminEsc(v)}
+function page(t,s,b){return ssAdminPage(t,s,b)}
+function btn(t,f,k){return ssAdminButton(t,f,k)}
+function val(id){var e=document.getElementById(id);return e?e.value.trim():''}
+function field(id,l,v){return '<label>'+esc(l)+'</label><input id="'+id+'" class="input" value="'+esc(v||'')+'">'}
+window.ssAdminRewardsControl=async function(){
+ if(!ok())return;
+ try{
+  var rs=await db().collection('rewards').get();
+  var bs=await db().collection('badges').get();
+  var r=rs.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+  var b=bs.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+  var rewardHtml=r.length?r.slice(0,100).map(function(x){
+   return '<div class="card"><div class="row"><b>'+esc(x.title||x.name||'Reward')+'</b><span class="badge">'+esc(x.status||'draft')+'</span></div><div class="small muted">XP: '+esc(x.xp||0)+' • Coins: '+esc(x.coins||0)+'</div>'+btn('Edit','ssAdminRewardEdit("'+esc(x.id)+'")')+'</div>';
+  }).join(''):'<div class="card">No rewards.</div>';
+  var badgeHtml=b.length?b.slice(0,100).map(function(x){
+   return '<div class="card"><b>'+esc(x.title||x.name||'Badge')+'</b><div class="small muted">'+esc(x.description||'')+'</div></div>';
+  }).join(''):'<div class="card">No badges.</div>';
+  page('Rewards & Badges Control','Manage reward and badge definitions, XP and coin values.','<div class="card admin">'+btn('＋ Add Reward','ssAdminRewardEdit("")','gold')+'</div><div class="section"><b>Rewards</b></div>'+rewardHtml+'<div class="section"><b>Badges ('+b.length+')</b></div>'+badgeHtml);
+ }catch(e){if(window.toast)toast(e.message||'Could not load rewards')}
+};
+window.ssAdminRewardEdit=async function(id){
+ if(!ok())return;
+ var x={};
+ try{
+  if(id){var s=await db().collection('rewards').doc(id).get();if(s.exists)x=s.data()}
+  page(id?'Edit Reward':'Add Reward','Configure the reward definition.','<div class="card">'+field('rcTitle','Reward title',x.title||x.name)+field('rcDesc','Description',x.description)+field('rcXP','XP',x.xp||0)+field('rcCoins','Coins',x.coins||0)+field('rcStatus','Status',x.status||'draft')+btn('Save Reward','ssAdminRewardSave("'+esc(id||'')+'")','gold')+'</div>');
+ }catch(e){if(window.toast)toast(e.message||'Could not open reward')}
+};
+window.ssAdminRewardSave=async function(id){
+ if(!ok())return;
+ var title=val('rcTitle');
+ if(!title)return toast('Enter a reward title.');
+ var d={title:title,description:val('rcDesc'),xp:Number(val('rcXP'))||0,coins:Number(val('rcCoins'))||0,status:val('rcStatus')||'draft',updatedBy:au().uid,updatedAt:new Date()};
+ try{
+  if(id)await db().collection('rewards').doc(id).set(d,{merge:true});
+  else{d.createdBy=au().uid;d.createdAt=new Date();await db().collection('rewards').add(d)}
+  toast('Reward saved ✓');ssAdminRewardsControl();
+ }catch(e){toast(e.message||'Could not save reward')}
+};
+})();
