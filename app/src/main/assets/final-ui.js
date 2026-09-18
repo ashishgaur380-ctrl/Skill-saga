@@ -50,7 +50,7 @@ function ssPlayAction(mode){if(mode==='Daily Quiz'&&typeof legacyPlay==='functio
 function competeFinal(){base(`<div class="ss-final"><section class="ss-hero blue"><div class="ss-hero-copy"><div class="ss-eyebrow">COMPETE</div><h1 class="ss-title">Challenge Yourself.<br>Show What You Know!</h1><div class="ss-sub">Take part in quizzes, win rewards, climb the leaderboard and become a Skill Saga champion!</div><div class="ss-quote">“Learn. Compete. Grow Together!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words" style="color:#fff">Good<br><b style="color:#fff">Students</b><br>Make<br>Great<br>Champions!<i></i></div><div class="ss-hero-mascot">🏆</div></div></section><div class="ss-blue-stats"><div class="ss-stat"><div class="ss-stat-icon">🏆</div><b>12</b><small>Competitions Joined</small></div><div class="ss-stat"><div class="ss-stat-icon">📊</div><b>3</b><small>Top 3 Finishes</small></div><div class="ss-stat"><div class="ss-stat-icon">🥇</div><b>850</b><small>Competition Points</small></div></div><div class="ss-section"><b>Competition Types</b><span>View All →</span></div><div class="ss-competition-grid">${[['🏆','Weekly Championship','Compete with students in your class'],['🎯','Subject Challenge','Test your subject mastery'],['👥','Class Challenge','Compete within your class'],['🏫','Inter-Class Quiz','Compete with other classes']].map(function(x){return '<div class="ss-comp"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+'</small><button class="ss-action">Explore →</button></div>'}).join('')}</div><div class="ss-section"><b>Discussion Forum</b><span>View all →</span></div><div class="ss-forum"><b>💬 Learn. Discuss. Grow.</b><p>Ask questions, share ideas and discuss subjects, skills and competitions with the Skill Saga community.</p><button onclick="window.ssForum()">Open Discussion Forum →</button></div><div class="ss-section"><b>Upcoming Competitions</b><span>View All →</span></div><div class="ss-upcoming">${[['SEP 18','Maths Weekly Championship','Class 8 • 20 Questions • 30 Minutes'],['SEP 20','Science Challenge','Class 6–8 • 25 Questions • 30 Minutes'],['SEP 24','General Knowledge Showdown','Class 6–10 • 30 Questions • 30 Minutes']].map(function(x){return '<div class="ss-event"><div class="ss-date">'+x[0]+'</div><div class="ss-event-main"><b>'+x[1]+'</b><small>'+x[2]+'</small></div><button>Register</button></div>'}).join('')}</div><div class="ss-section"><b>Leaderboard (This Week)</b><span>View All →</span></div><div class="ss-board">${[['🥇','Aarav Sharma','2,850 XP'],['🥈','Diya Verma','2,610 XP'],['🥉','Rohan Mehta','2,430 XP'],['#18','You (Ashish)','850 XP']].map(function(x){return '<div class="ss-board-row"><div class="ss-board-rank">'+x[0]+'</div><div class="ss-avatar">👦</div><div class="ss-board-name">'+x[1]+'</div><div class="ss-board-xp">'+x[2]+'</div></div>'}).join('')}</div><div class="ss-final-note">🎁 Compete • Learn • Earn • Grow — every challenge makes you stronger.</div></div>`,'compete')}
 async function forum(){
   var u=U();
-  if(!u||!window.cloudDb||!window.firebase)return typeof toast==='function'&&toast('Please sign in to use the Discussion Forum.');
+  if(!u||!(typeof cloudDb!=='undefined'&&cloudDb)||!window.firebase)return typeof toast==='function'&&toast('Please sign in to use the Discussion Forum.');
   try{
     var ss=await cloudDb.collection('appSettings').doc('general').get();
     var settings=ss.exists?ss.data():{};
@@ -89,7 +89,7 @@ async function forum(){
   }catch(e){if(typeof toast==='function')toast(e.message||'Could not load Discussion Forum.');}
 }
 window.ssCreateForumGroup=async function(){
-  var u=U();if(!u||!window.cloudDb||!window.firebase)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb)||!window.firebase)return;
   var title=(document.getElementById('fgTitle')||{}).value||'',desc=(document.getElementById('fgDesc')||{}).value||'',cls=(document.getElementById('fgClass')||{}).value||'',sub=(document.getElementById('fgSubject')||{}).value||'';
   title=title.trim();desc=desc.trim();cls=cls.trim();sub=sub.trim();
   if(!title||!desc||!cls||!sub)return typeof toast==='function'&&toast('Enter group title, description, class and subject.');
@@ -104,7 +104,7 @@ window.ssCreateForumGroup=async function(){
   }catch(e){if(typeof toast==='function')toast(e.message||'Could not create group.');}
 };
 window.ssOpenForumGroup=async function(id){
-  var u=U();if(!u||!window.cloudDb)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb))return;
   try{
     var gSnap=await cloudDb.collection('forumGroups').doc(id).get();if(!gSnap.exists)return toast('Group not found.');
     var g=Object.assign({id:id},gSnap.data());
@@ -125,7 +125,7 @@ window.ssOpenForumGroup=async function(id){
   }catch(e){toast(e.message||'Could not open group.');}
 };
 window.ssJoinForumGroup=async function(id,g){
-  var u=U();if(!u||!window.cloudDb)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb))return;
   try{
     await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).set({groupId:id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'member',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
     await cloudDb.collection('forumGroups').doc(id).update({memberCount:firebase.firestore.FieldValue.increment(1),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
@@ -133,7 +133,7 @@ window.ssJoinForumGroup=async function(id,g){
   }catch(e){toast(e.message||'Could not join group.');}
 };
 window.ssCreateForumPost=async function(groupId){
-  var u=U();if(!u||!window.cloudDb)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb))return;
   var t=(document.getElementById('fpTitle')||{}).value||'',b=(document.getElementById('fpBody')||{}).value||'';t=t.trim();b=b.trim();
   if(!t||!b)return toast('Enter a discussion title and message.');
   try{
@@ -146,7 +146,7 @@ window.ssReplyForumPost=function(postId){
   box.innerHTML='<textarea id="replyText_'+esc(postId)+'" class="area" rows="2" placeholder="Write a helpful reply"></textarea><button class="ss-action" onclick="ssSubmitForumReply(\''+esc(postId)+'\')">Submit Reply →</button>';
 };
 window.ssSubmitForumReply=async function(postId){
-  var u=U();if(!u||!window.cloudDb)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb))return;
   var el=document.getElementById('replyText_'+postId),body=(el&&el.value||'').trim();if(!body)return toast('Write a reply first.');
   try{
     var p=await cloudDb.collection('forumPosts').doc(postId).get();if(!p.exists)return toast('Discussion not found.');
@@ -156,7 +156,7 @@ window.ssSubmitForumReply=async function(postId){
   }catch(e){toast(e.message||'Could not submit reply.');}
 };
 window.ssReportForumPost=async function(postId){
-  var u=U();if(!u||!window.cloudDb)return;
+  var u=U();if(!u||!(typeof cloudDb!=='undefined'&&cloudDb))return;
   var reason=prompt('Why are you reporting this discussion?','Inappropriate or unrelated content');if(!reason)return;
   try{await cloudDb.collection('forumReports').add({postId:postId,reporterUid:u.uid,reason:reason.trim(),status:'open',createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Report submitted ✓');}catch(e){toast(e.message||'Could not submit report.');}
 };
