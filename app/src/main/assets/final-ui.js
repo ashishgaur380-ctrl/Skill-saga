@@ -49,7 +49,7 @@ async function ssReadHomeSettings(){
   try{
     if(window.firebase&&firebase.firestore){
       var s=window.SkillSagaCommon?await SkillSagaCommon.getDoc('appSettings','home'):await firebase.firestore().collection('appSettings').doc('home').get();
-      if(s.exists)d=Object.assign(d,s.data());
+      if(s)d=Object.assign(d,s);
     }
   }catch(e){console.warn('Home settings load failed',e)}
   return d;
