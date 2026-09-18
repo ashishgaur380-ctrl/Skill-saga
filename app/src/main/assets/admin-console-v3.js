@@ -52,8 +52,8 @@ window.ssAdminV3SaveReward=async function(id){
  if(!ok())return;
  var t=document.getElementById('rvTitle').value.trim();
  if(!t)return toastx('Enter a reward title.');
- var d={title:t,coins:Math.max(0,Number(document.getElementById('rvCoins').value)||0),xp:Math.max(0,Number(document.getElementById('rvXp').value)||0),description:document.getElementById('rvDesc').value.trim(),status:document.getElementById('rvStatus').value,published:document.getElementById('rvStatus').value==='published',updatedBy:au().uid,updatedAt:ts()};
- try{if(id)await db().collection('rewards').doc(id).set(d,{merge:true});else{d.createdBy=au().uid;d.createdAt=ts();await db().collection('rewards').add(d)}toastx('Reward saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save reward')}
+ var d={title:t,coins:Math.max(0,Number(document.getElementById('rvCoins').value)||0),xp:Math.max(0,Number(document.getElementById('rvXp').value)||0),description:document.getElementById('rvDesc').value.trim(),status:document.getElementById('rvStatus').value,published:document.getElementById('rvStatus').value==='published',updatedBy:auth().uid,updatedAt:ssAdminStamp()};
+ try{if(id)await db().collection('rewards').doc(id).set(d,{merge:true});else{d.createdBy=auth().uid;d.createdAt=ssAdminStamp();await db().collection('rewards').add(d)}toastx('Reward saved ✓');ssAdminV3Rewards()}catch(e){toastx(e.message||'Could not save reward')}
 };
 window.ssAdminV3DeleteReward=async function(id){
  if(!ok()||!id)return;
