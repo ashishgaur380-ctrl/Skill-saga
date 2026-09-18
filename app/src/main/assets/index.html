@@ -2043,12 +2043,14 @@ async function leaderboardData(){
   let arr=[];
   if(cloudDb){
     try{
-      let s=await cloudDb.collection('users').orderBy('xp','desc').limit(Number(cfg.limit||20)).get();
+      let s=await cloudDb.collection('leaderboardEntries').orderBy('xp','desc').limit(Number(cfg.limit||20)).get();
       arr=s.docs.map(d=>d.data()).filter(function(x){return x.role==='learner'||!x.role});
-    }catch(e){arr=Object.values(local.users||{});}
-  }else arr=Object.values(local.users||{});
-  if(cfg.scope==='class'&&me)arr=arr.filter(function(x){return String(x.studentClass||x.classLevel||'')===String(me.studentClass||me.classLevel||'');});
+    }catch(e){
+      arr=[];
+    }
+  }
   if(me&&!arr.some(x=>(cloudUser&&x.uid===cloudUser.uid)||(x.email&&me.email&&x.email===me.email)))arr.push(Object.assign({},me,{uid:cloudUser&&cloudUser.uid||me.uid||''}));
+  if(cfg.scope==='class'&&me)arr=arr.filter(function(x){return String(x.studentClass||x.classLevel||'')===String(me.studentClass||me.classLevel||'');});
   return arr.sort(function(a,b){return Number(b.xp||0)-Number(a.xp||0)}).slice(0,Number(cfg.limit||20));
 }
 async function rank(){let u=user();let arr=await leaderboardData();return 1+arr.filter(x=>(x.studentXp||x.xp||0)>(u.xp||0)).length}
