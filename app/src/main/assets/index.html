@@ -4821,6 +4821,22 @@ function settings(){
     '<div class="notice">Skill Saga protects your account using Firebase Authentication. Learning progress is synced when online.</div>');
 }
 
+async function resetPassword(){
+  var emailEl=document.getElementById('email');
+  var email=emailEl?emailEl.value.trim().toLowerCase():'';
+  if(!email)return toast('Enter your email address first');
+  if(!firebaseReady)return toast('Firebase is not connected');
+  try{
+    await firebase.auth().sendPasswordResetEmail(email);
+    toast('Password reset email sent. Check your inbox and spam folder.');
+  }catch(err){
+    console.error('SKILL SAGA PASSWORD RESET ERROR',err);
+    if(err.code==='auth/invalid-email')return toast('Enter a valid email address');
+    if(err.code==='auth/too-many-requests')return toast('Too many reset requests. Please try again later.');
+    toast('Could not send password reset email. Please check the email address and try again.');
+  }
+}
+
 function resetPasswordFromSettings(){
   resetPassword();
 }
