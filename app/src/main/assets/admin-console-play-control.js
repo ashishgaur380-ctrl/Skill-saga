@@ -40,7 +40,7 @@ window.ssAdminPlayControl=async function(){
  var by={};acts.forEach(function(x){by[x.type]=x});
  var rows=TYPES.map(function(t){
    var a=by[t.id];
-   return '<div class="card"><div class="row"><div><b>'+esc(t.name)+'</b><div class="small muted">'+esc(t.desc)+'</div></div><span class="badge">'+toggle(!a||a.enabled!==false)+'</span></div><div class="small muted">Type: '+esc(t.id)+(a&&a.updatedAt?' • configured':'')+'</div>'+btn('Configure','ssAdminPlayActivityForm(\\''+t.id+'\\')')+'</div>'
+   return '<div class="card"><div class="row"><div><b>'+esc(t.name)+'</b><div class="small muted">'+esc(t.desc)+'</div></div><span class="badge">'+toggle(!a||a.enabled!==false)+'</span></div><div class="small muted">Type: '+esc(t.id)+(a&&a.updatedAt?' • configured':'')+'</div>'+btn('Configure',"ssAdminPlayActivityForm('"+t.id+"')")+'</div>'
  }).join('');
  var p=prog.length?prog:DEFAULTS;
  var pr=p.map(function(x){return '<div class="card"><div class="row"><b>'+esc(x.label||x.id)+'</b><span class="badge">'+esc(x.xp||0)+' XP</span></div><div class="small muted">Coins: '+esc(x.coins||0)+'</div></div>'}).join('');
