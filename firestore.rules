@@ -89,12 +89,13 @@ service cloud.firestore {
 
     match /relationships/{relationshipId} {
       allow create: if signedIn()
+        && request.resource.data.status == 'active'
         && (
-          request.resource.data.parentUid == request.auth.uid
+          isAdmin()
+          || request.resource.data.parentUid == request.auth.uid
           || request.resource.data.teacherUid == request.auth.uid
           || request.resource.data.studentUid == request.auth.uid
-        )
-        && request.resource.data.status == 'active';
+        );
 
       allow read: if signedIn()
         && (
