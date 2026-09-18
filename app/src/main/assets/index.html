@@ -1921,7 +1921,7 @@ const LOGO='logo.png';
 const firebaseConfig={apiKey:'AIzaSyAeItjskb7Gv-eyi4daMZYjsU8Cr88MtiQ',authDomain:'skill-saga-cb695.firebaseapp.com',projectId:'skill-saga-cb695',storageBucket:'skill-saga-cb695.firebasestorage.app',messagingSenderId:'354189057486',appId:'1:354189057486:web:ed5425cd8ff0f8d08fdf9f'};
 let firebaseReady=false,cloudUser=null,cloudDb=null,screen='home',quizState=null,authMode='login',local={content:[],users:{}};
 try{firebase.initializeApp(firebaseConfig);cloudDb=firebase.firestore();firebaseReady=true}catch(e){console.warn(e)}
-const fallbackQuiz={id:'daily-science',type:'daily',title:"Today's Science Challenge",category:'Science',difficulty:'Easy',xp:120,date:new Date().toISOString().slice(0,10),published:true,questions:[
+const fallbackQuiz={_isFallback:true,id:'daily-science',type:'daily',title:"Today's Science Challenge",category:'Science',difficulty:'Easy',xp:120,date:new Date().toISOString().slice(0,10),published:true,questions:[
 ['Which process allows green plants to prepare their own food?',['Respiration','Digestion','Photosynthesis','Transpiration'],2],
 ['Which gas is mainly used by plants during photosynthesis?',['Oxygen','Carbon dioxide','Nitrogen','Hydrogen'],1],
 ['What is the main source of energy for Earth?',['Moon','Wind','Sun','Soil'],2],
@@ -4991,7 +4991,7 @@ function startQuiz(id){
     window.skillSagaQuizTimer=null;
   }
 
-  let c=local.content.find(x=>x.id===id)||daily();
+  let c=id?local.content.find(x=>x.id===id):daily();
 
   if(!c||!Array.isArray(c.questions)||!c.questions.length){
     alert('This quiz has no questions available.');
