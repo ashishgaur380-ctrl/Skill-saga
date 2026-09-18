@@ -5320,6 +5320,23 @@ async function finishQuiz(){
       }).catch(function(e){
         console.warn('Quiz attempt cloud save failed',e);
       });
+      if(s.competitionId&&cloudDb){
+        var compStats=u.competitionStats&&typeof u.competitionStats==='object'?u.competitionStats:{joined:0,points:0,top3:0};
+        compStats.joined=Number(compStats.joined||0)+1;
+        compStats.points=Number(compStats.points||0)+Number(score||0);
+        u.competitionStats=compStats;
+        saveCloudUser(u).catch(function(e){console.warn('Competition stats cloud save failed',e);});
+        cloudDb.collection('competitionResults').add({
+          competitionId:s.competitionId,
+          quizId:s.c.id||'',
+          uid:firebase.auth().currentUser.uid,
+          score:score,
+          total:total,
+          percentage:pct,
+          points:Number(score||0),
+          completedAt:firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(function(e){console.warn('Competition result cloud save failed',e);});
+      }
     }
   }catch(e){
     console.warn('Quiz result cloud save setup failed',e);
