@@ -71,9 +71,18 @@ service cloud.firestore {
         );
 
       allow update: if signedIn()
-        && resource.data.toUid == request.auth.uid
-        && resource.data.status == 'pending'
-        && request.resource.data.status in ['accepted', 'rejected'];
+        && (
+          (
+            resource.data.toUid == request.auth.uid
+            && resource.data.status == 'pending'
+            && request.resource.data.status in ['accepted', 'rejected']
+          )
+          || (
+            isAdmin()
+            && resource.data.status == 'pending'
+            && request.resource.data.status in ['accepted', 'rejected']
+          )
+        );
 
       allow delete: if signedIn()
         && (
