@@ -263,7 +263,8 @@ service cloud.firestore {
     }
 
     match /leaderboardEntries/{id} {
-      allow read: if signedIn();
+      allow read: if signedIn()
+        && resource.data.published == true;
       allow create, update, delete: if isAdmin();
     }
 
