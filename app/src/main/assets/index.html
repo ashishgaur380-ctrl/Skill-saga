@@ -2272,7 +2272,7 @@ async function home(){
       </section>
 
 
-      \${continueHtml}
+      ${continueHtml}
 
       <div class="ss-home-section ss-home-notifications-section">
         <b>Notifications</b>
@@ -2289,7 +2289,7 @@ async function home(){
         <span class="ss-home-link" onclick="go('history')">View history →</span>
       </div>
       <section class="ss-home-recent">
-        \${lastHistory?'<div class="card"><b>'+esc(lastHistory.title||'Quiz activity')+'</b><div class="muted" style="margin-top:5px">Latest learning activity • '+esc(lastHistory.score==null?'Completed':String(lastHistory.score)+' score')+'</div></div>':'<div class="card"><div class="muted">Your recent learning activity will appear here.</div></div>'}
+        ${lastHistory?'<div class="card"><b>'+esc(lastHistory.title||'Quiz activity')+'</b><div class="muted" style="margin-top:5px">Latest learning activity • '+esc(lastHistory.score==null?'Completed':String(lastHistory.score)+' score')+'</div></div>':'<div class="card"><div class="muted">Your recent learning activity will appear here.</div></div>'}
       </section>
 
       <div class="ss-home-bottom-note">
