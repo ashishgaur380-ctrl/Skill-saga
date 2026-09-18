@@ -19,6 +19,7 @@ window.previewAdminQuizById=async function(id){if(!ok())return;var s=await db().
 window.adminQuizPerformance=async function(id){if(!ok())return;var a=await ssAdminDocs('quizAttempts'),r=a.filter(function(x){return x.quizId===id}),avg=r.length?Math.round(r.reduce(function(s,x){return s+Number(x.percentage||0)},0)/r.length):0;ssAdminPage('Quiz Performance','Attempts and accuracy for this quiz.','<div class="grid"><div class="tile"><b>'+r.length+'</b><small>Attempts</small></div><div class="tile"><b>'+avg+'%</b><small>Average Accuracy</small></div></div>')};
 window.adminToggleQuiz=async function(id,publish){if(!ok())return;try{await db().collection('quizzes').doc(id).update({published:!!publish,status:publish?'published':'draft',updatedBy:au().uid,updatedAt:ts()});toastx(publish?'Quiz published ✓':'Quiz unpublished ✓');ssAdminQuiz()}catch(e){toastx(e.message||'Could not update quiz')}};
 /* Quiz Manager list: dashboard opens the list; create/edit remain separate actions. */
+window.deleteAdminQuiz=async function(id){if(!ok()||!id)return;if(!confirm('Delete this quiz permanently?'))return;try{await db().collection('quizzes').doc(id).delete();toastx('Quiz deleted ✓');ssAdminQuiz()}catch(e){toastx(e.message||'Could not delete quiz')}};
 window.ssAdminQuiz=async function(){
   if(!ok())return;
   try{
@@ -36,6 +37,7 @@ window.ssAdminQuiz=async function(){
         b('Preview','previewAdminQuizById('+JSON.stringify(x.id)+')','light')+
         b('Performance','adminQuizPerformance('+JSON.stringify(x.id)+')','light')+
         b(x.published===true?'Unpublish':'Publish','adminToggleQuiz('+JSON.stringify(x.id)+','+(x.published===true?'false':'true')+')','gold')+
+        b('Delete','deleteAdminQuiz('+JSON.stringify(x.id)+')','light')+
         '</div></div>';
     }).join(''):'<div class="card" style="margin-top:10px">No quizzes found.</div>';
     ssAdminPage('Quiz Manager','Create, edit, preview, import, publish and schedule quizzes.',body);
