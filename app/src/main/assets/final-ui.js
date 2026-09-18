@@ -55,19 +55,36 @@ async function ssReadHomeSettings(){
   return d;
 }
 function ssQuizForHome(type){
-  try{
-    if(type==='daily'&&typeof daily==='function')return daily();
-    if(type==='weekly'&&typeof weekly==='function')return weekly();
-  }catch(e){}
   var arr=(typeof local!=='undefined'&&Array.isArray(local.content))?local.content:[];
   var today=new Date().toISOString().slice(0,10);
-  var matches=arr.filter(function(x){
-    if(!x||x.published===false||x.type!==type)return false;
-    var date=String(x.publishDate||x.date||'');
-    return type!=='daily'||!date||date<=today;
-  });
-  return matches[0]||null;
+  var module=type==='daily'?'Play':'Compete';
+  var destination=type==='daily'?'Daily Quiz':'Weekly Challenge';
+  function live(x){
+    if(!x||x.published===false)return false;
+    var pd=x.publishDate||x.date||'';
+    return !pd||pd<=today;
+  }
+  function placement(x){
+    var p=x.placement||{};
+    return live(x)&&
+      (x.primaryModule||p.module||'')===module&&
+      (x.primaryDestination||p.destination||'')===destination;
+  }
+  var q=arr.find(placement);
+  if(q)return q;
+  try{
+    if(type==='daily'&&typeof daily==='function'){
+      var d=daily();
+      if(d&&d.id&&!d._isFallback)return d;
+    }
+    if(type==='weekly'&&typeof weekly==='function'){
+      var w=weekly();
+      if(w&&w.id)return w;
+    }
+  }catch(e){}
+  return null;
 }
+
 async function homeFinal(){
   var s=stats(),u=U()||{},cs=competitionStats(u),rankLabel=s.xp>0?'#1':'—',h=await ssReadHomeSettings();
   if(h.enabled===false){
