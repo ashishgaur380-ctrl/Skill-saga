@@ -22,4 +22,8 @@ bridgeAdminHandler('ssAdminQuestions','admin-console-content.js');
 bridgeAdminHandler('ssAdminLearnControl','admin-console-learn-control.js');
 bridgeAdminHandler('ssAdminPlayControl','admin-console-play-control.js');
 bridgeAdminHandler('ssAdminCompetitionControl','admin-console-competition-control.js');
+bridgeAdminHandler('ssAdminAssignmentsControl','admin-console-assignments-control.js');
+bridgeAdminHandler('ssAdminRewardsControl','admin-console-rewards-control.js');
+bridgeAdminHandler('ssAdminUsersControl','admin-console-users-control.js');
+bridgeAdminHandler('ssAdminNotificationsControl','admin-console-notifications-control.js');
 })();
