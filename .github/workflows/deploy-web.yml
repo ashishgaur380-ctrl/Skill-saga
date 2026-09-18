@@ -1,8 +1,9 @@
 name: Deploy Skill Saga Web
+# Deployment trigger is enabled for the active feature branch so the preview reaches GitHub Pages.
 
 on:
   push:
-    branches: [main, final-integration]
+    branches: [main, final-integration, admin-learn-control-v1, admin-play-control-v1, admin-competition-control-v1, admin-major-controls-v1]
   workflow_dispatch:
     inputs:
       source_branch:
@@ -56,3 +57,5 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+# refreshed for latest major-controls validation

@@ -28,9 +28,10 @@ service cloud.firestore {
       allow read: if signedIn()
         && (request.auth.uid == uid || isAdmin());
 
-      allow create: if signedIn()
+      allow create: if isAdmin()
+        || (signedIn()
         && request.auth.uid == uid
-        && validSignupRole();
+        && validSignupRole());
 
       allow update: if signedIn()
         && (
@@ -159,13 +160,14 @@ service cloud.firestore {
     }
 
     match /assignments/{assignmentId} {
-      allow create: if signedIn()
+      allow create: if isAdmin()
+        || (signedIn()
         && currentUser()
         && request.resource.data.teacherUid == request.auth.uid
         && currentRole() == 'teacher'
         && request.resource.data.studentUid is string
         && request.resource.data.quizId is string
-        && request.resource.data.status == 'assigned';
+        && request.resource.data.status == 'assigned');
 
       allow read: if signedIn()
         && (
