@@ -6,6 +6,8 @@ mkdir -p "$PUBLIC"
 cp "$ROOT/app/src/main/assets/index.html" "$PUBLIC/index.html"
 cp "$ROOT/app/src/main/assets/final-ui.js" "$PUBLIC/final-ui.js"
 cp "$ROOT/app/src/main/assets/final-ui-links.js" "$PUBLIC/final-ui-links.js"
+# Admin console modules required by the browser-hosted Admin Console.
+for f in "$ROOT"/app/src/main/assets/admin-console*.js; do cp "$f" "$PUBLIC/"; done
 cp "$ROOT/web/teacher-data-sync.js" "$PUBLIC/teacher-data-sync.js"
 cp "$ROOT/web/learner-home-fix.js" "$PUBLIC/learner-home-fix.js"
 cp "$ROOT/web/learner-home-ui-refresh.js" "$PUBLIC/learner-home-ui-refresh.js"
