@@ -5747,6 +5747,7 @@ async function verifyMobileSignupOTP(){
     data.role=role;
     data.mobile=user.phoneNumber||'';
     data.uid=user.uid;
+    if(role==='learner'){data.linkCode=makeLinkCode();data.board=(document.getElementById('signupBoard')||{}).value||'';data.studentClass=(document.getElementById('signupClass')||{}).value||'';}
 
     ensureUserData(data);
     await saveUserData(user.uid,data);
