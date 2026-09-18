@@ -60,7 +60,7 @@ function needSetup(u,o){
   if(o.requireSubjects&&(!Array.isArray(u.subjects)||!u.subjects.length))return true;
   if(o.requireLearningGoals&&(!Array.isArray(u.learningGoals)||!u.learningGoals.length))return true;
   if(o.requireLearningProfile&&!u.learningProfile)return true;
-  return true;
+  return false;
 }
 window.ssFoundationRoute=async function(u){
   var a=await getConfig('authentication');
