@@ -134,6 +134,7 @@ window.ssFoundationApplyHome=function(h){
   if(h.showMilestone===false){hide('.ss-home-card');var x3=Array.from(root.querySelectorAll('.ss-home-section')).find(function(e){return e.textContent.indexOf('Next Milestone')>=0});if(x3)x3.style.display='none'}
   if(h.showContinueLearning===false){Array.from(root.querySelectorAll('.ss-home-continue')).forEach(function(e){e.style.display='none'});var x4=Array.from(root.querySelectorAll('.ss-home-section')).find(function(e){return e.textContent.indexOf('Continue Learning')>=0});if(x4)x4.style.display='none'}
   if(h.showBottomNote===false){var n=root.querySelector('.ss-home-bottom-note');if(n)n.style.display='none'}
+  if(h.showNotifications===false){Array.from(root.querySelectorAll('.ss-home-notifications-section,.ss-home-notifications')).forEach(function(e){e.style.display='none'})}
   var order=String(h.sectionOrder||'stats,dailyMission,skills,milestone,continueLearning').split(',').map(function(x){return x.trim()}).filter(Boolean);
   var blocks={
     stats:root.querySelector('.ss-home-stats'),
