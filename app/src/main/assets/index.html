@@ -4926,9 +4926,25 @@ async function respondLinkRequest(requestId,action){
   }
 }
 
-async function notifications(){
+async async function loadPublishedNotifications(){
+  if(!cloudDb)return [];
+  try{
+    var s=await cloudDb.collection('notifications').where('status','==','published').get();
+    var now=new Date();
+    return s.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){
+      var u=user()||{},aud=String(x.audience||'all').toLowerCase();
+      if(aud!=='all'&&aud!=='learner'&&aud!=='students')return false;
+      if(x.startAt){var st=new Date(x.startAt);if(!isNaN(st)&&st>now)return false;}
+      if(x.endAt){var en=new Date(x.endAt);if(!isNaN(en)&&en<now)return false;}
+      return true;
+    }).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))}).slice(0,20);
+  }catch(e){return []}
+}
+function notifications(){
   var u=user();
   var requests=await loadLinkRequests();
+  var published=await loadPublishedNotifications();
+  var publishedHtml=published.length?'<div class="section"><b>📢 Announcements</b></div>'+published.map(function(n){return '<div class="card" style="margin-bottom:10px"><b>'+esc(n.title||'Announcement')+'</b><p class="muted">'+esc(n.body||'')+'</p></div>';}).join(''):'';
   var requestHtml=requests.length?
     '<div class="section"><b>Pending Link Requests</b></div>'+
     requests.map(function(r){
@@ -4941,6 +4957,7 @@ async function notifications(){
   shell(`
     <div class="row" style="margin-bottom:14px">      <div>        <h1 style="margin:0">Notifications</h1>        <div class="muted">Stay updated with your Skill Saga journey.</div>      </div>    </div>
     ${requestHtml}
+    ${publishedHtml}
     <div class="section"><b>For You</b><span class="muted">Your latest learning updates</span></div>
     <div class="card" style="margin-bottom:10px">
       <div class="row">
