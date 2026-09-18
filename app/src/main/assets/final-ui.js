@@ -41,9 +41,15 @@ function base(content,active){
 }
 async function ssData(){
   var u=U(); if(!u||typeof cloudDb==='undefined'||!cloudDb||!window.firebase)return {u:u||{},quizzes:[],curriculum:[],materials:[],assignments:[],competitions:[],results:[],attempts:[],rewards:[],badges:[],notifications:[]};
-  async function get(name){try{var s=await cloudDb.collection(name).get();return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})}catch(e){console.warn('Skill Saga data load failed',name,e);return[]}}
-  var a=await Promise.all(['quizzes','curriculum','learningMaterials','assignments','competitions','competitionResults','quizAttempts','rewards','badges','notifications'].map(get));
-  return {u:u,quizzes:a[0],curriculum:a[1],materials:a[2],assignments:a[3],competitions:a[4],results:a[5],attempts:a[6],rewards:a[7],badges:a[8],notifications:a[9]};
+  async function allPublished(name){
+    try{var s=await cloudDb.collection(name).where('status','in',['published','active']).get();return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})}
+    catch(e){try{var s2=await cloudDb.collection(name).where('published','==',true).get();return s2.docs.map(function(d){return Object.assign({id:d.id},d.data())})}catch(e2){return[]}}
+  }
+  async function getMine(name,field){
+    try{var s=await cloudDb.collection(name).where(field,'==',u.uid).get();return s.docs.map(function(d){return Object.assign({id:d.id},d.data())})}catch(e){return[]}
+  }
+  var p=await Promise.all([allPublished('quizzes'),allPublished('curriculum'),allPublished('learningMaterials'),getMine('assignments','studentUid'),allPublished('competitions'),getMine('competitionResults','uid'),getMine('quizAttempts','uid'),allPublished('rewards'),allPublished('badges'),allPublished('notifications')]);
+  return {u:u,quizzes:p[0],curriculum:p[1],materials:p[2],assignments:p[3],competitions:p[4],results:p[5],attempts:p[6],rewards:p[7],badges:p[8],notifications:p[9]};
 }
 function ssClassNumber(u){return Number(u&&u.studentClass)||8}
 function ssBoardName(u){return String(u&&u.board||'').trim()}
