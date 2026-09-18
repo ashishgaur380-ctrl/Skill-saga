@@ -2994,6 +2994,9 @@ quizBrowser(category,skill);
 }
 
 
+async function ssLoadCompetitions(){if(!cloudDb)return[];try{var s=await cloudDb.collection('competitions').where('published','==',true).get(),u=user()||{},cls=String(u.studentClass||u.classLevel||'');return s.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){if(x.status&&x.status!=='published')return false;if(x.classNumber&&cls&&String(x.classNumber)!==cls)return false;if(x.registrationStatus==='closed')return false;if(x.endAt){var e=new Date(x.endAt);if(!isNaN(e)&&new Date()>e)return false}return true}).sort(function(a,b){return String(a.startAt||'').localeCompare(String(b.startAt||''))} ).catch(function(){return[]})}catch(e){return[]}}
+async function ssCompetitionList(){var a=await ssLoadCompetitions();shell('<div class="row"><button class="back" onclick="compete()">‹</button><div><h1 style="margin:0">Competitions</h1><div class="muted">Available challenges for your class</div></div></div>'+(a.length?a.map(function(x){return '<div class="card" style="margin-top:12px"><div class="row"><div><b>'+esc(x.title||'Competition')+'</b><div class="small muted">'+esc(x.type||'')+' • '+esc(x.category||'')+'</div></div><span class="badge">'+esc(x.registrationStatus||'open')+'</span></div><div class="small muted">'+esc(x.startAt||'')+' → '+esc(x.endAt||'')+' • '+esc(x.questionCount||0)+' questions • '+esc(x.entryCoins||0)+' coins</div><p class="small muted">'+esc(x.rules||'')+'</p>'+(x.quizIds&&x.quizIds.length?'<button class="btn light" onclick="ssStartCompetition(\''+x.id+'\')">Start / View</button>':'')+'</div>'}).join(''):'<div class="card muted">No published competitions are available right now.</div>'))}
+async function ssStartCompetition(id){var d=await cloudDb.collection('competitions').doc(id).get();if(!d.exists)return toast('Competition unavailable.');var x=d.data();if(x.entryCoins>0){var u=user()||{};if(Number(u.coins||0)<Number(x.entryCoins))return toast('Not enough coins for this competition.')}if(!x.quizIds||!x.quizIds.length)return toast('Competition quiz is not configured yet.');return startQuiz(x.quizIds[0]);}
 async function compete(){
   var u=user();
   if(!u)return loginScreen();
@@ -3084,6 +3087,9 @@ async function compete(){
 
       </section>
 
+
+      <div class="ss-compete-section"><b>Competitions</b><button class="btn light" onclick="ssCompetitionList()">View all →</button></div>
+      <div class="card"><b>🏆 Published Challenges</b><p class="muted">Browse competitions configured by Skill Saga.</p><button class="btn gold" onclick="ssCompetitionList()">Browse Competitions</button></div>
 
       <!-- CHALLENGES -->
       <div class="ss-compete-section">
