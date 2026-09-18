@@ -23,7 +23,7 @@ async function saveDoc(id,data){
   await db().collection('appSettings').doc(id).set(data,{merge:true});
 }
 var DEFAULT_STARTUP={enabled:true,logo:'logo.png',appName:'Skill Saga',tagline:'A smarter way to learn',splashDuration:1200,maintenanceMode:false,maintenanceMessage:'Skill Saga is temporarily under maintenance. Please try again shortly.',minimumVersion:'1.0.0',latestVersion:'1.0.0',forceUpdate:false};
-var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false,requireTerms:true};
+var DEFAULT_AUTH={emailLoginEnabled:true,emailSignupEnabled:true,passwordResetEnabled:true,mobileLoginEnabled:false,mobileSignupEnabled:false,learnerSignupEnabled:true,parentSignupEnabled:true,teacherSignupEnabled:true,requireProfileSetup:true,requireEmailVerification:false,requireTerms:true,minimumPasswordLength:6};
 var DEFAULT_SETUP={enabled:true,requireBoard:true,requireClass:true,requireSubjects:true,requireLearningGoals:false,requireLearningProfile:false,boards:['CBSE'],classes:[1,2,3,4,5,6,7,8,9,10,11,12],defaultSubjects:[],goals:['Improve school performance','Practice regularly','Build core skills']};
 var DEFAULT_HOME={enabled:true,showStats:true,showDailyMission:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true,sectionOrder:'stats,dailyMission,skills,milestone,continueLearning',welcomeTitle:'A smarter way to learn — one challenge at a time.',welcomeQuote:'Small Steps | Big Achievements!'};
 
@@ -79,6 +79,7 @@ window.ssAdminFoundationSection=async function(section){
       check('faSetup','Require first-time learner setup',a.requireProfileSetup)+
       check('faVerify','Require email verification before learner access',a.requireEmailVerification)+
       check('faTerms','Require Terms & Privacy acceptance',a.requireTerms!==false)+
+      field('faMinPass','Minimum password length',a.minimumPasswordLength||6)+
       btn('Save Authentication Settings','ssAdminFoundationSave(\'authentication\')','gold')+
       '</div><div class="notice">Provider activation (Email/Password or Phone) is configured in Firebase Authentication; these controls govern Skill Saga app-side availability.</div>');
   }
