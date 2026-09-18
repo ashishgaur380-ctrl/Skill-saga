@@ -3,7 +3,7 @@ name: Deploy Skill Saga Web
 
 on:
   push:
-    branches: [main, final-integration, admin-learn-control-v1, admin-play-control-v1]
+    branches: [main, final-integration, admin-learn-control-v1, admin-play-control-v1, admin-competition-control-v1]
   workflow_dispatch:
 
 permissions:
