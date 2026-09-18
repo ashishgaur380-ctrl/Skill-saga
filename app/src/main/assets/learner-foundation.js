@@ -120,6 +120,7 @@ window.ssFoundationVerifyEmail=function(){
 window.ssFoundationSendVerification=async function(){try{if(cloudUser)await cloudUser.sendEmailVerification();toast('Verification email sent ✓')}catch(e){toast(e.message||'Could not send verification email')}};
 window.ssFoundationAuthConfig=async function(){return getConfig('authentication')};
 window.ssFoundationAuthCached=function(){return cache.authentication||defaults.authentication};
+window.ssFoundationPrimeAuth=async function(){return getConfig('authentication')};
 window.ssFoundationHomeConfig=async function(){return getConfig('home')};
 window.ssFoundationApplyHome=function(h){
   if(!h)return;
