@@ -34,7 +34,116 @@ function ssClass(n){if(typeof toast==='function')toast('Class '+n+' selected.');
 function playFinal(){base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">PLAY</div><h1 class="ss-title">Play. Practice. Master.</h1><div class="ss-sub">Choose a quiz mode, build your streak and turn practice into progress.</div><div class="ss-quote">“Every question makes you stronger!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">🎯</div></div></section><div class="ss-section"><b>Quiz Modes</b><span>Choose how you play</span></div><div class="ss-play-modes">${[['⚡','Quick Quiz','5 questions • Fast practice'],['📅','Daily Quiz','New challenge every day'],['📚','Practice','Practice by subject & topic'],['🎯','Skill Quiz','Focus on core skills']].map(function(x){return '<div class="ss-mode"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+'</small><button class="ss-action" onclick="ssPlayAction(\''+x[1]+'\')">Start →</button></div>'}).join('')}</div><div class="ss-section"><b>Assigned Quizzes</b><span>View all →</span></div><div class="ss-assigned"><div class="ss-assignment"><div class="i">📝</div><div class="ss-assignment-main"><b>Daily Test 1 – 2026</b><small>2 Questions • Basic • Assigned</small></div><button onclick="window.go('play')">Open</button></div></div><div class="ss-section"><b>Your Progress</b><span>Keep going</span></div><div class="ss-card"><b>Today’s Quiz Goal</b><small>Complete 1 quiz to keep your learning streak active.</small><div class="ss-bar"><i style="width:50%"></i></div></div><div class="ss-final-note">🎮 Play with purpose — practice, review mistakes and improve every day.</div></div>`,'play')}
 function ssPlayAction(mode){if(mode==='Daily Quiz'&&typeof legacyPlay==='function'){try{return legacyPlay()}catch(e){}}if(typeof toast==='function')toast(mode+' is ready — quiz integration remains connected to the existing engine.');}
 function competeFinal(){base(`<div class="ss-final"><section class="ss-hero blue"><div class="ss-hero-copy"><div class="ss-eyebrow">COMPETE</div><h1 class="ss-title">Challenge Yourself.<br>Show What You Know!</h1><div class="ss-sub">Take part in quizzes, win rewards, climb the leaderboard and become a Skill Saga champion!</div><div class="ss-quote">“Learn. Compete. Grow Together!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words" style="color:#fff">Good<br><b style="color:#fff">Students</b><br>Make<br>Great<br>Champions!<i></i></div><div class="ss-hero-mascot">🏆</div></div></section><div class="ss-blue-stats"><div class="ss-stat"><div class="ss-stat-icon">🏆</div><b>12</b><small>Competitions Joined</small></div><div class="ss-stat"><div class="ss-stat-icon">📊</div><b>3</b><small>Top 3 Finishes</small></div><div class="ss-stat"><div class="ss-stat-icon">🥇</div><b>850</b><small>Competition Points</small></div></div><div class="ss-section"><b>Competition Types</b><span>View All →</span></div><div class="ss-competition-grid">${[['🏆','Weekly Championship','Compete with students in your class'],['🎯','Subject Challenge','Test your subject mastery'],['👥','Class Challenge','Compete within your class'],['🏫','Inter-Class Quiz','Compete with other classes']].map(function(x){return '<div class="ss-comp"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+'</small><button class="ss-action">Explore →</button></div>'}).join('')}</div><div class="ss-section"><b>Discussion Forum</b><span>View all →</span></div><div class="ss-forum"><b>💬 Learn. Discuss. Grow.</b><p>Ask questions, share ideas and discuss subjects, skills and competitions with the Skill Saga community.</p><button onclick="window.ssForum()">Open Discussion Forum →</button></div><div class="ss-section"><b>Upcoming Competitions</b><span>View All →</span></div><div class="ss-upcoming">${[['SEP 18','Maths Weekly Championship','Class 8 • 20 Questions • 30 Minutes'],['SEP 20','Science Challenge','Class 6–8 • 25 Questions • 30 Minutes'],['SEP 24','General Knowledge Showdown','Class 6–10 • 30 Questions • 30 Minutes']].map(function(x){return '<div class="ss-event"><div class="ss-date">'+x[0]+'</div><div class="ss-event-main"><b>'+x[1]+'</b><small>'+x[2]+'</small></div><button>Register</button></div>'}).join('')}</div><div class="ss-section"><b>Leaderboard (This Week)</b><span>View All →</span></div><div class="ss-board">${[['🥇','Aarav Sharma','2,850 XP'],['🥈','Diya Verma','2,610 XP'],['🥉','Rohan Mehta','2,430 XP'],['#18','You (Ashish)','850 XP']].map(function(x){return '<div class="ss-board-row"><div class="ss-board-rank">'+x[0]+'</div><div class="ss-avatar">👦</div><div class="ss-board-name">'+x[1]+'</div><div class="ss-board-xp">'+x[2]+'</div></div>'}).join('')}</div><div class="ss-final-note">🎁 Compete • Learn • Earn • Grow — every challenge makes you stronger.</div></div>`,'compete')}
-function forum(){if(typeof toast==='function')toast('Discussion Forum is prepared in the final Compete architecture.');}
+async function forum(){
+  var u=U();
+  if(!u||!window.cloudDb||!window.firebase)return typeof toast==='function'&&toast('Please sign in to use the Discussion Forum.');
+  try{
+    var ss=await cloudDb.collection('appSettings').doc('general').get();
+    var settings=ss.exists?ss.data():{};
+    if(settings.forumEnabled===false){
+      base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">COMMUNITY</div><h1 class="ss-title">Discussion Forum</h1><div class="ss-sub">The forum is temporarily disabled by Skill Saga Admin.</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">💬</div></div></section><div class="ss-final-note">Please check again later.</div></div>','compete');
+      return;
+    }
+    var gs=await cloudDb.collection('forumGroups').get();
+    var groups=gs.docs.map(function(d){return Object.assign({id:d.id},d.data())});
+    var mine=groups.filter(function(g){return g.ownerUid===u.uid});
+    var visible=groups.filter(function(g){return g.status==='published'||g.ownerUid===u.uid});
+    var approval=settings.forumGroupApproval!==false;
+    var groupHtml=visible.slice(0,60).map(function(g){
+      var mineFlag=g.ownerUid===u.uid;
+      return '<div class="ss-card">'+
+        '<div style="font-size:22px">💬</div><b>'+esc(g.title||'Discussion Group')+'</b>'+
+        '<small>'+esc(g.subject||'General')+' • Class '+esc(g.classLevel||'All')+' • '+esc(g.memberCount||0)+' members</small>'+
+        '<small>'+esc(g.description||'')+'</small>'+
+        '<small style="margin-top:6px;font-weight:900">'+(g.status==='pending'?'⏳ Pending admin approval':(mineFlag?'👑 You own this group':'Open learning discussion'))+'</small>'+
+        '<button class="ss-action" onclick="ssOpenForumGroup(\''+esc(g.id)+'\')">'+(g.status==='pending'?'View':'Open')+' →</button>'+
+      '</div>';
+    }).join('');
+    base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">COMMUNITY</div><h1 class="ss-title">Learn. Discuss. Grow.</h1><div class="ss-sub">Create learning groups, ask questions, share ideas and learn together.</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">💬</div></div></section>'+
+      '<div class="ss-card ss-soft" style="margin-bottom:10px"><b>Create a Discussion Group</b><small>Choose a class and subject. '+(approval?'New groups are reviewed by Admin before public publication.':'New groups are published immediately and remain under Admin moderation.')+'</small>'+
+      '<input id="fgTitle" class="input" placeholder="Group title">'+
+      '<textarea id="fgDesc" class="area" rows="3" placeholder="What will learners discuss?"></textarea>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px"><input id="fgClass" class="input" type="number" min="1" max="12" placeholder="Class (1–12)"><input id="fgSubject" class="input" placeholder="Subject"></div>'+
+      '<button class="ss-action" onclick="ssCreateForumGroup()">Create Group →</button></div>'+
+      '<div class="ss-section"><b>My Groups ('+mine.length+')</b><span>Admin controlled</span></div>'+
+      (mine.length?mine.slice(0,20).map(function(g){return '<div class="ss-card ss-purple"><b>👑 '+esc(g.title||'Discussion Group')+'</b><small>Class '+esc(g.classLevel||'All')+' • '+esc(g.subject||'General')+' • '+esc(g.status||'pending')+'</small><button class="ss-action" onclick="ssOpenForumGroup(\''+esc(g.id)+'\')">Open →</button></div>'}).join(''):'<div class="ss-card"><small>You have not created a group yet.</small></div>')+
+      '<div class="ss-section"><b>Discover Groups</b><span>'+visible.length+' available</span></div>'+
+      (groupHtml||'<div class="ss-card"><small>No published groups yet. Create the first learning discussion.</small></div>')+
+      '<div class="ss-final-note">🛡️ Admin has final control over every group, post, reply and report.</div></div>','compete');
+  }catch(e){if(typeof toast==='function')toast(e.message||'Could not load Discussion Forum.');}
+}
+window.ssCreateForumGroup=async function(){
+  var u=U();if(!u||!window.cloudDb||!window.firebase)return;
+  var title=(document.getElementById('fgTitle')||{}).value||'',desc=(document.getElementById('fgDesc')||{}).value||'',cls=(document.getElementById('fgClass')||{}).value||'',sub=(document.getElementById('fgSubject')||{}).value||'';
+  title=title.trim();desc=desc.trim();cls=cls.trim();sub=sub.trim();
+  if(!title||!desc||!cls||!sub)return typeof toast==='function'&&toast('Enter group title, description, class and subject.');
+  var n=Number(cls);if(n<1||n>12)return typeof toast==='function'&&toast('Class must be between 1 and 12.');
+  try{
+    var s=await cloudDb.collection('appSettings').doc('general').get(),cfg=s.exists?s.data():{};
+    var status=cfg.forumGroupApproval===false?'published':'pending';
+    var ref=await cloudDb.collection('forumGroups').add({title:title,description:desc,classLevel:n,subject:sub,ownerUid:u.uid,ownerName:u.name||u.displayName||'Learner',status:status,memberCount:1,createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await cloudDb.collection('forumGroupMembers').doc(ref.id+'_'+u.uid).set({groupId:ref.id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'owner',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(typeof toast==='function')toast(status==='published'?'Group created ✓':'Group submitted for Admin approval ✓');
+    forum();
+  }catch(e){if(typeof toast==='function')toast(e.message||'Could not create group.');}
+};
+window.ssOpenForumGroup=async function(id){
+  var u=U();if(!u||!window.cloudDb)return;
+  try{
+    var gSnap=await cloudDb.collection('forumGroups').doc(id).get();if(!gSnap.exists)return toast('Group not found.');
+    var g=Object.assign({id:id},gSnap.data());
+    if(g.status!=='published'&&g.ownerUid!==u.uid)return toast('This group is not published yet.');
+    var mem=await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).get();
+    var isOwner=g.ownerUid===u.uid;
+    if(!mem.exists&&!isOwner)return ssJoinForumGroup(id,g);
+    var ps=await cloudDb.collection('forumPosts').get();
+    var posts=ps.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(p){return p.groupId===id&&p.status==='published'}).sort(function(a,b){return String(b.createdAt||'').localeCompare(String(a.createdAt||''))});
+    var body=posts.slice(0,50).map(function(p){
+      return '<div class="ss-card"><div class="row"><b>'+esc(p.title||'Discussion')+'</b><span class="badge">'+esc(p.authorName||'Learner')+'</span></div><small>'+esc(String(p.body||''))+'</small><div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:7px"><button class="ss-action" onclick="ssReplyForumPost(\''+esc(p.id)+'\')">Reply</button><button class="ss-action" style="background:#fff;color:#1769ff;border:1px solid #dfe6f2" onclick="ssReportForumPost(\''+esc(p.id)+'\')">Report</button></div><div id="reply_'+esc(p.id)+'"></div></div>';
+    }).join('');
+    base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">DISCUSSION GROUP</div><h1 class="ss-title">'+esc(g.title||'Discussion Group')+'</h1><div class="ss-sub">'+esc(g.description||'')+'</div></div><div class="ss-hero-art"><div class="ss-hero-mascot">👥</div></div></section>'+
+      '<div class="ss-card ss-soft"><div class="row"><b>Class '+esc(g.classLevel||'All')+' • '+esc(g.subject||'General')+'</b><span class="badge">'+esc(g.memberCount||0)+' members</span></div><small>Owner: '+esc(g.ownerName||'Learner')+'</small></div>'+
+      '<div class="ss-card"><b>Start a Discussion</b><input id="fpTitle" class="input" placeholder="Discussion title"><textarea id="fpBody" class="area" rows="4" placeholder="Ask a question or share an idea"></textarea><button class="ss-action" onclick="ssCreateForumPost(\''+esc(id)+'\')">Post for Review →</button></div>'+
+      '<div class="ss-section"><b>Published Discussions</b><span>'+posts.length+'</span></div>'+(body||'<div class="ss-card"><small>No published discussions yet.</small></div>')+
+      (isOwner?'<div class="ss-final-note">👑 You are the Group Owner. Admin can override any group decision.</div>':'')+'</div>','compete');
+  }catch(e){toast(e.message||'Could not open group.');}
+};
+window.ssJoinForumGroup=async function(id,g){
+  var u=U();if(!u||!window.cloudDb)return;
+  try{
+    await cloudDb.collection('forumGroupMembers').doc(id+'_'+u.uid).set({groupId:id,memberUid:u.uid,memberName:u.name||u.displayName||'Learner',role:'member',joinedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await cloudDb.collection('forumGroups').doc(id).update({memberCount:firebase.firestore.FieldValue.increment(1),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Joined group ✓');ssOpenForumGroup(id);
+  }catch(e){toast(e.message||'Could not join group.');}
+};
+window.ssCreateForumPost=async function(groupId){
+  var u=U();if(!u||!window.cloudDb)return;
+  var t=(document.getElementById('fpTitle')||{}).value||'',b=(document.getElementById('fpBody')||{}).value||'';t=t.trim();b=b.trim();
+  if(!t||!b)return toast('Enter a discussion title and message.');
+  try{
+    await cloudDb.collection('forumPosts').add({groupId:groupId,title:t,body:b,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'pending',type:'post',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Discussion submitted for Admin review ✓');ssOpenForumGroup(groupId);
+  }catch(e){toast(e.message||'Could not submit discussion.');}
+};
+window.ssReplyForumPost=function(postId){
+  var box=document.getElementById('reply_'+postId);if(!box)return;
+  box.innerHTML='<textarea id="replyText_'+esc(postId)+'" class="area" rows="2" placeholder="Write a helpful reply"></textarea><button class="ss-action" onclick="ssSubmitForumReply(\''+esc(postId)+'\')">Submit Reply →</button>';
+};
+window.ssSubmitForumReply=async function(postId){
+  var u=U();if(!u||!window.cloudDb)return;
+  var el=document.getElementById('replyText_'+postId),body=(el&&el.value||'').trim();if(!body)return toast('Write a reply first.');
+  try{
+    var p=await cloudDb.collection('forumPosts').doc(postId).get();if(!p.exists)return toast('Discussion not found.');
+    var d=p.data();
+    await cloudDb.collection('forumPosts').add({groupId:d.groupId,parentId:postId,title:'Reply',body:body,authorUid:u.uid,authorName:u.name||u.displayName||'Learner',status:'pending',type:'reply',createdAt:firebase.firestore.FieldValue.serverTimestamp(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    toast('Reply submitted for Admin review ✓');ssOpenForumGroup(d.groupId);
+  }catch(e){toast(e.message||'Could not submit reply.');}
+};
+window.ssReportForumPost=async function(postId){
+  var u=U();if(!u||!window.cloudDb)return;
+  var reason=prompt('Why are you reporting this discussion?','Inappropriate or unrelated content');if(!reason)return;
+  try{await cloudDb.collection('forumReports').add({postId:postId,reporterUid:u.uid,reason:reason.trim(),status:'open',createdAt:firebase.firestore.FieldValue.serverTimestamp()});toast('Report submitted ✓');}catch(e){toast(e.message||'Could not submit report.');}
+};
 function bind(){css();if(!document.querySelector('.nav'))return;document.querySelectorAll('.nav button').forEach(function(b){if(b.dataset.s==='skills'){b.dataset.s='learn';b.innerHTML='▣<span>Learn</span>'}})}
 window.shell=function(content){legacyShell(content);bind()};
 window.go=function(n){window.screen=n;if(n==='home')return homeFinal();if(n==='learn'||n==='skills')return learnFinal();if(n==='play')return playFinal();if(n==='compete')return competeFinal();if(n==='profile')return legacyProfile();return legacyGo(n)};
