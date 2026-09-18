@@ -5374,6 +5374,7 @@ function loginScreen(){
   var emailSignup=ac.emailSignupEnabled!==false, mobileSignupEnabled=ac.mobileSignupEnabled===true;
   if(method==='mobile'&&!mobileLogin)method='email';
   if(method==='email'&&!emailLogin&&mobileLogin)method='mobile';
+  if(!emailLogin&&!mobileLogin)method='none';
 
   root.innerHTML=`
   <div class="auth" style="min-height:100vh;background:linear-gradient(145deg,#eef4ff 0%,#f7f1ff 48%,#ffffff 100%);padding:24px 16px;display:flex;align-items:center;justify-content:center;box-sizing:border-box">
@@ -5399,7 +5400,7 @@ function loginScreen(){
 
         ${(emailLogin&&mobileLogin)?'<div class="authmethodtabs"><button onclick="window.skillSagaLoginMethod=\'email\';loginScreen()">📧 Email</button><button onclick="window.skillSagaLoginMethod=\'mobile\';loginScreen()">📱 Mobile</button></div>':''}
 
-        ${method==='email'?`
+        ${method==='none'?`<div class="notice">Login is currently unavailable. Please try again later.</div>`:method==='email'?`
           <input id="email" class="input" type="email" autocomplete="email" placeholder="Email address">
           <div style="position:relative">
             <input id="password" class="input" type="password" autocomplete="current-password" placeholder="Password" style="padding-right:52px">
