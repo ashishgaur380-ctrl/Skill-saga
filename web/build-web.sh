@@ -2,35 +2,33 @@
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PUBLIC="$ROOT/web/public"
+rm -rf "$PUBLIC"
 mkdir -p "$PUBLIC"
+
+# Single canonical runtime: no legacy backup HTML and no patch/force layers.
 cp "$ROOT/app/src/main/assets/index.html" "$PUBLIC/index.html"
 cp "$ROOT/app/src/main/assets/final-ui.js" "$PUBLIC/final-ui.js"
 cp "$ROOT/app/src/main/assets/final-ui-links.js" "$PUBLIC/final-ui-links.js"
-cp "$ROOT/web/teacher-data-sync.js" "$PUBLIC/teacher-data-sync.js"
-cp "$ROOT/web/learner-home-fix.js" "$PUBLIC/learner-home-fix.js"
-cp "$ROOT/web/learner-home-ui-refresh.js" "$PUBLIC/learner-home-ui-refresh.js"
-cp "$ROOT/web/learner-home-force.js" "$PUBLIC/learner-home-force.js"
-cp "$ROOT/web/learn-flow.js" "$PUBLIC/learn-flow.js"
-cp "$ROOT/web/learner-learn-ui.js" "$PUBLIC/learner-learn-ui.js"
-cp "$ROOT/web/learner-learn-force.js" "$PUBLIC/learner-learn-force.js"
-cp "$ROOT/web/learner-play-flow.js" "$PUBLIC/learner-play-flow.js"
-cp "$ROOT/web/learner-compete-flow.js" "$PUBLIC/learner-compete-flow.js"
-cp "$ROOT/web/learner-rewards-flow.js" "$PUBLIC/learner-rewards-flow.js"
-cp "$ROOT/web/learner-progress-flow.js" "$PUBLIC/learner-progress-flow.js"
-cp "$ROOT/web/learner-quiz-history-flow.js" "$PUBLIC/learner-quiz-history-flow.js"
-cp "$ROOT/web/learner-notifications-flow.js" "$PUBLIC/learner-notifications-flow.js"
-cp "$ROOT/web/learner-profile-flow.js" "$PUBLIC/learner-profile-flow.js"
-cp "$ROOT/web/nav-order-force.js" "$PUBLIC/nav-order-force.js"
-cp "$ROOT/web/learner-navigation-force.js" "$PUBLIC/learner-navigation-force.js"
-if [ -f "$ROOT/app/src/main/assets/logo.png" ]; then cp "$ROOT/app/src/main/assets/logo.png" "$PUBLIC/logo.png"; fi
-python3 - "$PUBLIC/index.html" <<'PY'
-from pathlib import Path
-p=Path(__import__('sys').argv[1])
-s=p.read_text(encoding='utf-8')
-tags=['<script src="final-ui.js"></script>','<script src="final-ui-links.js"></script>','<script src="teacher-data-sync.js"></script>','<script src="learner-home-fix.js"></script>','<script src="learner-home-ui-refresh.js"></script>','<script src="learner-home-force.js"></script>','<script src="learn-flow.js"></script>','<script src="learner-learn-ui.js"></script>','<script src="learner-learn-force.js"></script>','<script src="learner-play-flow.js"></script>','<script src="learner-compete-flow.js"></script>','<script src="learner-rewards-flow.js"></script>','<script src="learner-progress-flow.js"></script>','<script src="learner-quiz-history-flow.js"></script>','<script src="learner-notifications-flow.js"></script>','<script src="learner-profile-flow.js"></script>','<script src="nav-order-force.js"></script>','<script src="learner-navigation-force.js"></script>']
-for tag in tags:
-    if tag not in s:
-        s=s.replace('</head>',tag+'\n</head>',1)
-p.write_text(s,encoding='utf-8')
-PY
-echo "Web build ready: web/public"
+cp "$ROOT/app/src/main/assets/skill-saga-common.js" "$PUBLIC/skill-saga-common.js"
+cp "$ROOT/app/src/main/assets/learner-content-routing.js" "$PUBLIC/learner-content-routing.js"
+cp "$ROOT/app/src/main/assets/feature-config.js" "$PUBLIC/feature-config.js"
+cp "$ROOT/app/src/main/assets/quiz-access-config.js" "$PUBLIC/quiz-access-config.js"
+
+for f in \
+  admin-console-core.js \
+  admin-console-v3.js \
+  admin-console-foundation-control.js \
+  admin-console-content.js \
+  admin-console-quiz.js \
+  admin-console-competition-control.js \
+  admin-console-operations.js \
+  admin-console-community.js \
+  admin-console-publishing-v2.js; do
+  cp "$ROOT/app/src/main/assets/$f" "$PUBLIC/$f"
+done
+
+if [ -f "$ROOT/app/src/main/assets/logo.png" ]; then
+  cp "$ROOT/app/src/main/assets/logo.png" "$PUBLIC/logo.png"
+fi
+
+echo "Clean Skill Saga web build ready: $PUBLIC"

@@ -1,0 +1,39 @@
+name: Clean Rebuild Web Validation
+
+on:
+  push:
+    branches: [ skill-saga-clean-rebuild ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Firebase JSON
+        run: python3 -m json.tool firebase.json >/dev/null
+      - name: Validate web build
+        run: |
+          set -e
+          bash web/build-web.sh
+          test -f web/public/index.html
+          test -f web/public/final-ui.js
+          test -f web/public/final-ui-links.js
+          test -f web/public/skill-saga-common.js
+          test -f web/public/admin-console-v3.js
+          test -f web/public/admin-console-foundation-control.js
+          test -f web/public/admin-console-content.js
+          test -f web/public/admin-console-community.js
+          test -f web/public/admin-console-operations.js
+          test -f web/public/admin-console-competition-control.js
+          test -f web/public/admin-console-core.js
+          test -f web/public/logo.png
+          echo "Web build validation passed."
+      - name: Check legacy artifacts are absent
+        run: |
+          set -e
+          ! find . -type f \( -name 'index.backup*' -o -name 'index.before-*' -o -name '*.backup' -o -name 'index.clean.html' -o -name 'SkillSaga-working-baseline-index.html' \) | grep .
+          echo "Legacy artifact check passed."

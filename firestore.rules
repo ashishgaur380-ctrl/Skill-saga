@@ -128,25 +128,41 @@ service cloud.firestore {
 
     match /quizzes/{quizId} {
       allow read: if signedIn()
-        && (resource.data.published == true || isAdmin());
+        && (resource.data.published == true || isAdmin()
+          || (resource.data.status == 'scheduled'
+            && resource.data.publishAtMs is number
+            && resource.data.publishAtMs <= request.time.toMillis()
+            && (resource.data.expiresAtMs == null || resource.data.expiresAtMs == 0 || resource.data.expiresAtMs > request.time.toMillis())));
       allow create, update, delete: if isAdmin();
     }
 
     match /curriculum/{id} {
       allow read: if signedIn()
-        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin());
+        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin()
+          || (resource.data.status == 'scheduled'
+            && resource.data.publishAtMs is number
+            && resource.data.publishAtMs <= request.time.toMillis()
+            && (resource.data.expiresAtMs == null || resource.data.expiresAtMs == 0 || resource.data.expiresAtMs > request.time.toMillis())));
       allow create, update, delete: if isAdmin();
     }
 
     match /learningMaterials/{id} {
       allow read: if signedIn()
-        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin());
+        && (resource.data.status == 'published' || resource.data.status == 'active' || isAdmin()
+          || (resource.data.status == 'scheduled'
+            && resource.data.publishAtMs is number
+            && resource.data.publishAtMs <= request.time.toMillis()
+            && (resource.data.expiresAtMs == null || resource.data.expiresAtMs == 0 || resource.data.expiresAtMs > request.time.toMillis())));
       allow create, update, delete: if isAdmin();
     }
 
     match /questionBank/{id} {
       allow read: if signedIn()
-        && (resource.data.status == 'published' || isAdmin());
+        && (resource.data.status == 'published' || isAdmin()
+          || (resource.data.status == 'scheduled'
+            && resource.data.publishAtMs is number
+            && resource.data.publishAtMs <= request.time.toMillis()
+            && (resource.data.expiresAtMs == null || resource.data.expiresAtMs == 0 || resource.data.expiresAtMs > request.time.toMillis())));
       allow create, update, delete: if isAdmin();
     }
 

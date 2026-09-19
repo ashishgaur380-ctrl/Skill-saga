@@ -99,14 +99,14 @@ async function homeFinal(){
   var d=ssQuizForHome('daily'),w=ssQuizForHome('weekly');
   var dailyTitle=d&&d.title||'Daily Challenge',dailyQs=d&&Array.isArray(d.questions)?d.questions.length:0,dailyDiff=d&&d.difficulty||'Mixed';
   var weeklyTitle=w&&w.title||'Weekly Challenge',weeklyQs=w&&Array.isArray(w.questions)?w.questions.length:0;
-  var dailyMissionBlock=h.showDailyMission!==false?'<div class="ss-section"><b>Today\\'s Mission</b><span onclick="window.go(\\'play\\')">View all →</span></div>':'';
-  var dailyQuizBlock=h.showDailyQuiz!==false?'<div class="ss-card ss-blue-stats ss-home-challenge ss-home-daily" style="display:block;background:linear-gradient(135deg,#1769ff,#6544ec);color:#fff;padding:16px"><div style="font-size:9px;font-weight:900">DAILY QUIZ</div><div style="font-size:19px;font-weight:1000;margin:7px 0">'+esc(dailyTitle)+'</div><div style="font-size:10px">'+dailyQs+' Questions • '+esc(dailyDiff)+'</div><button class="ss-action" style="background:#fff;color:#1769ff" onclick="window.go(\\'play\\')">Open in Play →</button></div>':'';
-  var weeklyBlock=h.showWeeklyQuiz!==false?'<div class="ss-section"><b>🏆 Weekly Quiz</b><span onclick="window.go(\\'play\\')">View in Play →</span></div><div class="ss-card ss-home-challenge ss-home-weekly" style="display:block;background:linear-gradient(135deg,#7a49e8,#b85eea);color:#fff;padding:16px"><div style="font-size:9px;font-weight:900">WEEKLY CHALLENGE</div><div style="font-size:19px;font-weight:1000;margin:7px 0">'+esc(weeklyTitle)+'</div><div style="font-size:10px">'+weeklyQs+' Questions • Weekly Skill Goal</div><button class="ss-action" style="background:#fff;color:#7a49e8" onclick="window.go(\\'play\\')">Open in Play →</button></div>':'';
+  var dailyMissionBlock=h.showDailyMission!==false?'<div class="ss-section"><b>Today\'s Mission</b><span onclick="window.go(\'play\')">View all →</span></div>':'';
+  var dailyQuizBlock=h.showDailyQuiz!==false?'<div class="ss-card ss-blue-stats ss-home-challenge ss-home-daily" style="display:block;background:linear-gradient(135deg,#1769ff,#6544ec);color:#fff;padding:16px"><div style="font-size:9px;font-weight:900">DAILY QUIZ</div><div style="font-size:19px;font-weight:1000;margin:7px 0">'+esc(dailyTitle)+'</div><div style="font-size:10px">'+dailyQs+' Questions • '+esc(dailyDiff)+'</div><button class="ss-action" style="background:#fff;color:#1769ff" onclick="window.go(\'play\')">Open in Play →</button></div>':'';
+  var weeklyBlock=h.showWeeklyQuiz!==false?'<div class="ss-section"><b>🏆 Weekly Quiz</b><span onclick="window.go(\'play\')">View in Play →</span></div><div class="ss-card ss-home-challenge ss-home-weekly" style="display:block;background:linear-gradient(135deg,#7a49e8,#b85eea);color:#fff;padding:16px"><div style="font-size:9px;font-weight:900">WEEKLY CHALLENGE</div><div style="font-size:19px;font-weight:1000;margin:7px 0">'+esc(weeklyTitle)+'</div><div style="font-size:10px">'+weeklyQs+' Questions • Weekly Skill Goal</div><button class="ss-action" style="background:#fff;color:#7a49e8" onclick="window.go(\'play\')">Open in Play →</button></div>':'';
   var statsBlock=h.showStats!==false?'<div class="ss-blue-stats"><div class="ss-stat"><div class="ss-stat-icon">⭐</div><b>'+s.xp.toLocaleString()+'</b><small>XP Points</small></div><div class="ss-stat"><div class="ss-stat-icon">🔥</div><b>'+s.streak+'</b><small>Day Streak</small></div><div class="ss-stat"><div class="ss-stat-icon">🏆</div><b>'+rankLabel+'</b><small>Current Rank</small></div></div>':'';
-  var skillsBlock=h.showSkills!==false?'<div class="ss-section"><b>Your Skills</b><span onclick="window.go(\\'learn\\')">View all →</span></div><div class="ss-cards">'+[['🔢','Numerical',skillPct(u,'Numerical')+'%','ss-soft'],['🧪','Scientific Thinking',skillPct(u,'Scientific Thinking')+'%','ss-green'],['📖','Vocabulary',skillPct(u,'Vocabulary')+'%','ss-pink'],['🧠','Reasoning',skillPct(u,'Reasoning')+'%','ss-purple']].map(function(x){return '<div class="ss-card '+x[3]+' center"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small style="font-weight:1000;color:#172542">'+x[2]+'</small></div>'}).join('')+'</div>':'';
+  var skillsBlock=h.showSkills!==false?'<div class="ss-section"><b>Your Skills</b><span onclick="window.go(\'learn\')">View all →</span></div><div class="ss-cards">'+[['🔢','Numerical',skillPct(u,'Numerical')+'%','ss-soft'],['🧪','Scientific Thinking',skillPct(u,'Scientific Thinking')+'%','ss-green'],['📖','Vocabulary',skillPct(u,'Vocabulary')+'%','ss-pink'],['🧠','Reasoning',skillPct(u,'Reasoning')+'%','ss-purple']].map(function(x){return '<div class="ss-card '+x[3]+' center"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small style="font-weight:1000;color:#172542">'+x[2]+'</small></div>'}).join('')+'</div>':'';
   var milestoneBlock=h.showMilestone!==false?'<div class="ss-section"><b>Next Milestone</b><span>'+s.xp%500+'/500 XP</span></div><div class="ss-progress-card"><div style="display:flex;justify-content:space-between;font-size:10px;font-weight:900"><b>Level '+s.level+'</b><b>'+s.xp%500+'/500 XP</b></div><div class="ss-bar"><i style="width:'+Math.min(100,(s.xp%500)/5)+'%"></i></div><small style="display:block;color:#78869d;font-size:8px;margin-top:7px">Keep learning to reach your next level.</small></div>':'';
-  var continueBlock=h.showContinueLearning!==false?'<div class="ss-section"><b>Continue Learning</b><span onclick="window.go(\\'learn\\')">Open Learn →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">📚</div><div class="ss-progress-copy"><b>Continue your learning journey</b><small>Pick up where you left off in Learn.</small><div class="ss-bar"><i style="width:'+Math.min(100,Math.max(0,skillPct(u,'Numerical')))+'%"></i></div></div></div><button class="ss-action" onclick="window.go(\\'learn\\')">Continue →</button></div>':'';
-  var notificationsBlock=h.showNotifications!==false?'<div class="ss-section"><b>Notifications</b><span onclick="window.go(\\'profile\\')">Open →</span></div><div class="ss-final-note">🔔 Stay updated with Skill Saga announcements and learning reminders.</div>':'';
+  var continueBlock=h.showContinueLearning!==false?'<div class="ss-section"><b>Continue Learning</b><span onclick="window.go(\'learn\')">Open Learn →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">📚</div><div class="ss-progress-copy"><b>Continue your learning journey</b><small>Pick up where you left off in Learn.</small><div class="ss-bar"><i style="width:'+Math.min(100,Math.max(0,skillPct(u,'Numerical')))+'%"></i></div></div></div><button class="ss-action" onclick="window.go(\'learn\')">Continue →</button></div>':'';
+  var notificationsBlock=h.showNotifications!==false?'<div class="ss-section"><b>Notifications</b><span onclick="window.go(\'profile\')">Open →</span></div><div class="ss-final-note">🔔 Stay updated with Skill Saga announcements and learning reminders.</div>':'';
   var note=h.showBottomNote!==false?'<div class="ss-final-note">💡 “Keep learning, keep growing, and unlock a brighter you!”</div>':'';
   var heroTitle=esc(h.welcomeTitle||'A smarter way to learn — one challenge at a time.');
   var quoteText=String(h.welcomeQuote||'Small Steps | Big Achievements!').replace(/\\|/g,'<br>');
@@ -118,7 +118,7 @@ async function homeFinal(){
   ['stats','dailyMission','dailyQuiz','weeklyQuiz','skills','milestone','continueLearning','notifications','note'].forEach(function(k){if(blocks[k]&&!seenSections[k])ordered+=blocks[k]});
   return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">'+heroTitle+'</h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div>'+heroQuote+'</div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+ordered+'</div>','home');
 }
-async function ssLearnCurriculum(cls){
+async function ssLearnCurriculum(cls,board,state,stream){
   var rows=[];
   try{
     if(typeof cloudDb!=='undefined'&&cloudDb){
@@ -130,6 +130,18 @@ async function ssLearnCurriculum(cls){
       }
     }
   }catch(e){console.warn('Learn curriculum load failed',e)}
+  board=String(board||window._ssLearnSelectedBoard||'CBSE');
+  state=String(state||window._ssLearnSelectedState||'');
+  stream=String(stream||window._ssLearnSelectedStream||'');
+  rows=rows.filter(function(x){
+    var b=String(x.board||'CBSE').trim();
+    if(board==='State'){
+      if(b!=='State'&&b!=='State Board')return false;
+      if(state&&String(x.state||'').trim()&&String(x.state||'').trim()!==state)return false;
+    }else if(b&&b!==board&&!(board==='CBSE'&&b==='CBSE / NCERT')&&!(board==='ICSE'&&b==='ICSE / ISC'))return false;
+    if(Number(cls)>=11&&stream&&String(x.stream||'').trim()!==stream)return false;
+    return true;
+  });
   return rows;
 }
 function ssLearnUnique(rows,key){
@@ -154,40 +166,58 @@ async function learnFinal(){
   var u=U()||{};
   var selected=Number(window._ssLearnSelectedClass||u.studentClass||8);
   if(!selected||selected<1||selected>12)selected=8;
-  var rows=await ssLearnCurriculum(selected);
-  var subjects=ssLearnUnique(rows,'subject');
-  if(!subjects.length)subjects=['English','Hindi','Mathematics','Science','Social Science','Computer'];
+  var board=String(window._ssLearnSelectedBoard||u.board||'CBSE');
+  var state=String(window._ssLearnSelectedState||u.state||'');
+  var stream=String(window._ssLearnSelectedStream||u.stream||'');
+  if(['CBSE','ICSE','State','Other'].indexOf(board)<0)board='CBSE';
+  window._ssLearnSelectedBoard=board;
+  window._ssLearnSelectedState=state;
+  window._ssLearnSelectedStream=stream;
+  var rows=await ssLearnCurriculum(selected,board,state,stream);
+  var defaultSubjects=['English','Hindi','Mathematics','Science','Social Science','Computer & Technology','General Knowledge','Art & Creativity','Physical Education','Other'];
+  var subjects=defaultSubjects.concat(ssLearnUnique(rows,'subject').filter(function(s){return defaultSubjects.indexOf(String(s))===-1;}));
   var subjectHtml=subjects.slice(0,12).map(function(s){
     var icon=ssLearnSubjectIcon(s),score=0,n=String(s).toLowerCase();
     if(n.indexOf('math')>=0)score=skillPct(u,'Numerical');
     else if(n.indexOf('science')>=0)score=skillPct(u,'Scientific Thinking');
     else if(n.indexOf('english')>=0||n.indexOf('hindi')>=0||n.indexOf('language')>=0)score=skillPct(u,'Vocabulary');
     else score=skillPct(u,'Reasoning');
-    return '<div class="ss-subject" onclick="ssLearnSubject(\\''+esc(s).replace(/'/g,"\\\\'")+ '\\')"><div class="i">'+icon+'</div><b>'+esc(s)+'</b><small>'+score+'% completed</small></div>';
+    return '<div class="ss-subject" onclick="ssLearnSubject(\''+esc(s).replace(/'/g,"\\\'")+ '\')"><div class="i">'+icon+'</div><b>'+esc(s)+'</b><small>'+score+'% completed</small></div>';
   }).join('');
   var topics=ssLearnUnique(rows,'topic');
   var popular=topics.slice(0,4);
-  if(!popular.length)popular=['Geometry','Mental Maths','Vocabulary','Logical Reasoning'];
   var popularHtml=popular.map(function(t,i){
     var icons=['📐','🧮','📚','🧠'];
-    return '<div class="ss-topic" onclick="ssLearnTopic(\\''+esc(t).replace(/'/g,"\\\\'")+ '\\')"><div class="i">'+icons[i%icons.length]+'</div><b>'+esc(t)+'</b><small>Practice & learn</small></div>';
+    return '<div class="ss-topic" onclick="ssLearnTopic(\''+esc(t).replace(/'/g,"\\\'")+ '\')"><div class="i">'+icons[i%icons.length]+'</div><b>'+esc(t)+'</b><small>Practice & learn</small></div>';
   }).join('');
-  var continueTopic=topics[0]||'Linear Equations';
-  base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Your Class</b><span>Change class</span></div><div class="ss-learn-classes">${[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return '<button class="ss-class '+(n===selected?'active':'')+'" onclick="ssClass('+n+')">'+n+'</button>'}).join('')}</div><div class="ss-section"><b>Class ${selected} Subjects</b><span>View all →</span></div><div class="ss-subjects">'+subjectHtml+'</div><div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>'+esc(subjects[0]||'Mathematics')+' • '+esc(continueTopic)+'</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:'+skillPct(u,'Numerical')+'%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">'+popularHtml+'</div><div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>','learn');
+  var continueTopic=topics[0]||'';
+  base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active" onclick="learnFinal()"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab" onclick="learnSkills()"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab" onclick="learnOther()"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Board</b><span>Academic pathway</span></div><select class="input" onchange="ssBoard(this.value)"><option value="CBSE" ${board==='CBSE'?'selected':''}>CBSE / NCERT</option><option value="ICSE" ${board==='ICSE'?'selected':''}>ICSE / ISC</option><option value="State" ${board==='State'?'selected':''}>State Board</option><option value="Other" ${board==='Other'?'selected':''}>Other</option></select>${board==='State'?'<div class="ss-section"><b>Choose State</b><span>State curriculum</span></div><select class="input" onchange="ssState(this.value)">'+ssStateOptions(state)+'</select>':''}${selected>=11?'<div class="ss-section"><b>Choose Stream</b><span>Senior secondary pathway</span></div><select class="input" onchange="ssStream(this.value)"><option value="">All streams</option><option value="Science" '+(stream==='Science'?'selected':'')+'>Science</option><option value="Commerce" '+(stream==='Commerce'?'selected':'')+'>Commerce</option><option value="Humanities" '+(stream==='Humanities'?'selected':'')+'>Humanities</option><option value="Vocational" '+(stream==='Vocational'?'selected':'')+'>Vocational</option></select>':''}<div class="ss-section"><b>Choose Your Class</b><span>Academic class</span></div><select class="input" onchange="ssClass(this.value)"><option value="1" ${selected===1?"selected":""}>Class 1</option><option value="2" ${selected===2?"selected":""}>Class 2</option><option value="3" ${selected===3?"selected":""}>Class 3</option><option value="4" ${selected===4?"selected":""}>Class 4</option><option value="5" ${selected===5?"selected":""}>Class 5</option><option value="6" ${selected===6?"selected":""}>Class 6</option><option value="7" ${selected===7?"selected":""}>Class 7</option><option value="8" ${selected===8?"selected":""}>Class 8</option><option value="9" ${selected===9?"selected":""}>Class 9</option><option value="10" ${selected===10?"selected":""}>Class 10</option><option value="11" ${selected===11?"selected":""}>Class 11</option><option value="12" ${selected===12?"selected":""}>Class 12</option></select></div><div class="ss-section"><b>Class ${selected} Subjects</b><span>${subjects.length?subjects.length+' available':'Not published yet'}</span></div><div class="ss-subjects">${subjects.length?subjectHtml:'<div class="ss-card" style="grid-column:1/-1"><b>No subjects published</b><small>Add this board/class curriculum from Admin → Curriculum.</small></div>'}</div>${topics.length?'<div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>'+esc(subjects[0]||'')+' • '+esc(continueTopic)+'</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:'+skillPct(u,'Numerical')+'%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">'+popularHtml+'</div>':''}<div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>`,'learn');
 }
 async function ssLearnSubject(subject){
-  var cls=Number(window._ssLearnSelectedClass||8);
+  var cls=Number(window._ssLearnSelectedClass||8),board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   try{
-    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.subject||'')===String(subject)});
-    var topic=match.length&&match[0].topic?match[0].topic:'';
-    if(topic)return ssLearnTopic(topic);
-  }catch(e){}
-  if(typeof toast==='function')toast(subject+' selected. Admin curriculum integration is active.');
+    var materials=[],quizzes=[],topicRows=[];
+    if(typeof cloudDb!=='undefined'&&cloudDb){
+      var ms=await cloudDb.collection('learningMaterials').where('classNumber','==',cls).where('subject','==',subject).get();
+      materials=ms.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published'&&String(x.board||'CBSE')===board&&(!state||!x.state||String(x.state)===state)&&(!stream||!x.stream||String(x.stream)===stream)});
+      var qs=await cloudDb.collection('quizzes').where('classNumber','==',cls).where('subject','==',subject).get();
+      quizzes=qs.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published'&&(!x.publishAtMs||Number(x.publishAtMs)<=Date.now())&&String(x.board||'CBSE')===board&&(!state||!x.state||String(x.state)===state)&&(!stream||!x.stream||String(x.stream)===stream)});
+    }
+    topicRows=await ssLearnCurriculum(cls,board,state,stream);
+    var topics=ssLearnUnique(topicRows.filter(function(x){return String(x.subject||'')===String(subject)}),'topic');
+    var topicCards=topics.map(function(t){return '<div class="ss-topic" onclick="ssLearnTopic('+JSON.stringify(t)+')"><div class="i">📘</div><b>'+esc(t)+'</b><small>Learn & practice</small></div>';}).join('');
+    var resources=materials.map(function(x){var url=x.pdfUrl||x.fileUrl||x.url||'',kind=String(x.resourceType||x.type||'').toLowerCase(),isPdf=!!url&& (kind==='pdf'||/\\.pdf(?:$|\\?)/i.test(url));return '<div class="ss-card ss-soft"><div class="i">'+(isPdf?'📄':'📚')+'</div><b>'+esc(x.title||'Learning Material')+'</b><small>'+esc(x.chapter||'')+(x.topic?' • '+esc(x.topic):'')+'</small>'+(url?'<button class="ss-action" onclick="window.open('+JSON.stringify(url)+',\'_blank\')">'+(isPdf?'Open PDF':'Open Resource')+' →</button>':'<button class="ss-action" onclick="ssLearnTopic('+JSON.stringify(x.topic||x.chapter||x.title||'')+')">Open Lesson →</button>')+'</div>';}).join('');
+    var quizCards=quizzes.map(function(x){return '<div class="ss-card ss-purple"><div class="i">📝</div><b>'+esc(x.title||'Quiz')+'</b><small>'+esc(x.chapter||'')+(x.topic?' • '+esc(x.topic):'')+' • '+(Array.isArray(x.questions)?x.questions.length:0)+' questions</small><button class="ss-action" onclick="startQuiz('+JSON.stringify(x.id)+')">Start Quiz →</button></div>';}).join('');
+    base('<div class="ss-final"><div class="ss-section"><b>'+esc(subject)+'</b><span>Class '+cls+'</span></div><div class="ss-final-note">📚 '+esc(board)+(state?' • '+esc(state):'')+(stream?' • '+esc(stream):'')+'</div><div class="ss-section"><b>Topics</b><span>'+topics.length+' available</span></div><div class="ss-popular">'+(topicCards||'<div class="ss-card"><b>No topics published</b><small>Add chapters/topics in Admin → Curriculum.</small></div>')+'</div><div class="ss-section"><b>Learning Materials</b><span>'+materials.length+'</span></div><div class="ss-cards">'+(resources||'<div class="ss-card"><b>No materials published</b><small>Published PDF or lesson resources will appear here.</small></div>')+'</div><div class="ss-section"><b>Quizzes</b><span>'+quizzes.length+'</span></div><div class="ss-cards">'+(quizCards||'<div class="ss-card"><b>No quizzes published</b><small>Quizzes mapped to this subject will appear here.</small></div>')+'</div></div>','learn');
+  }catch(e){if(typeof toast==='function')toast(e.message||'Could not load subject content.');}
+}
+function learnOther(){
+  base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">OTHER</div><h1 class="ss-title">Explore Beyond the Classroom.</h1><div class="ss-sub">Add GK, life skills, sports, finance, creativity or any custom learning content.</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">🌍</div></div></section><div class="ss-tabs"><button class="ss-tab" onclick="learnFinal()"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab" onclick="learnSkills()"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab active"><span class="i">🌍</span><b>Other</b><small>Custom learning</small></button></div><div class="ss-section"><b>Other Learning</b><span>Admin controlled</span></div><div class="ss-cards"><div class="ss-card ss-soft"><div class="i">🌐</div><b>General Knowledge</b><small>Current affairs, world knowledge and discovery.</small></div><div class="ss-card ss-green"><div class="i">💰</div><b>Finance</b><small>Money, saving, budgeting and financial awareness.</small></div><div class="ss-card ss-pink"><div class="i">🏅</div><b>Sports</b><small>Sports knowledge, rules and healthy competition.</small></div><div class="ss-card ss-purple"><div class="i">🎨</div><b>Creativity & Life Skills</b><small>Creative thinking, communication and everyday skills.</small></div></div><div class="ss-final-note">Content published from Admin → Learning Materials or Question Bank can be organised into the Other section.</div></div>','learn');
 }
 async function ssLearnTopic(topic){
-  var cls=Number(window._ssLearnSelectedClass||8);
+  var cls=Number(window._ssLearnSelectedClass||8),board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   try{
-    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.topic||'')===String(topic)});
+    var rows=await ssLearnCurriculum(cls,board,state,stream),match=rows.filter(function(x){return String(x.topic||'')===String(topic)});
     if(match.length){
       var r=match[0],material=r.content||r.lesson||r.learningMaterial||'';
       if(material){
@@ -199,19 +229,33 @@ async function ssLearnTopic(topic){
   if(typeof toast==='function')toast(topic+' selected. Add/publish its lesson content in Admin → Curriculum / Learning Materials.');
 }
 async function ssLearnPractice(cls,subject,chapter,topic){
+  var board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   if(typeof cloudDb==='undefined'||!cloudDb)return;
   try{
     var snap=await cloudDb.collection('questionBank').where('classNumber','==',Number(cls)).where('subject','==',subject).where('chapter','==',chapter).where('topic','==',topic).get();
-    var rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published'});
+    var rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published' && String(x.board||'CBSE')===board && (!state || !x.state || String(x.state)===state) && (!stream || !x.stream || String(x.stream)===stream)});
     if(!rows.length)return toast('Practice questions for this topic are not published yet.');
     var quiz={id:'learn_'+cls+'_'+subject+'_'+chapter+'_'+topic,title:topic+' Practice',questions:rows.slice(0,10).map(function(x){return [String(x.question||''),String(x.options||'').split('|'),Number(x.correctAnswer||0),String(x.explanation||'')]})};
     window._ssLearnQuiz=quiz;
     if(typeof startQuiz==='function')return startQuiz(quiz);
   }catch(e){toast(e.message||'Could not load practice questions.')}
 }
-function learnSkills(){var u=U()||{};base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">SKILLS</div><h1 class="ss-title">Think Better.<br>Learn Smarter.</h1><div class="ss-sub">Build reasoning, numerical, scientific and language skills alongside school learning.</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">🧠</div></div></section><div class="ss-tabs"><button class="ss-tab"><span class="i">🎓</span><b>Academic</b></button><button class="ss-tab active"><span class="i">🧠</span><b>Skills</b></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b></button></div><div class="ss-section"><b>Core Skills</b><span>Practice regularly</span></div><div class="ss-cards">${[['🔢','Numerical',skillPct(u,'Numerical')+'%','ss-soft'],['🧪','Scientific Thinking',skillPct(u,'Scientific Thinking')+'%','ss-green'],['📖','Vocabulary',skillPct(u,'Vocabulary')+'%','ss-pink'],['🧠','Reasoning',skillPct(u,'Reasoning')+'%','ss-purple'],['🧩','Problem Solving',skillPct(u,'Problem Solving')+'%','ss-yellow'],['💭','Memory',skillPct(u,'Memory')+'%','ss-soft']].map(function(x){return '<div class="ss-card center '+x[3]+'"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+' mastery</small><button class="ss-action" onclick="ssSkillAction(\''+x[1]+'\')">Practice →</button></div>'}).join('')}</div><div class="ss-section"><b>Puzzles</b><span>Sharpen your thinking</span></div><div class="ss-cards">${[['⚙️','Logic Puzzles'],['🧩','Number Puzzles'],['💡','Visual Reasoning'],['🎲','Word Puzzles']].map(function(x){return '<div class="ss-card ss-soft"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>Solve & think</small></div>'}).join('')}</div><div class="ss-section"><b>Locked Classes</b></div><div class="ss-locks">${[['🔒','Class 7','500 XP + 50 Coins'],['🔓','Class 8','Your Class'],['🔒','Class 9','1,000 XP + 100 Coins'],['🔒','Class 10','2,000 XP + 200 Coins']].map(function(x,i){return '<div class="ss-lock '+(i===1?'current':'')+'"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+'</small><button>'+ (i===1?'✓ Unlocked':'Unlock')+'</button></div>'}).join('')}</div><div class="ss-final-note">🎁 Complete quizzes, earn XP and coins, and unlock new classes.</div></div>`,'learn')}
+function learnSkills(){
+  var u=U()||{},profileClass=Number(u.studentClass||u.classNumber||u.class||8);
+  if(profileClass<1||profileClass>12)profileClass=8;
+  var classCards=[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){
+    var unlocked=n===profileClass;
+    return '<div class="ss-lock '+(unlocked?'current':'')+'"><div class="i">'+(unlocked?'🔓':'🔒')+'</div><b>Class '+n+'</b><small>'+(unlocked?'Your profile class':'Locked for Class '+profileClass)+'</small><button onclick="'+(unlocked?"toast('Class "+n+" skills are unlocked for your profile.')":"toast('Class "+n+" skills are locked. Your profile class is Class "+profileClass+".')")+'">'+(unlocked?'✓ Unlocked':'Locked')+'</button></div>';
+  }).join('');
+  base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">SKILLS</div><h1 class="ss-title">Think Better.<br>Learn Smarter.</h1><div class="ss-sub">Build reasoning, numerical, scientific and language skills alongside school learning.</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">🧠</div></div></section><div class="ss-tabs"><button class="ss-tab" onclick="learnFinal()"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab active"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab" onclick="learnOther()"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Locked / Unlocked Classes</b><span>Profile: Class ${profileClass}</span></div><div class="ss-locks">${classCards}</div><div class="ss-section"><b>Core Skills</b><span>Practice regularly</span></div><div class="ss-cards">${[['🔢','Numerical',skillPct(u,'Numerical')+'%','ss-soft'],['🧪','Scientific Thinking',skillPct(u,'Scientific Thinking')+'%','ss-green'],['📖','Vocabulary',skillPct(u,'Vocabulary')+'%','ss-pink'],['🧠','Reasoning',skillPct(u,'Reasoning')+'%','ss-purple'],['🧩','Problem Solving',skillPct(u,'Problem Solving')+'%','ss-yellow'],['💭','Memory',skillPct(u,'Memory')+'%','ss-soft']].map(function(x){return '<div class="ss-card center '+x[3]+'"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>'+x[2]+' mastery</small><button class="ss-action" onclick="ssSkillAction('+JSON.stringify(x[1])+')">Practice →</button></div>}).join('')}</div><div class="ss-section"><b>Puzzles</b><span>Sharpen your thinking</span></div><div class="ss-cards">${[['⚙️','Logic Puzzles'],['🧩','Number Puzzles'],['💡','Visual Reasoning'],['🎲','Word Puzzles']].map(function(x){return '<div class="ss-card ss-soft"><div class="i">'+x[0]+'</div><b>'+x[1]+'</b><small>Solve & think</small></div>}).join('')}</div><div class="ss-final-note">🎁 Your Skills class access follows the class selected in your Profile. Complete quizzes, earn XP and coins, and build mastery.</div></div>`,'learn');
+}
 function ssSkillAction(name){if(typeof toast==='function')toast(name+' practice is ready — content integration remains connected to the existing engine.');}
-function ssClass(n){window._ssLearnSelectedClass=Number(n)||8;return learnFinal();}
+var SS_STATES=[['Uttar Pradesh','Uttar Pradesh Board']];
+function ssStateOptions(selected){return '<option value="">Select State Board</option>'+SS_STATES.map(function(s){return '<option value="'+esc(s[0])+'"'+(s[0]===String(selected||'')?' selected':'')+'>'+esc(s[1])+'</option>'}).join('')}
+function ssBoard(v){window._ssLearnSelectedBoard=String(v||'CBSE');if(window._ssLearnSelectedBoard!=='State')window._ssLearnSelectedState='';return learnFinal();}
+function ssState(v){window._ssLearnSelectedState=String(v||'');return learnFinal();}
+function ssClass(n){window._ssLearnSelectedClass=Number(n)||8;window._ssLearnSelectedStream='';return learnFinal();}
+function ssStream(v){window._ssLearnSelectedStream=String(v||'');return learnFinal();}
 function playFinal(){
   var u=U()||{},d=ssQuizForHome('daily'),w=ssQuizForHome('weekly');
   var today=challengeDateKey(),hist=Array.isArray(u.history)?u.history:[];
@@ -221,7 +265,7 @@ function playFinal(){
   var weeklyQuestions=w&&Array.isArray(w.questions)?w.questions.length:0;
   var dailyTitle=d&&d.title||"Today's Science Challenge";
   var weeklyTitle=w&&w.title||'Weekly Challenge';
-  function safeId(id){return String(id||'').replace(/\\/g,"\\\\").replace(/'/g,"\\'");}
+  function safeId(id){return String(id||'').replace(/\\/g,"\\\\").replace(/'/g,"\'");}
   function quizButton(id,label,fallback){
     if(id)return '<button class="ss-action" style="background:#1769ff;color:#fff" onclick="startQuiz(\''+safeId(id)+'\')">'+label+' →</button>';
     return '<button class="ss-action" onclick="toast(\''+fallback+'\')">Not available</button>';
