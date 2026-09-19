@@ -72,7 +72,7 @@ async function play(){
 function patch(){
  if(patched||typeof window.go!=='function')return;
  patched=true;window.__ssOriginalGo=window.go;
- window.go=function(n){if(n==='learn')return learn();if(n==='play')return play();return window.__ssOriginalGo(n)};
+ window.go=function(n){if(n==='learn')return window.__ssOriginalGo(n);if(n==='play')return play();return window.__ssOriginalGo(n)};
 }
 var timer=setInterval(function(){if(typeof window.go==='function'){clearInterval(timer);patch()}},50);
 setTimeout(function(){clearInterval(timer);patch()},10000);
