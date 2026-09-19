@@ -111,7 +111,7 @@ async function homeFinal(){
   var heroTitle=esc(h.welcomeTitle||'A smarter way to learn — one challenge at a time.');
   var quoteText=String(h.welcomeQuote||'Small Steps | Big Achievements!').replace(/\\|/g,'<br>');
   var heroQuote='<div class="ss-quote">'+quoteText+'</div>';
-  var blocks={stats:statsBlock,dailyMission:dailyMissionBlock+dailyQuizBlock,dailyQuiz:dailyQuizBlock,weeklyQuiz:weeklyBlock,skills:skillsBlock,milestone:milestoneBlock,continueLearning:continueBlock,notifications:notificationsBlock,note:note};
+  var blocks={stats:statsBlock,dailyMission:dailyMissionBlock,dailyQuiz:dailyQuizBlock,weeklyQuiz:weeklyBlock,skills:skillsBlock,milestone:milestoneBlock,continueLearning:continueBlock,notifications:notificationsBlock,note:note};
   var order=String(h.sectionOrder||'stats,dailyMission,skills,milestone,continueLearning').split(',').map(function(x){return x.trim()}).filter(Boolean);
   var ordered='',seenSections={};
   order.forEach(function(k){if(blocks[k]&&!seenSections[k]){ordered+=blocks[k];seenSections[k]=1;}});
