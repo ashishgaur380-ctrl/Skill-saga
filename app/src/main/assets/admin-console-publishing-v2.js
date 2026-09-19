@@ -40,7 +40,7 @@ function academicFields(x,prefix){
  x=x||{};prefix=prefix||'ct';var section=x.section||val(prefix+'Section')||'Academic';
  if(section==='Skills')return sel(prefix+'Skill','Skill',SKILLS,x.skill||'Numerical');
  if(section==='Other')return '<input id="'+prefix+'OtherArea" class="input" placeholder="Existing Other category" value="'+esc(x.otherArea||'')+'">';
- return sel(prefix+'Board','Board',BOARDS,x.board||'CBSE')+sel(prefix+'Class','Class',CLASSES,String(x.classNumber||x.classLevel||'1'))+
+ return sel(prefix+'Board','Board',BOARDS,x.board||'CBSE')+(String(x.board||'CBSE')==='State'?sel(prefix+'State','State',STATES,x.state||''):'')+sel(prefix+'Class','Class',CLASSES,String(x.classNumber||x.classLevel||'1'))+
  '<input id="'+prefix+'Subject" class="input" placeholder="Subject (e.g. English)" value="'+esc(x.subject||'')+'">'+
  '<input id="'+prefix+'Chapter" class="input" placeholder="Chapter" value="'+esc(x.chapter||'')+'">'+
  '<input id="'+prefix+'Topic" class="input" placeholder="Topic" value="'+esc(x.topic||'')+'">';
