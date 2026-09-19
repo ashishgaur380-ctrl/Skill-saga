@@ -1,5 +1,6 @@
 name: Deploy Skill Saga Web
 # Final learner UI deployment pipeline — UI files are copied unchanged.
+# Deployment refresh marker: 2026-09-19-LEARNER-NAV-FINAL
 
 on:
   push:
