@@ -48,7 +48,7 @@
     return String(x.primaryModule||p.module||'')===String(module||'') &&
       String(x.primaryDestination||p.destination||'')===String(destination||'');
   }
-  window.SkillSagaCommon={
+  try{var s=document.createElement('script');s.src='learner-content-routing.js?v=20260919-1';s.async=false;(document.head||document.documentElement).appendChild(s)}catch(e){console.warn('Learner content routing unavailable',e)}\n  window.SkillSagaCommon={
     version:'1.0.0',
     collections:C,
     db:db,
