@@ -118,7 +118,7 @@ async function homeFinal(){
   ['stats','dailyMission','dailyQuiz','weeklyQuiz','skills','milestone','continueLearning','notifications','note'].forEach(function(k){if(blocks[k]&&!seenSections[k])ordered+=blocks[k]});
   return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">'+heroTitle+'</h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div>'+heroQuote+'</div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+ordered+'</div>','home');
 }
-async function ssLearnCurriculum(cls,board,state){
+async function ssLearnCurriculum(cls,board,state,stream){
   var rows=[];
   try{
     if(typeof cloudDb!=='undefined'&&cloudDb){
@@ -132,12 +132,14 @@ async function ssLearnCurriculum(cls,board,state){
   }catch(e){console.warn('Learn curriculum load failed',e)}
   board=String(board||window._ssLearnSelectedBoard||'CBSE');
   state=String(state||window._ssLearnSelectedState||'');
+  stream=String(stream||window._ssLearnSelectedStream||'');
   rows=rows.filter(function(x){
     var b=String(x.board||'CBSE').trim();
     if(board==='State'){
       if(b!=='State'&&b!=='State Board')return false;
       if(state&&String(x.state||'').trim()&&String(x.state||'').trim()!==state)return false;
     }else if(b&&b!==board&&!(board==='CBSE'&&b==='CBSE / NCERT')&&!(board==='ICSE'&&b==='ICSE / ISC'))return false;
+    if(Number(cls)>=11&&stream&&String(x.stream||'').trim()!==stream)return false;
     return true;
   });
   return rows;
@@ -166,10 +168,12 @@ async function learnFinal(){
   if(!selected||selected<1||selected>12)selected=8;
   var board=String(window._ssLearnSelectedBoard||u.board||'CBSE');
   var state=String(window._ssLearnSelectedState||u.state||'');
+  var stream=String(window._ssLearnSelectedStream||u.stream||'');
   if(['CBSE','ICSE','State','Other'].indexOf(board)<0)board='CBSE';
   window._ssLearnSelectedBoard=board;
   window._ssLearnSelectedState=state;
-  var rows=await ssLearnCurriculum(selected,board,state);
+  window._ssLearnSelectedStream=stream;
+  var rows=await ssLearnCurriculum(selected,board,state,stream);
   var subjects=ssLearnUnique(rows,'subject');
   var subjectHtml=subjects.slice(0,12).map(function(s){
     var icon=ssLearnSubjectIcon(s),score=0,n=String(s).toLowerCase();
@@ -181,27 +185,26 @@ async function learnFinal(){
   }).join('');
   var topics=ssLearnUnique(rows,'topic');
   var popular=topics.slice(0,4);
-  if(!popular.length)popular=['Geometry','Mental Maths','Vocabulary','Logical Reasoning'];
   var popularHtml=popular.map(function(t,i){
     var icons=['📐','🧮','📚','🧠'];
     return '<div class="ss-topic" onclick="ssLearnTopic(\''+esc(t).replace(/'/g,"\\\'")+ '\')"><div class="i">'+icons[i%icons.length]+'</div><b>'+esc(t)+'</b><small>Practice & learn</small></div>';
   }).join('');
-  var continueTopic=topics[0]||'Linear Equations';
-  base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Board</b><span>Academic pathway</span></div><select class="input" onchange="ssBoard(this.value)"><option value="CBSE" ${board==='CBSE'?'selected':''}>CBSE / NCERT</option><option value="ICSE" ${board==='ICSE'?'selected':''}>ICSE / ISC</option><option value="State" ${board==='State'?'selected':''}>State Board</option><option value="Other" ${board==='Other'?'selected':''}>Other</option></select>${board==='State'?'<div class="ss-section"><b>Choose State</b><span>State curriculum</span></div><select class="input" onchange="ssState(this.value)">'+ssStateOptions(state)+'</select>':''}<div class="ss-section"><b>Choose Your Class</b><span>Change class</span></div><div class="ss-learn-classes">${[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return '<button class="ss-class '+(n===selected?'active':'')+'" onclick="ssClass('+n+')">'+n+'</button>'}).join('')}</div><div class="ss-section"><b>Class ${selected} Subjects</b><span>${subjects.length?subjects.length+' available':'Not published yet'}</span></div><div class="ss-subjects">${subjects.length?subjectHtml:'<div class="ss-card" style="grid-column:1/-1"><b>No subjects published</b><small>Add this board/class curriculum from Admin → Curriculum.</small></div>'}</div><div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>${esc(subjects[0]||'Mathematics')} • ${esc(continueTopic)}</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:${skillPct(u,'Numerical')}%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">${popularHtml}</div><div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>`,'learn');
+  var continueTopic=topics[0]||'';
+  base(`<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN</div><h1 class="ss-title">Explore. Understand. Grow.</h1><div class="ss-sub">Build your knowledge step by step with concepts, examples, videos and practice.</div><div class="ss-quote">“Better Learning. Brighter Tomorrow!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-mascot">📚</div></div></section><div class="ss-tabs"><button class="ss-tab active"><span class="i">🎓</span><b>Academic</b><small>Class subjects</small></button><button class="ss-tab"><span class="i">🧠</span><b>Skills</b><small>Thinking & skills</small></button><button class="ss-tab"><span class="i">🌍</span><b>Other</b><small>GK & life skills</small></button></div><div class="ss-section"><b>Choose Board</b><span>Academic pathway</span></div><select class="input" onchange="ssBoard(this.value)"><option value="CBSE" ${board==='CBSE'?'selected':''}>CBSE / NCERT</option><option value="ICSE" ${board==='ICSE'?'selected':''}>ICSE / ISC</option><option value="State" ${board==='State'?'selected':''}>State Board</option><option value="Other" ${board==='Other'?'selected':''}>Other</option></select>${board==='State'?'<div class="ss-section"><b>Choose State</b><span>State curriculum</span></div><select class="input" onchange="ssState(this.value)">'+ssStateOptions(state)+'</select>':''}${selected>=11?'<div class="ss-section"><b>Choose Stream</b><span>Senior secondary pathway</span></div><select class="input" onchange="ssStream(this.value)"><option value="">All streams</option><option value="Science" '+(stream==='Science'?'selected':'')+'>Science</option><option value="Commerce" '+(stream==='Commerce'?'selected':'')+'>Commerce</option><option value="Humanities" '+(stream==='Humanities'?'selected':'')+'>Humanities</option><option value="Vocational" '+(stream==='Vocational'?'selected':'')+'>Vocational</option></select>':''}<div class="ss-section"><b>Choose Your Class</b><span>Change class</span></div><div class="ss-learn-classes">${[1,2,3,4,5,6,7,8,9,10,11,12].map(function(n){return '<button class="ss-class '+(n===selected?'active':'')+'" onclick="ssClass('+n+')">'+n+'</button>'}).join('')}</div><div class="ss-section"><b>Class ${selected} Subjects</b><span>${subjects.length?subjects.length+' available':'Not published yet'}</span></div><div class="ss-subjects">${subjects.length?subjectHtml:'<div class="ss-card" style="grid-column:1/-1"><b>No subjects published</b><small>Add this board/class curriculum from Admin → Curriculum.</small></div>'}</div><div class="ss-section"><b>Continue Learning</b><span>View all →</span></div><div class="ss-progress-card"><div class="ss-progress-row"><div class="ss-thumb">🔢</div><div class="ss-progress-copy"><b>${esc(subjects[0]||'Mathematics')} • ${esc(continueTopic)}</b><small>Continue from where you left off.</small><div class="ss-bar"><i style="width:${skillPct(u,'Numerical')}%"></i></div></div></div></div><div class="ss-section"><b>Popular Topics</b><span>Explore</span></div><div class="ss-popular">${popularHtml}</div><div class="ss-section"><b>Learning Note</b></div><div class="ss-final-note">📚 Learn concepts first, then practice and take a quiz to master the topic.</div></div>`,'learn');
 }
 async function ssLearnSubject(subject){
-  var cls=Number(window._ssLearnSelectedClass||8);
+  var cls=Number(window._ssLearnSelectedClass||8),board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   try{
-    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.subject||'')===String(subject)});
+    var rows=await ssLearnCurriculum(cls,board,state,stream),match=rows.filter(function(x){return String(x.subject||'')===String(subject)});
     var topic=match.length&&match[0].topic?match[0].topic:'';
     if(topic)return ssLearnTopic(topic);
   }catch(e){}
   if(typeof toast==='function')toast(subject+' selected. Admin curriculum integration is active.');
 }
 async function ssLearnTopic(topic){
-  var cls=Number(window._ssLearnSelectedClass||8);
+  var cls=Number(window._ssLearnSelectedClass||8),board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   try{
-    var rows=await ssLearnCurriculum(cls),match=rows.filter(function(x){return String(x.topic||'')===String(topic)});
+    var rows=await ssLearnCurriculum(cls,board,state,stream),match=rows.filter(function(x){return String(x.topic||'')===String(topic)});
     if(match.length){
       var r=match[0],material=r.content||r.lesson||r.learningMaterial||'';
       if(material){
@@ -213,10 +216,11 @@ async function ssLearnTopic(topic){
   if(typeof toast==='function')toast(topic+' selected. Add/publish its lesson content in Admin → Curriculum / Learning Materials.');
 }
 async function ssLearnPractice(cls,subject,chapter,topic){
+  var board=String(window._ssLearnSelectedBoard||'CBSE'),state=String(window._ssLearnSelectedState||''),stream=String(window._ssLearnSelectedStream||'');
   if(typeof cloudDb==='undefined'||!cloudDb)return;
   try{
     var snap=await cloudDb.collection('questionBank').where('classNumber','==',Number(cls)).where('subject','==',subject).where('chapter','==',chapter).where('topic','==',topic).get();
-    var rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published'});
+    var rows=snap.docs.map(function(d){return Object.assign({id:d.id},d.data())}).filter(function(x){return String(x.status||'').toLowerCase()==='published' && String(x.board||'CBSE')===board && (!state || !x.state || String(x.state)===state) && (!stream || !x.stream || String(x.stream)===stream)});
     if(!rows.length)return toast('Practice questions for this topic are not published yet.');
     var quiz={id:'learn_'+cls+'_'+subject+'_'+chapter+'_'+topic,title:topic+' Practice',questions:rows.slice(0,10).map(function(x){return [String(x.question||''),String(x.options||'').split('|'),Number(x.correctAnswer||0),String(x.explanation||'')]})};
     window._ssLearnQuiz=quiz;
@@ -229,7 +233,8 @@ var SS_STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgar
 function ssStateOptions(selected){return '<option value="">All State Boards</option>'+SS_STATES.map(function(s){return '<option value="'+esc(s)+'"'+(s===String(selected||'')?' selected':'')+'>'+esc(s)+'</option>'}).join('')}
 function ssBoard(v){window._ssLearnSelectedBoard=String(v||'CBSE');if(window._ssLearnSelectedBoard!=='State')window._ssLearnSelectedState='';return learnFinal();}
 function ssState(v){window._ssLearnSelectedState=String(v||'');return learnFinal();}
-function ssClass(n){window._ssLearnSelectedClass=Number(n)||8;return learnFinal();}
+function ssClass(n){window._ssLearnSelectedClass=Number(n)||8;window._ssLearnSelectedStream='';return learnFinal();}
+function ssStream(v){window._ssLearnSelectedStream=String(v||'');return learnFinal();}
 function playFinal(){
   var u=U()||{},d=ssQuizForHome('daily'),w=ssQuizForHome('weekly');
   var today=challengeDateKey(),hist=Array.isArray(u.history)?u.history:[];
