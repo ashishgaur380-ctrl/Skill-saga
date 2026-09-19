@@ -117,7 +117,6 @@ async function homeFinal(){
   order.forEach(function(k){if(blocks[k]&&!seenSections[k]){ordered+=blocks[k];seenSections[k]=1;}});
   ['stats','dailyMission','dailyQuiz','weeklyQuiz','skills','milestone','continueLearning','notifications','note'].forEach(function(k){if(blocks[k]&&!seenSections[k])ordered+=blocks[k]});
   return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">'+heroTitle+'</h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div>'+heroQuote+'</div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+ordered+'</div>','home');
-  return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">Small Steps<br><span style="color:#1769ff">Big Achievements!</span></h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div><div class="ss-quote">“Play • Learn • Win!”</div></div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+statsBlock+dailyBlock+weeklyBlock+skillsBlock+milestoneBlock+note+'</div>','home');
 }
 async function ssLearnCurriculum(cls){
   var rows=[];
