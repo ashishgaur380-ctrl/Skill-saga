@@ -8,7 +8,8 @@ function stamp(){return ssAdminStamp()} function toastx(v){if(window.toast)toast
 function val(id){var e=document.getElementById(id);return e?String(e.value||'').trim():''}
 function checked(id){var e=document.getElementById(id);return !!(e&&e.checked)}
 function isoDateTime(dateId,timeId){var d=val(dateId),t=val(timeId)||'00:00';return d?(d+'T'+t+':00+05:30'):''}
-var BOARDS=[['CBSE','CBSE'],['ICSE','ICSE'],['State','State Board'],['Other','Other']];
+var BOARDS=[['CBSE','CBSE / NCERT'],['ICSE','ICSE / ISC'],['State','State Board'],['Other','Other']];
+var STATES=['Andhra Pradesh','Arunachal Pradesh','Assam','Bihar','Chhattisgarh','Goa','Gujarat','Haryana','Himachal Pradesh','Jharkhand','Karnataka','Kerala','Madhya Pradesh','Maharashtra','Manipur','Meghalaya','Mizoram','Nagaland','Odisha','Punjab','Rajasthan','Sikkim','Tamil Nadu','Telangana','Tripura','Uttar Pradesh','Uttarakhand','West Bengal','Andaman and Nicobar Islands','Chandigarh','Dadra and Nagar Haveli and Daman and Diu','Delhi','Jammu and Kashmir','Ladakh','Lakshadweep','Puducherry'];
 var CLASSES=[['1','Class 1'],['2','Class 2'],['3','Class 3'],['4','Class 4'],['5','Class 5'],['6','Class 6'],['7','Class 7'],['8','Class 8'],['9','Class 9'],['10','Class 10'],['11','Class 11'],['12','Class 12']];
 var LEARN=[['Academic','Academic'],['Skills','Skills'],['Other','Other']];
 var PLAY=[['Daily Quiz','Daily Quiz'],['Quick Quiz','Quick Quiz'],['Practice','Practice'],['Skill Quiz','Skill Quiz'],['Assigned','Assigned']];
