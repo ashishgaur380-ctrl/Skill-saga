@@ -53,7 +53,7 @@ function commonDestination(prefix){
  var section=val(prefix+'Section')||'Academic',d={section:section};
  if(section==='Skills'){d.skill=val(prefix+'Skill');return d}
  if(section==='Other'){d.otherArea=val(prefix+'OtherArea');return d}
- d.board=val(prefix+'Board')||'CBSE';d.classNumber=Number(val(prefix+'Class'))||1;d.classLevel=String(d.classNumber);d.subject=val(prefix+'Subject');d.chapter=val(prefix+'Chapter');d.topic=val(prefix+'Topic');return d;
+ d.board=val(prefix+'Board')||'CBSE';d.state=d.board==='State'?val(prefix+'State'):'';d.classNumber=Number(val(prefix+'Class'))||1;d.classLevel=String(d.classNumber);d.subject=val(prefix+'Subject');d.chapter=val(prefix+'Chapter');d.topic=val(prefix+'Topic');return d;
 }
 function placementText(x){var p=x.placement||{};if(p.module)return p.module+' → '+(p.destination||'');if(x.section==='Academic')return 'Learn → Academic → '+(x.board||'')+' → Class '+(x.classNumber||'')+' → '+(x.subject||'');return 'Learn → '+(x.section||'');}
 function actionButtons(id,type,x){
