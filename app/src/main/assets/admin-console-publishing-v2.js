@@ -26,7 +26,7 @@ function scheduleFields(x){
  '<label class="small muted">Optional expiry date</label><input id="pvExpiry" class="input" type="date" value="'+(x.expiresAt?String(x.expiresAt).slice(0,10):'')+'"><p class="small muted">Scheduled records remain hidden until their publish time, then appear automatically at the selected learner destination.</p></div>';
 }
 function bindSchedule(){var e=document.getElementById('pvMode');if(e)e.onchange=function(){var s=document.getElementById('pvSchedule');if(s)s.style.display=e.value==='schedule'?'block':'none'}}
-function publishData(){var mode=val('pvMode')||'draft',at=mode==='schedule'?isoDateTime('pvDate','pvTime'):new Date().toISOString();if(mode==='schedule'&&(!val('pvDate')||!val('pvTime')))throw Error('Choose both a publish date and time.');var pm=mode==='schedule'?new Date(at).getTime():(mode==='now'?Date.now():0);if(mode==='schedule'&&(!isFinite(pm)||pm<=Date.now()))throw Error('Scheduled publish time must be in the future.');return {publishingMode:mode,publishAt:mode==='schedule'?at:(mode==='now'?new Date().toISOString():''),publishAtMs:pm,expiresAt:val('pvExpiry')?val('pvExpiry')+'T23:59:59+05:30':'',expiresAtMs:val('pvExpiry')?new Date(val('pvExpiry')+'T23:59:59+05:30').getTime():0,status:mode==='now'?'published':mode==='schedule'?'scheduled':'draft',published:mode==='now'} }
+function publishData(){var mode=val('pvMode')||'draft',at=mode==='schedule'?isoDateTime('pvDate','pvTime'):new Date().toISOString();if(mode==='schedule'&&(!val('pvDate')||!val('pvTime')))throw Error('Choose both a publish date and time.');var pm=mode==='schedule'?new Date(at).getTime():(mode==='now'?Date.now():0);if(mode==='schedule'&&(!isFinite(pm)||pm<=Date.now()))throw Error('Scheduled publish time must be in the future.');return {publishingMode:mode,publishAt:mode==='schedule'?at:(mode==='now'?new Date().toISOString():''),publishAtMs:pm,expiresAt:val('pvExpiry')?val('pvExpiry')+'T23:59:59+05:30':'',expiresAtMs:val('pvExpiry')?new Date(val('pvExpiry')+'T23:59:59+05:30').getTime():0,status:mode==='draft'?'draft':'published',published:mode!=='draft'} }
 function isLive(x){if(!x)return false;if(x.status==='draft'||x.status==='archived')return false;var p=x.publishAt?new Date(x.publishAt).getTime():0,e=x.expiresAt?new Date(x.expiresAt).getTime():Infinity,n=Date.now();return (!p||p<=n)&&n<e}
 function destinationBlock(x,prefix){
  x=x||{};prefix=prefix||'ct';
@@ -56,13 +56,13 @@ function commonDestination(prefix){
 }
 function placementText(x){var p=x.placement||{};if(p.module)return p.module+' → '+(p.destination||'');if(x.section==='Academic')return 'Learn → Academic → '+(x.board||'')+' → Class '+(x.classNumber||'')+' → '+(x.subject||'');return 'Learn → '+(x.section||'');}
 function actionButtons(id,type,x){
- var live=isLive(x),s=String(x.status||'draft');
+ var live=isLive(x),s=String(x.status||'draft'),pending=!!(x.publishAtMs&&Number(x.publishAtMs)>Date.now());
  var out='';
  if(s==='published'||s==='scheduled')out+='<button class="btn light" onclick="ssPubToggle(\\''+esc(id)+'\\',\\''+type+'\\',false)">Unpublish</button>';
  else out+='<button class="btn gold" onclick="ssPubToggle(\\''+esc(id)+'\\',\\''+type+'\\',true)">Publish</button>';
  out+='<button class="btn light" onclick="ssPubEdit(\\''+esc(id)+'\\',\\''+type+'\\')">Edit</button>';
  out+='<button class="btn light" onclick="ssPubDelete(\\''+esc(id)+'\\',\\''+type+'\\')">Delete</button>';
- return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+out+'</div><div class="small muted" style="margin-top:5px">'+(s==='scheduled'&&!live?'⏰ Scheduled: '+esc(String(x.publishAt||'')):(live?'🟢 Live in learner app':'⚪ Draft / hidden'))+'</div>';
+ return '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">'+out+'</div><div class="small muted" style="margin-top:5px">'+(pending?'⏰ Scheduled: '+esc(String(x.publishAt||'')):(live?'🟢 Live in learner app':'⚪ Draft / hidden'))+'</div>';
 }
 window.ssPubDelete=async function(id,type){if(!ok()||!confirm('Delete this '+type+'?'))return;try{await db().collection(type).doc(id).delete();toastx('Deleted ✓');return type==='curriculum'?ssAdminCurriculum():type==='learningMaterials'?ssAdminMaterials():type==='questionBank'?ssAdminQuestions():ssAdminQuiz()}catch(e){toastx(e.message||'Delete failed')}}
 window.ssPubToggle=async function(id,type,on){if(!ok())return;try{var d=publishData();d.published=on;d.status=on?'published':'draft';d.updatedBy=ssAdminAuth().uid;d.updatedAt=stamp();await db().collection(type).doc(id).update(d);toastx(on?'Published ✓':'Unpublished ✓');return type==='curriculum'?ssAdminCurriculum():type==='learningMaterials'?ssAdminMaterials():type==='questionBank'?ssAdminQuestions():ssAdminQuiz()}catch(e){toastx(e.message||'Update failed')}}
