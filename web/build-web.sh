@@ -10,6 +10,7 @@ cp "$ROOT/app/src/main/assets/index.html" "$PUBLIC/index.html"
 cp "$ROOT/app/src/main/assets/final-ui.js" "$PUBLIC/final-ui.js"
 cp "$ROOT/app/src/main/assets/final-ui-links.js" "$PUBLIC/final-ui-links.js"
 cp "$ROOT/app/src/main/assets/skill-saga-common.js" "$PUBLIC/skill-saga-common.js"
+cp "$ROOT/app/src/main/assets/learner-content-routing.js" "$PUBLIC/learner-content-routing.js"
 cp "$ROOT/app/src/main/assets/feature-config.js" "$PUBLIC/feature-config.js"
 cp "$ROOT/app/src/main/assets/quiz-access-config.js" "$PUBLIC/quiz-access-config.js"
 
@@ -21,7 +22,8 @@ for f in \
   admin-console-quiz.js \
   admin-console-competition-control.js \
   admin-console-operations.js \
-  admin-console-community.js; do
+  admin-console-community.js \
+  admin-console-publishing-v2.js; do
   cp "$ROOT/app/src/main/assets/$f" "$PUBLIC/$f"
 done
 
