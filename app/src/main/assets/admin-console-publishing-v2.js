@@ -49,7 +49,7 @@ function renderDestFields(prefix,x){
  var box=document.getElementById(prefix+'AcademicFields');if(box)box.innerHTML=academicFields(x||{},prefix);
  var s=document.getElementById(prefix+'Section');if(s)s.onchange=function(){var b=document.getElementById(prefix+'AcademicFields');if(b)b.innerHTML=academicFields({section:s.value},prefix);bindAcademicBoard(prefix)};bindAcademicBoard(prefix);
 }
-function bindAcademicBoard(prefix){var b=document.getElementById(prefix+'Board');if(b)b.onchange=function(){var box=document.getElementById(prefix+'AcademicFields');if(box)box.innerHTML=academicFields({board:b.value,section:'Academic'},prefix)}}
+function bindAcademicBoard(prefix){var b=document.getElementById(prefix+'Board');if(b)b.onchange=function(){var box=document.getElementById(prefix+'AcademicFields');if(box)box.innerHTML=academicFields({board:b.value,section:'Academic'},prefix);bindAcademicBoard(prefix)}}
 function commonDestination(prefix){
  var section=val(prefix+'Section')||'Academic',d={section:section};
  if(section==='Skills'){d.skill=val(prefix+'Skill');return d}
