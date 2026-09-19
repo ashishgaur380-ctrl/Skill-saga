@@ -7460,6 +7460,27 @@ async function ssCompeteLeaderboardContent(box){
   window.__SS_ADMIN_ENTRY_V4=true;
 })();
 </script>
+
+<!-- FINAL LEARNER NAV LOCK 20260919 -->
+<script>
+(function(){
+  'use strict';
+  function finalLearnerNav(){
+    try{
+      if(window.__SS_ADMIN_ENTRY_V4 && typeof window.ssAdminV3==='function') return;
+      var nav=document.querySelector('.nav');
+      if(!nav) return;
+      var labels=[['home','⌂','Home'],['learn','▣','Learn'],['play','▶','Play'],['compete','🏆','Compete'],['profile','●','Profile']];
+      var active=String(window.screen||'home');
+      nav.innerHTML=labels.map(function(x){return '<button data-s="'+x[0]+'" class="'+(active===x[0]?'active':'')+'">'+x[1]+'<span>'+x[2]+'</span></button>';}).join('');
+      nav.querySelectorAll('button').forEach(function(b){b.onclick=function(){if(typeof window.go==='function')window.go(b.dataset.s)}});
+    }catch(e){}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',finalLearnerNav);else finalLearnerNav();
+  setTimeout(finalLearnerNav,250);setTimeout(finalLearnerNav,1000);setTimeout(finalLearnerNav,2500);
+  if(window.MutationObserver){new MutationObserver(function(){finalLearnerNav()}).observe(document.body,{childList:true,subtree:true});}
+})();
+</script>
 </body></html>
 
 
