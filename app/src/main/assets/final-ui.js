@@ -118,7 +118,7 @@ async function homeFinal(){
   ['stats','dailyMission','dailyQuiz','weeklyQuiz','skills','milestone','continueLearning','notifications','note'].forEach(function(k){if(blocks[k]&&!seenSections[k])ordered+=blocks[k]});
   return base('<div class="ss-final"><section class="ss-hero"><div class="ss-hero-copy"><div class="ss-eyebrow">LEARN • PLAY • COMPETE • GROW</div><h1 class="ss-title">'+heroTitle+'</h1><div class="ss-sub">Explore. Practice. Compete. Build a brighter tomorrow.</div>'+heroQuote+'</div><div class="ss-hero-art"><div class="ss-hero-circle"></div><div class="ss-hero-words">Play<br><b>Learn</b><br>Win<i></i></div><div class="ss-hero-mascot">🎓</div></div></section>'+ordered+'</div>','home');
 }
-async function ssLearnCurriculum(cls){
+async function ssLearnCurriculum(cls,board,state){
   var rows=[];
   try{
     if(typeof cloudDb!=='undefined'&&cloudDb){
@@ -130,6 +130,16 @@ async function ssLearnCurriculum(cls){
       }
     }
   }catch(e){console.warn('Learn curriculum load failed',e)}
+  board=String(board||window._ssLearnSelectedBoard||'CBSE');
+  state=String(state||window._ssLearnSelectedState||'');
+  rows=rows.filter(function(x){
+    var b=String(x.board||'CBSE').trim();
+    if(board==='State'){
+      if(b!=='State'&&b!=='State Board')return false;
+      if(state&&String(x.state||'').trim()&&String(x.state||'').trim()!==state)return false;
+    }else if(b&&b!==board&&!(board==='CBSE'&&b==='CBSE / NCERT')&&!(board==='ICSE'&&b==='ICSE / ISC'))return false;
+    return true;
+  });
   return rows;
 }
 function ssLearnUnique(rows,key){
