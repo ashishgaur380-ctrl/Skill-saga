@@ -430,7 +430,8 @@ async function ssLiveNotifications(){
 }
 function bind(){css();notificationCss();if(!document.querySelector('.nav'))return;document.querySelectorAll('.nav button').forEach(function(b){if(b.dataset.s==='skills'){b.dataset.s='learn';b.innerHTML='▣<span>Learn</span>'}})}
 window.shell=function(content){legacyShell(content);bind()};
-window.go=function(n){window.screen=n;if(n==='home')return homeFinal();if(n==='learn'||n==='skills')return learnFinal();if(n==='play')return playFinal();if(n==='compete')return competeFinal();if(n==='profile')return legacyProfile();return legacyGo(n)};
+function profileFinal(){if(typeof legacyProfile==='function'){legacyProfile();}else{return;}setTimeout(function(){var nav=document.querySelector('.nav');if(!nav)return;nav.innerHTML='<button data-s="home">⌂<span>Home</span></button><button data-s="learn">▣<span>Learn</span></button><button data-s="play">▶<span>Play</span></button><button data-s="compete">🏆<span>Compete</span></button><button data-s="profile" class="active">●<span>Profile</span></button>';nav.querySelectorAll('button').forEach(function(b){b.onclick=function(){window.go(b.dataset.s)}});notificationCss();ssRefreshNotificationBell();},0)}
+window.go=function(n){window.screen=n;if(n==='home')return homeFinal();if(n==='learn'||n==='skills')return learnFinal();if(n==='play')return playFinal();if(n==='compete')return competeFinal();if(n==='profile')return profileFinal();return legacyGo(n)};
 window.home=homeFinal;window.play=playFinal;window.compete=competeFinal;window.notifications=ssLiveNotifications;window.skills=learnSkills;window.ssLearnSkills=learnSkills;window.ssClass=ssClass;window.ssPlayAction=ssPlayAction;window.ssForum=forum;
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bind);else bind();
 })();
