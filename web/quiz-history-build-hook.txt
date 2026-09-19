@@ -1,0 +1,4 @@
+Quiz History flow added in web/learner-quiz-history-flow.js.
+Build integration should include:
+cp "$ROOT/web/learner-quiz-history-flow.js" "$PUBLIC/learner-quiz-history-flow.js"
+and inject <script src="learner-quiz-history-flow.js"></script> into web/public/index.html.
