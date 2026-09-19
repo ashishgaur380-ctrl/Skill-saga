@@ -174,7 +174,8 @@ async function learnFinal(){
   window._ssLearnSelectedState=state;
   window._ssLearnSelectedStream=stream;
   var rows=await ssLearnCurriculum(selected,board,state,stream);
-  var subjects=ssLearnUnique(rows,'subject');
+  var defaultSubjects=['English','Hindi','Mathematics','Science','Social Science','Computer & Technology','General Knowledge','Art & Creativity','Physical Education','Other'];
+  var subjects=defaultSubjects.concat(ssLearnUnique(rows,'subject').filter(function(s){return defaultSubjects.indexOf(String(s))===-1;}));
   var subjectHtml=subjects.slice(0,12).map(function(s){
     var icon=ssLearnSubjectIcon(s),score=0,n=String(s).toLowerCase();
     if(n.indexOf('math')>=0)score=skillPct(u,'Numerical');
