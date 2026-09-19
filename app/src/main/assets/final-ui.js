@@ -164,9 +164,13 @@ async function learnFinal(){
   var u=U()||{};
   var selected=Number(window._ssLearnSelectedClass||u.studentClass||8);
   if(!selected||selected<1||selected>12)selected=8;
-  var rows=await ssLearnCurriculum(selected);
+  var board=String(window._ssLearnSelectedBoard||u.board||'CBSE');
+  var state=String(window._ssLearnSelectedState||u.state||'');
+  if(['CBSE','ICSE','State','Other'].indexOf(board)<0)board='CBSE';
+  window._ssLearnSelectedBoard=board;
+  window._ssLearnSelectedState=state;
+  var rows=await ssLearnCurriculum(selected,board,state);
   var subjects=ssLearnUnique(rows,'subject');
-  if(!subjects.length)subjects=['English','Hindi','Mathematics','Science','Social Science','Computer'];
   var subjectHtml=subjects.slice(0,12).map(function(s){
     var icon=ssLearnSubjectIcon(s),score=0,n=String(s).toLowerCase();
     if(n.indexOf('math')>=0)score=skillPct(u,'Numerical');
