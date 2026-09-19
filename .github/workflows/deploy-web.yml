@@ -4,7 +4,7 @@ name: Deploy Skill Saga Web
 
 on:
   push:
-    branches: [main, final-integration, skill-saga-clean-rebuild]
+    branches: [main, final-integration]
   workflow_dispatch:
     inputs:
       source_branch:
