@@ -48,10 +48,13 @@ async function ssReadHomeSettings(){
   var d={enabled:true,showStats:true,showDailyMission:true,showDailyQuiz:true,showWeeklyQuiz:true,showSkills:true,showMilestone:true,showContinueLearning:true,showBottomNote:true,showNotifications:true};
   try{
     if(window.firebase&&firebase.firestore){
-      var s=window.SkillSagaCommon?await SkillSagaCommon.getDoc('appSettings','home'):await firebase.firestore().collection('appSettings').doc('home').get();
-      if(s)d=Object.assign(d,s);
+      var db=cloudDb||firebase.firestore();
+      var snap=await db.collection('appSettings').doc('home').get({source:'server'});
+      if(snap&&snap.exists)d=Object.assign(d,snap.data());
     }
-  }catch(e){console.warn('Home settings load failed',e)}
+  }catch(e){
+    console.warn('Home settings server load failed',e);
+  }
   return d;
 }
 function ssQuizForHome(type){
