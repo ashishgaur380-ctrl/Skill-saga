@@ -7471,7 +7471,10 @@ async function ssCompeteLeaderboardContent(box){
       if(!nav) return;
       var labels=[['home','⌂','Home'],['learn','▣','Learn'],['play','▶','Play'],['compete','🏆','Compete'],['profile','●','Profile']];
       var active=String(window.screen||'home');
-      nav.innerHTML=labels.map(function(x){return '<button data-s="'+x[0]+'" class="'+(active===x[0]?'active':'')+'">'+x[1]+'<span>'+x[2]+'</span></button>';}).join('');
+      var desired=labels.map(function(x){return '<button data-s="'+x[0]+'" class="'+(active===x[0]?'active':'')+'">'+x[1]+'<span>'+x[2]+'</span></button>';}).join('');
+      if(nav.innerHTML!==desired){
+        nav.innerHTML=desired;
+      }
       nav.querySelectorAll('button').forEach(function(b){b.onclick=function(){if(typeof window.go==='function')window.go(b.dataset.s)}});
     }catch(e){}
   }
