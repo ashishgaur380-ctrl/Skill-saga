@@ -14,7 +14,4 @@
   "firestore": {
     "rules": "firestore.rules"
   }
-  "firestore": {
-    "rules": "firestore.rules"
-  }
 }
