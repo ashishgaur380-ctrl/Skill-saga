@@ -3,7 +3,7 @@ name: Build Skill Saga APK
 on:
   workflow_dispatch:
   push:
-    branches: [ main ]
+    branches: [ main, skill-saga-clean-rebuild ]
 
 jobs:
   build:
