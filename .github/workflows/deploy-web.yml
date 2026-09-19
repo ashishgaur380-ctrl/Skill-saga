@@ -1,4 +1,5 @@
 name: Deploy Skill Saga Web
+# Final learner UI deployment pipeline — UI files are copied unchanged.
 
 on:
   push:
